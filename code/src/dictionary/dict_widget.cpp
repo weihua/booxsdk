@@ -14,10 +14,10 @@ static const int OPEN_DICTIONARY_TOOL = 5;
 /// Define all descriptions
 const DictWidget::FunctionDescription DictWidget::DICT_FUNC_DESCRIPTION[] =
 {
-    {tr("Retrieve Words"), RETRIEVING_WORD},
-    {tr("Explanation"), EXPLANATION},
-    {tr("Similar Words"), SIMILAR_WORDS},
-    {tr("Dictionary List"), DICTIONARY_LIST},
+    { QT_TRANSLATE_NOOP("dict_widget", "Retrieve Words"), RETRIEVING_WORD},
+    { QT_TRANSLATE_NOOP("dict_widget", "Explanation"), EXPLANATION},
+    { QT_TRANSLATE_NOOP("dict_widget", "Similar Words"), SIMILAR_WORDS},
+    { QT_TRANSLATE_NOOP("dict_widget", "Dictionary List"), DICTIONARY_LIST},
 //    {tr("Open Dictionary Tool"), OPEN_DICTIONARY_TOOL},
 };
 const int DictWidget::DESCRIPTION_COUNT = sizeof(DictWidget::DICT_FUNC_DESCRIPTION)/
