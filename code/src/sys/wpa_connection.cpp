@@ -10,7 +10,7 @@ static const char * const INVALID_BSSID = "00:00:00:00:00:00";
 
 static const QString PATH = "path";
 static const QString NETWORK_PATH = "network_path";
-static const QString IFNAME = "eth0";
+static const QString IFNAME = "wlan0";
 static const QString CTRL_IFACE_DIR = "/var/run/wpa_supplicant";
 static const QString NETWORK_ID = "network id";
 

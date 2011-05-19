@@ -4,7 +4,7 @@
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
-    WpaConnection proxy("eth0");
+    WpaConnection proxy("wlan0");
     proxy.scan();
 
     // When signal emitted, use scanResults to retrieve scan results.

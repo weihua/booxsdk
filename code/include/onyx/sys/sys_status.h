@@ -99,7 +99,7 @@ class SysStatus : public QObject
     bool startWpaSupplicant(const QString & conf_file_path);
     bool stopWpaSupplicant();
 
-    WpaConnection & wpa_proxy(const QString & if_name = "eth0");
+    WpaConnection & wpa_proxy(const QString & if_name = "wlan0");
     WpaConnectionManager & connectionManager();
 
     bool connect3g(const QString & chat_file, const QString & username, const QString & password);

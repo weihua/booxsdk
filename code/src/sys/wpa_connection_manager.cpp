@@ -211,6 +211,7 @@ bool WpaConnectionManager::checkWpaSupplicant()
 
     if (proxy().openCtrlConnection() >= 0)
     {
+        qDebug() << "Wpa is running now ctrl connection has been opened in manager.";
         emit wpaStateChanged(true);
         return true;
     }
@@ -262,9 +263,12 @@ void WpaConnectionManager::scan()
     bool wpa_ok = checkWpaSupplicant();
     if (wpa_ok)
     {
+        qDebug() << "check scan retry now";
         if (canScanRetry())
         {
+	    qDebug() << "changed state to scanning.";
             setState(dummy, WpaConnection::STATE_SCANNING);
+            qDebug() << "Scan now.";
             proxy().scan();
         }
     }
