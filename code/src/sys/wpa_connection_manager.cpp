@@ -263,12 +263,11 @@ void WpaConnectionManager::scan()
     bool wpa_ok = checkWpaSupplicant();
     if (wpa_ok)
     {
-        qDebug() << "check scan retry now";
         if (canScanRetry())
         {
-	    qDebug() << "changed state to scanning.";
+            // Stop timer.
+            scan_timer_.stop();
             setState(dummy, WpaConnection::STATE_SCANNING);
-            qDebug() << "Scan now.";
             proxy().scan();
         }
     }
