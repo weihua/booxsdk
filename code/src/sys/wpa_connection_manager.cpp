@@ -264,6 +264,8 @@ void WpaConnectionManager::scan()
     {
         if (canScanRetry())
         {
+            // Stop timer.
+            scan_timer_.stop();
             setState(dummy, WpaConnection::STATE_SCANNING);
             proxy().scan();
         }

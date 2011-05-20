@@ -34,7 +34,7 @@ protected:
 public:
     struct FunctionDescription
     {
-        QString description;
+        const char * description;
         int index;
     };
 

@@ -1698,6 +1698,50 @@ bool SysStatus::ofnThreshold(int & x,
     return false;
 }
 
+bool SysStatus::setBrightness(const unsigned char brightness)
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "setBacklightBrightness"      // method.
+    );
+
+    message << brightness;
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        return true;
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+    return false;
+}
+
+unsigned char SysStatus::brightness()
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "backlightBrightness"      // method.
+    );
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        if (reply.arguments().size() > 0)
+        {
+            return reply.arguments().at(0).toInt();
+        }
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+    return 0;
+}
 
 void SysStatus::dump()
 {

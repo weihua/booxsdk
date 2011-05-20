@@ -11,13 +11,15 @@ static const int DICTIONARY_LIST = 3;
 static const int RETRIEVING_WORD = 4;
 static const int OPEN_DICTIONARY_TOOL = 5;
 
+static const char* SCOPE = "dict_widget";
+
 /// Define all descriptions
 const DictWidget::FunctionDescription DictWidget::DICT_FUNC_DESCRIPTION[] =
 {
-    {tr("Retrieve Words"), RETRIEVING_WORD},
-    {tr("Explanation"), EXPLANATION},
-    {tr("Similar Words"), SIMILAR_WORDS},
-    {tr("Dictionary List"), DICTIONARY_LIST},
+    { QT_TRANSLATE_NOOP("dict_widget", "Retrieve Words"), RETRIEVING_WORD},
+    { QT_TRANSLATE_NOOP("dict_widget", "Explanation"), EXPLANATION},
+    { QT_TRANSLATE_NOOP("dict_widget", "Similar Words"), SIMILAR_WORDS},
+    { QT_TRANSLATE_NOOP("dict_widget", "Dictionary List"), DICTIONARY_LIST},
 //    {tr("Open Dictionary Tool"), OPEN_DICTIONARY_TOOL},
 };
 const int DictWidget::DESCRIPTION_COUNT = sizeof(DictWidget::DICT_FUNC_DESCRIPTION)/
@@ -31,7 +33,8 @@ DictWidget::DictWidget(QWidget *parent, DictionaryManager & dict, tts::TTS *tts)
     , big_vbox_(&content_widget_)
     , top_hbox_(0)
     , content_vbox_(0)
-    , func_description_label_(DICT_FUNC_DESCRIPTION[0].description, 0)
+    , func_description_label_(qApp->translate(SCOPE,
+            DICT_FUNC_DESCRIPTION[1].description), 0)
     , retrieve_words_button_(QIcon(":/images/retrieve_words.png"), 0)
     , explanation_button_(QIcon(":/images/explanation.png"), 0)
     , similar_words_button_(QIcon(":/images/similar_words.png"), 0)
@@ -212,12 +215,12 @@ bool DictWidget::handleLeftRightKey(const int checked_id, const int key)
 
 void DictWidget::changeDescription(const int button_id)
 {
-    QString description(DICT_FUNC_DESCRIPTION[1].description);
+    QString description(qApp->translate(SCOPE, DICT_FUNC_DESCRIPTION[1].description));
     for (int i = 0; i < DESCRIPTION_COUNT; i++)
     {
         if (button_id == DICT_FUNC_DESCRIPTION[i].index)
         {
-            description = DICT_FUNC_DESCRIPTION[i].description;
+            description = qApp->translate(SCOPE, DICT_FUNC_DESCRIPTION[i].description);
             break;
         }
     }

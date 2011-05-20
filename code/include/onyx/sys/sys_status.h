@@ -142,6 +142,9 @@ class SysStatus : public QObject
     void setOfnThreshold(const int x, const int y);
     bool ofnThreshold(int & x, int & y);
 
+    bool setBrightness(const unsigned char brightness);
+    unsigned char brightness();
+
     // The following signals must be the same with system manager.
     // Need a better way to sync them.
   signals:
