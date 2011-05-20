@@ -30,6 +30,11 @@ void SystemActions::generateActions(const std::vector<int> & actions)
         all.push_back(ROTATE_SCREEN);
         all.push_back(SCREEN_UPDATE_TYPE);
         all.push_back(MUSIC);
+
+#ifdef BUILD_WITH_TFT
+        all.push_back(BACKLIGHT_BRIGHTNESS);
+#endif
+
         all.push_back(RETURN_TO_LIBRARY);
     }
 
@@ -110,6 +115,16 @@ void SystemActions::generateActions(const std::vector<int> & actions)
                 close->setIcon(QIcon(QPixmap(":/images/return_to_library.png")));
                 close->setData(RETURN_TO_LIBRARY);
                 actions_.push_back(close);
+                break;
+            }
+        case BACKLIGHT_BRIGHTNESS:
+            {
+                shared_ptr<QAction> br(new QAction(exclusiveGroup()));
+                br->setCheckable(true);
+                br->setText(QCoreApplication::tr("Brightness"));
+                br->setIcon(QIcon(QPixmap(":/images/return_to_library.png")));
+                br->setData(BACKLIGHT_BRIGHTNESS);
+                actions_.push_back(br);
                 break;
             }
         }
