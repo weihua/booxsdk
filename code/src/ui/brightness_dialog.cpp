@@ -11,7 +11,7 @@ static const QString FANCY_STYLE = "                                \
     {                                                               \
         border: 1px solid #bbb;                                     \
         background: white;                                          \
-        height: 20px;                                               \
+        height: 40px;                                               \
         border-radius: 4px;                                         \
     }                                                               \
     QSlider::sub-page:horizontal                                    \
@@ -21,14 +21,14 @@ static const QString FANCY_STYLE = "                                \
         background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,   \
                                     stop: 0 #bbf, stop: 1 #55f);    \
         border: 1px solid #777;                                     \
-        height: 20px;                                               \
+        height: 40px;                                               \
         border-radius: 4px;                                         \
     }                                                               \
     QSlider::add-page:horizontal                                    \
     {                                                               \
         background: #fff;                                           \
         border: 1px solid #777;                                     \
-        height: 20px;                                               \
+        height: 40px;                                               \
         border-radius: 4px;                                         \
     }                                                               \
     QSlider::handle:horizontal                                      \
@@ -36,8 +36,8 @@ static const QString FANCY_STYLE = "                                \
         background: qlineargradient(x1:0, y1:0, x2:1, y2:1,         \
                                     stop:0 #eee, stop:1 #ccc);      \
         border: 1px solid #777;                                     \
-        height: 25px;                                               \
-        width: 13px;                                                \
+        height: 45px;                                               \
+        width: 30px;                                                \
         margin-top: -5px;                                           \
         margin-bottom: -5px;                                        \
         border-radius: 4px;                                         \
@@ -98,7 +98,7 @@ void BrightnessDialog::createLayout()
 
     slider_.setRange(0, 255);
     slider_.setOrientation(Qt::Horizontal);
-    slider_.setFixedHeight(40);
+    slider_.setFixedHeight(55);
     slider_.setStyleSheet(FANCY_STYLE);
     slider_.setValue(sys::SysStatus::instance().brightness());
     layout_.addWidget(&slider_);

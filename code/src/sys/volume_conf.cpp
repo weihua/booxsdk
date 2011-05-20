@@ -57,7 +57,8 @@ QVector<int> VolumeConfig::volumes()
     static QVector<int> VOLUMES;
     if (VOLUMES.size() <= 0)
     {
-        if(sys::soundModule().compare("snd_soc_imx_3stack_wm8976") == 0)
+        if(sys::soundModule().compare("snd_soc_imx_3stack_wm8976") == 0 ||
+           sys::soundModule().compare("snd-soc-booxe") == 0)
         {
             qDebug()<<"******************** M90/M91 platform *****************************"<<__TIME__;
             VOLUMES.push_back(0);
