@@ -10,9 +10,12 @@ static const QString FANCY_STYLE = "                                \
     QSlider::groove:horizontal                                      \
     {                                                               \
         border: 1px solid #bbb;                                     \
-        background: white;                                          \
+        background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,  \
+                                    stop: 0 #6666e, stop: 1 #b66bf);\
+        background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,   \
+                                    stop: 0 #b23bf, stop: 1 #3455f);    \
         height: 40px;                                               \
-        border-radius: 4px;                                         \
+        border-radius: 8px;                                         \
     }                                                               \
     QSlider::sub-page:horizontal                                    \
     {                                                               \
@@ -76,7 +79,7 @@ BrightnessDialog::BrightnessDialog(QWidget *parent)
 {
     setAutoFillBackground(true);
     setBackgroundRole(QPalette::Text);
-    setWindowOpacity(0.65);
+    setWindowOpacity(0.8);
 
     createLayout();
     updateText();
@@ -86,11 +89,16 @@ BrightnessDialog::~BrightnessDialog(void)
 {
 }
 
+int BrightnessDialog::exec()
+{
+    QWidget *p = ui::safeParentWidget(parentWidget());
+    setGeometry(20, p->height() - 150, p->width() - 40, 150);
+    return QDialog::exec();
+}
+
 void BrightnessDialog::createLayout()
 {
-    setFixedWidth(ui::safeParentWidget(parentWidget())->width());
-
-    layout_.setContentsMargins(2, 2, 2, 2);
+    layout_.setContentsMargins(0, 2, 0, 2);
 
     title_.useTitleBarStyle();
     title_.setAlignment(Qt::AlignCenter);
