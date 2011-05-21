@@ -16,6 +16,8 @@ public:
     explicit BrightnessDialog(QWidget *parent = 0);
     ~BrightnessDialog(void);
 
+    int exec();
+
 public Q_SLOTS:
     void onValueChanged(int v);
 
