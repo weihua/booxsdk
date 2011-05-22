@@ -42,6 +42,29 @@ void ReadingStyleActions::generateActions(ReadingStyleType selected)
         actions_.push_back(act);
     }
 
+#if defined(BUILD_WITH_TFT) || defined(_WINDOWS)
+
+    shared_ptr<QAction> separator(new QAction(exclusiveGroup()));
+    separator->setSeparator(true);
+    actions_.push_back(separator);
+
+    shared_ptr<QAction> day(new QAction(exclusiveGroup()));
+    day->setCheckable(true);
+    day->setData(STYLE_WHITE_BACKGROUND);
+    QString d(tr("White Backgroud"));
+    day->setText(d);
+    day->setIcon(QIcon(QPixmap(":/images/line_space.png")));
+    actions_.push_back(day);
+
+    shared_ptr<QAction> night(new QAction(exclusiveGroup()));
+    night->setCheckable(true);
+    night->setData(STYLE_BLACK_BACKGROUND);
+    QString n(tr("Black Backgroud"));
+    night->setText(n);
+    night->setIcon(QIcon(QPixmap(":/images/line_space.png")));
+    actions_.push_back(night);
+
+#endif
     /*
     shared_ptr<QAction> separator(new QAction(exclusiveGroup()));
     separator->setSeparator(true);
