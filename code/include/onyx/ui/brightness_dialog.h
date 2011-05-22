@@ -21,6 +21,10 @@ public:
 public Q_SLOTS:
     void onValueChanged(int v);
 
+protected:
+    virtual void keyPressEvent(QKeyEvent * event);
+    virtual void keyReleaseEvent(QKeyEvent * event);
+
 private:
     void createLayout();
     void updateText();

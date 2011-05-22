@@ -79,6 +79,8 @@ BrightnessDialog::BrightnessDialog(QWidget *parent)
 , title_(0)
 , slider_(0)
 {
+    setModal(true);
+
     setAutoFillBackground(true);
     setBackgroundRole(QPalette::Text);
     setWindowOpacity(0.8);
@@ -129,6 +131,20 @@ void BrightnessDialog::onValueChanged(int v)
 {
     qDebug() << "Value changed " << v;
     sys::SysStatus::instance().setBrightness(v);
+}
+
+void BrightnessDialog::keyPressEvent(QKeyEvent * ke)
+{
+    ke->accept();
+}
+
+void BrightnessDialog::keyReleaseEvent(QKeyEvent * ke)
+{
+    ke->accept();
+    if (ke->key() == Qt::Key_Escape)
+    {
+        reject();
+    }
 }
 
 };  // namespace ui
