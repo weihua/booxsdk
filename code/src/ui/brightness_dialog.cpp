@@ -109,7 +109,7 @@ void BrightnessDialog::createLayout()
     title_.setAlignment(Qt::AlignCenter);
     layout_.addWidget(&title_);
 
-    slider_.setRange(50, 255);
+    slider_.setRange(10, 255);
     slider_.setOrientation(Qt::Horizontal);
     slider_.setFixedHeight(55);
     slider_.setStyleSheet(FANCY_STYLE);
