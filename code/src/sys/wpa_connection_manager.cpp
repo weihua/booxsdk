@@ -633,11 +633,7 @@ bool WpaConnectionManager::stopWpaSupplicant()
 
 QString WpaConnectionManager::networkInterface()
 {
-#ifndef _WINDOWS
-    return DEFAULT_INTERFACE;
-#else
-    return "";
-#endif
+    return sys::defaultInterface();
 }
 
 QString WpaConnectionManager::address()

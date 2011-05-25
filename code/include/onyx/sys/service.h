@@ -9,7 +9,7 @@ namespace sys
 static const QString service = "com.onyx.service.system_manager";
 static const QString object  = "/com/onyx/object/system_manager";
 static const QString iface   = "com.onyx.interface.system_manager";
-static const QString DEFAULT_INTERFACE = "wlan0";
+QString defaultInterface();
 
 bool checkAndReturnBool(const QList<QVariant> & args);
 
