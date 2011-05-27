@@ -61,6 +61,11 @@ bool SystemConfig::musicService(Service & service)
     return ServiceConfig::musicService(*database_, service);
 }
 
+bool SystemConfig::mediaService(Service &service)
+{
+    return ServiceConfig::mediaService(*database_, service);
+}
+
 bool SystemConfig::noteService(Service &service)
 {
     return ServiceConfig::noteService(*database_, service);
@@ -254,6 +259,11 @@ void SystemConfig::setDate(int year, int month, int day,
 bool SystemConfig::isMusicPlayerAvailable()
 {
     return system("which music_player") == 0;
+}
+
+bool SystemConfig::isMediaPlayerAvailable()
+{
+    return system("which onyx_media_player") == 0;
 }
 
 bool SystemConfig::isUpdateSplashEnabled()

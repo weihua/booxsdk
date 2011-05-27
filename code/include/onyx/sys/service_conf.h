@@ -74,6 +74,7 @@ private:
     static bool calibrationService(QSqlDatabase &, Service &);
     static bool metService(QSqlDatabase &, Service &);
     static bool musicService(QSqlDatabase &, Service & service);
+    static bool mediaService(QSqlDatabase &, Service & service);
     static bool noteService(QSqlDatabase &, Service & service);
     static bool networkService(QSqlDatabase &, Service &);
     static bool webBrowserService(QSqlDatabase &, Service &);

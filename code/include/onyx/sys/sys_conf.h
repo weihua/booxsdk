@@ -33,6 +33,7 @@ public:
     bool calibrationService(Service &);
     bool metService(Service &);
     bool musicService(Service &);
+    bool mediaService(Service &);
     bool noteService(Service &);
     bool networkService(Service &);
     bool webBrowserService(Service &);
@@ -71,6 +72,9 @@ public:
 
     // Music service
     static bool isMusicPlayerAvailable();
+
+    // Media player.
+    static bool isMediaPlayerAvailable();
 
     // volume.
     int volume();

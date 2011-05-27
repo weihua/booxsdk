@@ -383,6 +383,29 @@ bool ServiceConfig::musicService(QSqlDatabase &database, Service & service)
     return true;
 }
 
+bool ServiceConfig::mediaService(QSqlDatabase &, Service & service)
+{
+    static Service media_service("com.onyx.service.media",
+                                 "/com/onyx/object/media",
+                                 "com.onyx.interface.media",
+                                 OPEN_METHOD,
+                                 "onyx_media_player");
+
+    if (media_service.extensions().size() <= 0)
+    {
+        media_service.mutable_extensions().push_back("mp3");
+        media_service.mutable_extensions().push_back("rm");
+        media_service.mutable_extensions().push_back("wma");
+        media_service.mutable_extensions().push_back("wav");
+
+        media_service.mutable_extensions().push_back("avi");
+        media_service.mutable_extensions().push_back("mpg");
+        media_service.mutable_extensions().push_back("rmvb");
+    }
+    service = media_service;
+    return true;
+}
+
 bool ServiceConfig::noteService(QSqlDatabase &database, Service & service)
 {
     service = note_service;
