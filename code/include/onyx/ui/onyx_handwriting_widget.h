@@ -32,12 +32,18 @@ protected Q_SLOTS:
     void onItemActivated(CatalogView *catalog, ContentView *item,
             int user_data);
 
+protected:
+    void displayAssociatedChars(const QString & current_text);
+    bool adjustAssociatedChar(const QString & dst_text, int index);
+
 private Q_SLOTS:
     void onFinishCharacterTimeOut();
     void onAutoSelect();
     void onStrokeStarted();
     void onPointAdded(SketchPoint point);
     void onStrokeAdded(const Points & points);
+
+    void onTextSelected(const QString & text, int index);
 
 private:
     void createLayout();
@@ -52,6 +58,8 @@ private:
     void charSubsetClicked(int row);
     void menuClicked(int menu_type);
     void keyClicked(OData *data);
+
+    void setCandidateCharListData(const QStringList &char_list);
 
 private:
     QVBoxLayout big_layout_;
@@ -71,6 +79,8 @@ private:
 
     OnyxSingleShotTimer finish_character_timer_;
     OnyxSingleShotTimer auto_select_timer_;
+    QStringList candidates_;
+    QString     current_text_;
 };
 
 }   // namespace handwriting

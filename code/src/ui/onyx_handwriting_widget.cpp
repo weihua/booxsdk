@@ -134,14 +134,13 @@ void OnyxHandwritingWidget::createCandidateCharList()
             | CatalogView::AutoHorRecycle);
 
     int size = 9;
+    QStringList init_char_list;
     for (int i=0; i<size; i++)
     {
-        ODataPtr number(new OData);
-        number->insert(TAG_TITLE, QString::number(i));
-        candidate_char_list_datas_.push_back(number);
+        init_char_list.push_back(QString::number(i));
     }
+    setCandidateCharListData(init_char_list);
 
-    candidate_char_list_.setData(candidate_char_list_datas_);
     candidate_char_list_.setFixedGrid(1, candidate_char_list_datas_.size());
     candidate_char_list_.setNeighbor(&menu_, CatalogView::UP);
     candidate_char_list_.setNeighbor(&char_subset_list_, CatalogView::DOWN);
@@ -169,7 +168,7 @@ void OnyxHandwritingWidget::createCharSubsetList()
     }
 
     char_subset_list_.setPreferItemSize(QSize(-1, SUBSET_ITEM_HEIGHT));
-    char_subset_list_.setFixedWidth(200);
+    char_subset_list_.setFixedWidth(180);
     char_subset_list_.setSearchPolicy(CatalogView::NeighborFirst
             | CatalogView::AutoVerRecycle);
     char_subset_list_.setData(char_subset_list_datas_);
@@ -184,6 +183,21 @@ void OnyxHandwritingWidget::connectWithChildren()
             this, SLOT(onItemActivated(CatalogView *, ContentView *, int)));
     connect(&char_subset_list_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)),
             this, SLOT(onItemActivated(CatalogView *, ContentView *, int)));
+}
+
+void OnyxHandwritingWidget::setCandidateCharListData(const QStringList &char_list)
+{
+    clearDatas(candidate_char_list_datas_);
+
+    int size = char_list.size();
+    for (int i = 0; i < size; i++)
+    {
+        ODataPtr dp(new OData);
+        dp->insert(TAG_TITLE, char_list.at(i));
+        candidate_char_list_datas_.push_back(dp);
+    }
+
+    candidate_char_list_.setData(candidate_char_list_datas_);
 }
 
 void OnyxHandwritingWidget::initHandwrting()
@@ -202,12 +216,108 @@ void OnyxHandwritingWidget::initHandwrting()
 
 void OnyxHandwritingWidget::onFinishCharacterTimeOut()
 {
-    // TODO implement this method
+    HandwritingManager & handwriting_mgr = HandwritingManager::instance();
+
+    // finish character
+    handwriting_mgr.finishCharacter();
+
+    // recognize the character
+    handwriting_mgr.recognize(candidates_);
+
+    // clear the strokes on keyboard
+    sketch_widget_.onClearSketches();
+
+    // clear all of the points
+    handwriting_mgr.clearPoints();
+
+    // clear current text
+    current_text_.clear();
+
+    if (candidates_.isEmpty())
+    {
+        // do nothing
+    }
+    else
+    {
+        // show char candidates
+        setCandidateCharListData(candidates_);
+    }
+
+    // update the widget
+    update();
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC);
+
+    // start automatic selection timer
+    auto_select_timer_.start();
 }
+
+bool OnyxHandwritingWidget::adjustAssociatedChar(const QString & dst_text, int index)
+{
+    HandwritingManager & handwriting_mgr = HandwritingManager::instance();
+    return handwriting_mgr.adjustAssociatedChar(dst_text, index);
+}
+
+void OnyxHandwritingWidget::onTextSelected(const QString & text, int index)
+{
+    // stop the auto selection timer if necessary
+    auto_select_timer_.stop();
+
+    // disable the candidate char list view
+    onyx::screen::instance().enableUpdate(false);
+    sketch_widget_.setFocus();
+//    candidate_char_list_.setEnabled(false);
+    onyx::screen::instance().enableUpdate(true);
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
+
+    // send the char to parent
+    for (int i = 0; i < text.size(); ++i)
+    {
+        QChar ch = text.at(i);
+        qDebug() << "the key is: " << ch;
+        // TODO post key event
+//        postKeyEvent(QEvent::KeyPress, ch.unicode());
+    }
+
+    if (!candidates_.isEmpty())
+    {
+        candidates_.clear();
+    }
+
+    if (!current_text_.isEmpty())
+    {
+        adjustAssociatedChar(current_text_, index);
+    }
+
+    // display associated characters
+    displayAssociatedChars(text);
+}
+
+void OnyxHandwritingWidget::displayAssociatedChars(const QString & current_text)
+{
+    HandwritingManager & handwriting_mgr = HandwritingManager::instance();
+    current_text_ = current_text;
+    if (handwriting_mgr.getAssociatedChar(current_text, candidates_))
+    {
+        onyx::screen::instance().flush();
+
+        // show the candidate char list
+        candidate_char_list_.setEnabled(true);
+        setCandidateCharListData(candidates_);
+
+        // update the widget
+        onyx::screen::watcher().enqueue(&candidate_char_list_,
+                onyx::screen::ScreenProxy::GC);
+    }
+}
+
 
 void OnyxHandwritingWidget::onAutoSelect()
 {
-    // TODO implement this method
+    if (!candidates_.isEmpty())
+    {
+        QString best = candidates_.at(0);
+        onTextSelected(best, 0);
+    }
 }
 
 void OnyxHandwritingWidget::onStrokeStarted()
