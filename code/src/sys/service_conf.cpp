@@ -399,6 +399,11 @@ bool ServiceConfig::mediaService(QSqlDatabase &, Service & service)
         media_service.mutable_extensions().push_back("wav");
 
         media_service.mutable_extensions().push_back("avi");
+        media_service.mutable_extensions().push_back("akv");
+        media_service.mutable_extensions().push_back("mp4");
+        media_service.mutable_extensions().push_back("flv");
+        media_service.mutable_extensions().push_back("asf");
+        media_service.mutable_extensions().push_back("mkv");
         media_service.mutable_extensions().push_back("mpg");
         media_service.mutable_extensions().push_back("rmvb");
     }
