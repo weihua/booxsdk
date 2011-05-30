@@ -7,6 +7,8 @@
 namespace ui
 {
 
+static const int LABEL_WIDTH = 150;
+
 // A password line edit will be provided on default. Need to specify an OData
 // for each line edit besides password.
 // Sample:
@@ -119,8 +121,12 @@ void OnyxPasswordDialog::createLayout()
     big_layout_.setContentsMargins(2, 2, 2, 2);
     big_layout_.setSpacing(0);
 
-    createLineEdits();
-    createSubMenu();
+    QWidget *pwidget = safeParentWidget(parentWidget());
+    int sub_menu_width = defaultItemHeight()*5;
+    int line_edit_width = pwidget->width()-LABEL_WIDTH-sub_menu_width-5;
+
+    createLineEdits(line_edit_width);
+    createSubMenu(sub_menu_width);
     createShowPlainText();
 
     int size = edit_list_.size();
@@ -133,7 +139,7 @@ void OnyxPasswordDialog::createLayout()
         font.setPointSize(16);
         font.setBold(true);
         label->setFont(font);
-        label->setFixedWidth(150);
+        label->setFixedWidth(LABEL_WIDTH);
         label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         line_edit_layout_ = new QHBoxLayout;
         line_edit_layout_->addWidget(label, 0, Qt::AlignLeft);
@@ -156,7 +162,7 @@ void OnyxPasswordDialog::createLayout()
 }
 
 CatalogView * OnyxPasswordDialog::createEditItem(OData *data, int index,
-        ODatas *edit_datas)
+        ODatas *edit_datas, const int &line_edit_width)
 {
     const int height = defaultItemHeight();
     CatalogView * edit_item = new CatalogView(0, this);
@@ -188,11 +194,12 @@ CatalogView * OnyxPasswordDialog::createEditItem(OData *data, int index,
     edit_item->setFixedGrid(1, 1);
     edit_item->setMargin(OnyxKeyboard::CATALOG_MARGIN);
     edit_item->setFixedHeight(defaultItemHeight()+2*SPACING);
+    edit_item->setFixedWidth(line_edit_width);
     edit_item->setData(*edit_datas);
     return edit_item;
 }
 
-void OnyxPasswordDialog::createLineEdits()
+void OnyxPasswordDialog::createLineEdits(const int &line_edit_width)
 {
     int size = edit_list_.size();
     int default_checked = 0;
@@ -201,7 +208,8 @@ void OnyxPasswordDialog::createLineEdits()
         ODataPtr data = edit_list_.at(i);
 
         ODatas * edit_datas = new ODatas;
-        CatalogView * edit_item = createEditItem(data, i, edit_datas);
+        CatalogView * edit_item = createEditItem(data, i, edit_datas,
+                line_edit_width);
         all_line_edit_datas_.push_back(edit_datas);
 
         // set default checked edit item
@@ -240,7 +248,7 @@ void OnyxPasswordDialog::createLineEdits()
     }
 }
 
-void OnyxPasswordDialog::createSubMenu()
+void OnyxPasswordDialog::createSubMenu(const int &sub_menu_width)
 {
     const int height = defaultItemHeight();
     sub_menu_.setPreferItemSize(QSize(height, height));
@@ -258,7 +266,7 @@ void OnyxPasswordDialog::createSubMenu()
     sub_menu_.setFixedGrid(1, 2);
     sub_menu_.setMargin(OnyxKeyboard::CATALOG_MARGIN);
     sub_menu_.setFixedHeight(defaultItemHeight()+2*SPACING);
-    sub_menu_.setFixedWidth(defaultItemHeight()*5);
+    sub_menu_.setFixedWidth(sub_menu_width);
     sub_menu_.setData(sub_menu_datas_);
     sub_menu_.setNeighbor(edit_view_list_.front(), CatalogView::LEFT);
     sub_menu_.setNeighbor(edit_view_list_.front(), CatalogView::RECYCLE_LEFT);

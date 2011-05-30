@@ -33,12 +33,13 @@ private:
     void addLineEditsToGroup();
 
     void createLayout();
-    void createLineEdits();
-    void createSubMenu();
+    void createLineEdits(const int &line_edit_width);
+    void createSubMenu(const int &sub_menu_width);
     void createShowPlainText();
     void connectWithChildren();
 
-    CatalogView * createEditItem(OData *data, int index, ODatas *edit_datas);
+    CatalogView * createEditItem(OData *data, int index, ODatas *edit_datas,
+            const int &line_edit_width);
 
     void clearClicked();
     void setEditEchoMode(QLineEdit::EchoMode mode);
