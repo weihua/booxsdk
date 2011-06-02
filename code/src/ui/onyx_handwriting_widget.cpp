@@ -6,6 +6,7 @@
 #include "onyx/data/handwriting_functions_model.h"
 #include "onyx/data/handwriting_manager.h"
 #include "onyx/data/sketch_proxy.h"
+#include "onyx/data/handwriting_widget.h"
 
 namespace handwriting
 {
@@ -17,6 +18,7 @@ enum HandwritingMenuType
 
 static const QString KEYBOARD_KEY_VIEW_TYPE = "KeyboardKeyView";
 static const QString TAG_ROW = "row";
+static const QString TAG_CANDIDATE_INDEX = "index";
 static const int SUBSET_ITEM_HEIGHT = 36;
 
 static const int FINISH_CHAR_INTERVAL = 1000;
@@ -50,7 +52,7 @@ OnyxHandwritingWidget::OnyxHandwritingWidget(QWidget *parent)
     , sketch_widget_layout_(0)
     , menu_(&keyboard_key_view_factory, this)
     , candidate_char_list_(0, this)
-    , sketch_widget_(this)
+    , sketch_widget_(0)
     , char_subset_list_(0, this)
     , sketch_proxy_(0)
     , finish_character_timer_(FINISH_CHAR_INTERVAL, this,
@@ -61,9 +63,6 @@ OnyxHandwritingWidget::OnyxHandwritingWidget(QWidget *parent)
     setBackgroundRole(QPalette::Button);
 
     createLayout();
-
-    QWidget * widget = safeParentWidget(parentWidget());
-    resize(widget->width(), 400);
 
     connectWithChildren();
     initHandwrting();
@@ -79,9 +78,10 @@ OnyxHandwritingWidget::~OnyxHandwritingWidget()
 
 void OnyxHandwritingWidget::createLayout()
 {
+    sketch_widget_.reset(new HandwritingWidget(this));
+
     createMenu();
     createCandidateCharList();
-    createSketchWidget();
 
     HandwritingFunctionsModel::instance().getModel(char_subset_model_);
 
@@ -92,11 +92,42 @@ void OnyxHandwritingWidget::createLayout()
     big_layout_.addWidget(&menu_, 0, Qt::AlignTop);
     big_layout_.addWidget(&candidate_char_list_, 0, Qt::AlignTop);
 
-    sketch_widget_layout_.addWidget(&sketch_widget_, 1);
+    sketch_widget_layout_.addWidget(sketch_widget_.get(), 1);
     sketch_widget_layout_.addSpacing(2);
     sketch_widget_layout_.addWidget(&char_subset_list_);
 
     big_layout_.addLayout(&sketch_widget_layout_);
+}
+
+void OnyxHandwritingWidget::popup(int width, int height)
+{
+    initHandwrting();
+
+    setFixedWidth(width);
+    int sketch_height = height - keyboardKeyHeight()*2 - 10;
+    sketch_widget_->setFixedHeight(sketch_height);
+    int rows = sketch_height/SUBSET_ITEM_HEIGHT;
+    char_subset_list_.setFixedWidth(sketch_height);
+    char_subset_list_.setFixedGrid(rows, 1);
+
+    if(isHidden())
+    {
+        show();
+    }
+
+    // set initial focus
+    if (candidate_char_list_datas_.size() > 5)
+    {
+        candidate_char_list_.setFocusTo(0, 4);
+    }
+    else if (candidate_char_list_datas_.size() > 0)
+    {
+        candidate_char_list_.setFocusTo(0, 0);
+    }
+    else
+    {
+        menu_.setFocusTo(0, 0);
+    }
 }
 
 void OnyxHandwritingWidget::createMenu()
@@ -146,33 +177,14 @@ void OnyxHandwritingWidget::createCandidateCharList()
     candidate_char_list_.setNeighbor(&char_subset_list_, CatalogView::DOWN);
 }
 
-void OnyxHandwritingWidget::createSketchWidget()
-{
-    sketch_widget_.setFixedHeight(300);
-}
-
 void OnyxHandwritingWidget::createCharSubsetList()
 {
-    int rows = char_subset_model_.rowCount();
-    char_subset_list_datas_.clear();
-    for (int i = 0; i < rows; i++)
-    {
-        QStandardItem *item = char_subset_model_.item(i);
-        OData *dd = new OData;
-        dd->insert(TAG_TITLE, item->text());
-        dd->insert(TAG_FONT_SIZE, 22);
-        int alignment = Qt::AlignHCenter | Qt::AlignVCenter;
-        dd->insert(TAG_ALIGN, alignment);
-        dd->insert(TAG_ROW, i);
-        char_subset_list_datas_.push_back(dd);
-    }
-
     char_subset_list_.setPreferItemSize(QSize(-1, SUBSET_ITEM_HEIGHT));
-    char_subset_list_.setFixedWidth(180);
+
+    setCharSubsetListData();
+
     char_subset_list_.setSearchPolicy(CatalogView::NeighborFirst
             | CatalogView::AutoVerRecycle);
-    char_subset_list_.setData(char_subset_list_datas_);
-    char_subset_list_.setFixedGrid(char_subset_list_datas_.size(), 1);
 }
 
 void OnyxHandwritingWidget::connectWithChildren()
@@ -194,10 +206,29 @@ void OnyxHandwritingWidget::setCandidateCharListData(const QStringList &char_lis
     {
         ODataPtr dp(new OData);
         dp->insert(TAG_TITLE, char_list.at(i));
+        dp->insert(TAG_CANDIDATE_INDEX, i);
         candidate_char_list_datas_.push_back(dp);
     }
 
     candidate_char_list_.setData(candidate_char_list_datas_);
+}
+
+void OnyxHandwritingWidget::setCharSubsetListData()
+{
+    int rows = char_subset_model_.rowCount();
+    char_subset_list_datas_.clear();
+    for (int i = 0; i < rows; i++)
+    {
+        QStandardItem *item = char_subset_model_.item(i);
+        OData *dd = new OData;
+        dd->insert(TAG_TITLE, item->text());
+        dd->insert(TAG_FONT_SIZE, 22);
+        int alignment = Qt::AlignHCenter | Qt::AlignVCenter;
+        dd->insert(TAG_ALIGN, alignment);
+        dd->insert(TAG_ROW, i);
+        char_subset_list_datas_.push_back(dd);
+    }
+    char_subset_list_.setData(char_subset_list_datas_);
 }
 
 void OnyxHandwritingWidget::initHandwrting()
@@ -210,8 +241,7 @@ void OnyxHandwritingWidget::initHandwrting()
         connect(sketch_proxy_.get(), SIGNAL(strokeAdded(const Points &)), this, SLOT(onStrokeAdded(const Points &)));
     }
 
-//    sketch_widget_.setFocus();
-    sketch_widget_.attachSketchProxy(sketch_proxy_.get());
+    sketch_widget_->attachSketchProxy(sketch_proxy_.get());
 }
 
 void OnyxHandwritingWidget::onFinishCharacterTimeOut()
@@ -225,7 +255,7 @@ void OnyxHandwritingWidget::onFinishCharacterTimeOut()
     handwriting_mgr.recognize(candidates_);
 
     // clear the strokes on keyboard
-    sketch_widget_.onClearSketches();
+    sketch_widget_->onClearSketches();
 
     // clear all of the points
     handwriting_mgr.clearPoints();
@@ -245,7 +275,7 @@ void OnyxHandwritingWidget::onFinishCharacterTimeOut()
 
     // update the widget
     update();
-    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC);
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::DW);
 
     // start automatic selection timer
     auto_select_timer_.start();
@@ -262,20 +292,14 @@ void OnyxHandwritingWidget::onTextSelected(const QString & text, int index)
     // stop the auto selection timer if necessary
     auto_select_timer_.stop();
 
-    // disable the candidate char list view
-    onyx::screen::instance().enableUpdate(false);
-    sketch_widget_.setFocus();
-//    candidate_char_list_.setEnabled(false);
-    onyx::screen::instance().enableUpdate(true);
-    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
+    update();
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::DW);
 
     // send the char to parent
     for (int i = 0; i < text.size(); ++i)
     {
         QChar ch = text.at(i);
-        qDebug() << "the key is: " << ch;
-        // TODO post key event
-//        postKeyEvent(QEvent::KeyPress, ch.unicode());
+        emit handwritingKeyPressed(QString(ch), ch.unicode());
     }
 
     if (!candidates_.isEmpty())
@@ -306,7 +330,7 @@ void OnyxHandwritingWidget::displayAssociatedChars(const QString & current_text)
 
         // update the widget
         onyx::screen::watcher().enqueue(&candidate_char_list_,
-                onyx::screen::ScreenProxy::GC);
+                onyx::screen::ScreenProxy::DW);
     }
 }
 
@@ -350,7 +374,6 @@ void OnyxHandwritingWidget::charSubsetClicked(int row)
     }
 
     QStandardItem *standard_item = char_subset_model_.item(row);
-    qDebug() << standard_item->text() << " clicked.";
     QModelIndex index = char_subset_model_.indexFromItem(standard_item);
 
     int item = index.data(Qt::UserRole + 1).toInt();
@@ -359,22 +382,36 @@ void OnyxHandwritingWidget::charSubsetClicked(int row)
     // switch locale or other settings
     if (item > 0)
     {
-        HandwritingManager::instance().setLocale(QLocale(static_cast<QLocale::Language>(item)));
+        HandwritingManager::instance().setLocale(QLocale(
+                static_cast<QLocale::Language>(item)));
     }
     else
     {
-        HandwritingManager::instance().setSpecialRecognizeRange(static_cast<SpecialRecognizeRange>(item));
+        HandwritingManager::instance().setSpecialRecognizeRange(
+                static_cast<SpecialRecognizeRange>(item));
     }
 
-    // TODO: rearrange the layout of subsets according to use frequency.
+    // rearrange the layout of subsets according to use frequency.
+    setCharSubsetListData();
+
+    QModelIndex model_index = HandwritingFunctionsModel::instance()
+            .getIndexBySetting(item, char_subset_model_);
+    if (model_index.isValid())
+    {
+        int new_row = model_index.row();
+        char_subset_list_.select(char_subset_list_datas_.at(new_row));
+    }
+    char_subset_list_.update();
+    onyx::screen::watcher().enqueue(&char_subset_list_,
+            onyx::screen::ScreenProxy::GU);
 }
 
 void OnyxHandwritingWidget::menuClicked(int menu_type)
 {
     if (menu_type == HANDWRITING_MENU_TYPE)
     {
-        sketch_widget_.deattachSketchProxy();
-//        this->hide();
+        sketch_widget_->deattachSketchProxy();
+        this->hide();
         emit showKeyboard();
     }
 }
@@ -393,11 +430,20 @@ void OnyxHandwritingWidget::keyClicked(OData *data)
         key_text = data->value(TAG_TITLE).toString();
         key_code = key_text.at(0).unicode();
     }
-    qDebug() << "key: " << key_text << "clicked.";
-    // TODO send event to parent
-//    QKeyEvent * key_event = new QKeyEvent(QEvent::KeyPress, key_code,
-//            Qt::NoModifier, key_text);
-//    QApplication::sendEvent(parentWidget(), key_event);
+
+    if (data->contains(TAG_SPECIAL_KEY) || key_text == QString(" "))
+    {
+        emit handwritingKeyPressed(key_text, key_code);
+    }
+    else
+    {
+        int index = 0;
+        if (data->contains(TAG_CANDIDATE_INDEX))
+        {
+            index = data->value(TAG_CANDIDATE_INDEX).toInt();
+        }
+        onTextSelected(key_text, index);
+    }
 }
 
 void OnyxHandwritingWidget::onItemActivated(CatalogView *catalog,

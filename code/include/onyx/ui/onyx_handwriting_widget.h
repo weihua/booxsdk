@@ -1,11 +1,14 @@
 #ifndef ONYX_HANDWRITING_WIDGET_H_
 #define ONYX_HANDWRITING_WIDGET_H_
 
+
 #include "onyx/base/base.h"
 #include "ui_global.h"
 #include "ui_utils.h"
+#include "onyx/data/sketch_point.h"
 #include "catalog_view.h"
-#include "onyx/data/handwriting_widget.h"
+#include "single_shot_timer.h"
+#include "keyboard_utils.h"
 
 namespace sketch
 {
@@ -13,9 +16,12 @@ class SketchProxy;
 };
 
 using namespace ui;
+using namespace sketch;
 
 namespace handwriting
 {
+
+class HandwritingWidget;
 
 class OnyxHandwritingWidget: public QWidget
 {
@@ -25,8 +31,11 @@ public:
     explicit OnyxHandwritingWidget(QWidget *parent);
     ~OnyxHandwritingWidget();
 
+    void popup(int width, int height);
+
 Q_SIGNALS:
     void showKeyboard();
+    void handwritingKeyPressed(const QString &key_text, const int &key_code);
 
 protected Q_SLOTS:
     void onItemActivated(CatalogView *catalog, ContentView *item,
@@ -49,7 +58,6 @@ private:
     void createLayout();
     void createMenu();
     void createCandidateCharList();
-    void createSketchWidget();
     void createCharSubsetList();
     void connectWithChildren();
 
@@ -60,6 +68,7 @@ private:
     void keyClicked(OData *data);
 
     void setCandidateCharListData(const QStringList &char_list);
+    void setCharSubsetListData();
 
 private:
     QVBoxLayout big_layout_;
@@ -67,7 +76,7 @@ private:
 
     CatalogView menu_;
     CatalogView candidate_char_list_;
-    HandwritingWidget sketch_widget_;
+    scoped_ptr<HandwritingWidget> sketch_widget_;
     CatalogView char_subset_list_;
 
     ODatas menu_datas_;
