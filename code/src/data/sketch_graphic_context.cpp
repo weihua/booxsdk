@@ -97,8 +97,7 @@ void GraphicContext::fastDrawLine(const QPoint & p1,
     // Fast draw line
     onyx::screen::instance().drawLine(p1.x(), p1.y(), p2.x(), p2.y(), pen_color, point_size);
 #ifndef ENABLE_EINK_SCREEN
-    QPainter painter(drawing_area_);
-    drawLine(p1, p2, ctx, painter);
+    drawing_area_->update();
 #endif
 }
 
@@ -111,15 +110,7 @@ void GraphicContext::fastDrawLines(QVector<QPoint> & points, const SketchContext
     onyx::screen::instance().drawLines(points.data(), points.size(), pen_color, point_size);
 
 #ifndef ENABLE_EINK_SCREEN
-    QPainter painter(drawing_area_);
-    QPoint p1, p2;
-    for (int i = 0; i < points.size() - 1; ++i)
-    {
-        p1 = points[i];
-        p2 = points[i + 1];
-        drawLine(p1, p2, ctx, painter);
-    }
-
+    drawing_area_->update();
 #endif
 }
 
@@ -201,12 +192,6 @@ void GraphicContext::drawLine(const QPoint & p1,
             painter.fillRect(x, y, point_size, point_size, brush);
         }
     }
-
-#ifndef ENABLE_EINK_SCREEN
-    assert(drawing_area_ != 0);
-    drawing_area_->update(QRect(p1, p2).normalized()
-                                       .adjusted(-rad, -rad, +rad, +rad));
-#endif
 }
 
 void GraphicContext::updateWidget(const QRect & area)
