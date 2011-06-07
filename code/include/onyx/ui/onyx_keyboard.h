@@ -7,6 +7,11 @@
 #include "catalog_view.h"
 #include "keyboard_data_factory.h"
 
+namespace handwriting
+{
+class OnyxHandwritingWidget;
+};
+
 namespace ui
 {
 
@@ -53,6 +58,10 @@ protected Q_SLOTS:
 
     void onViewKeyRelease(CatalogView *view, QKeyEvent *key);
 
+private Q_SLOTS:
+    void onShowKeyboard();
+    void onHandwritingKeyPressed(const QString &key_text, const int &key_code);
+
 private:
     void createLayout();
     void connectWithChildren();
@@ -68,6 +77,7 @@ private:
     void shiftClicked();
     void symbolClicked();
     void languageClicked();
+    void writeFunctionClicked();
     ODatas & changeCase(ODatas & datas, bool is_caps_lock);
 
 private:
@@ -80,6 +90,8 @@ private:
     CatalogView right_;
     CatalogView bottom_;
     CatalogView menu_;
+
+    scoped_ptr<handwriting::OnyxHandwritingWidget> handwriting_widget_;
 
     KeyboardDataFactory keyboard_data_factory_;
     KeyboardData *keyboard_data_;

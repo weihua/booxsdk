@@ -7,6 +7,9 @@
 #include "onyx/ui/keyboard_key_view_factory.h"
 #include "onyx/ui/onyx_keyboard_language_dialog.h"
 #include "onyx/ui/keyboard_data.h"
+#include "onyx/ui/onyx_handwriting_widget.h"
+
+using namespace handwriting;
 
 namespace ui
 {
@@ -30,6 +33,7 @@ OnyxKeyboard::OnyxKeyboard(QWidget *parent)
     , right_(&keyboard_key_view_factory, this)
     , bottom_(&keyboard_key_view_factory, this)
     , menu_(&keyboard_key_view_factory, this)
+    , handwriting_widget_(0)
     , keyboard_data_(0)
     , shift_(false)
     , symbol_(false)
@@ -38,6 +42,7 @@ OnyxKeyboard::OnyxKeyboard(QWidget *parent)
 {
     setAutoFillBackground(true);
     setBackgroundRole(QPalette::Button);
+
     init(language_);
     createLayout();
 }
@@ -53,6 +58,8 @@ void OnyxKeyboard::init(const QLocale & locale)
 
 void OnyxKeyboard::createLayout()
 {
+    handwriting_widget_.reset(new OnyxHandwritingWidget(this));
+
     createTop();
     createLeft();
     createMiddle();
@@ -71,6 +78,10 @@ void OnyxKeyboard::createLayout()
     big_layout_.addWidget(&bottom_);
 
     big_layout_.addWidget(&menu_);
+
+    // add handwriting widget
+    big_layout_.addWidget(handwriting_widget_.get());
+    handwriting_widget_->hide();
 
     connectWithChildren();
 }
@@ -98,6 +109,14 @@ void OnyxKeyboard::connectWithChildren()
     connect(&left_, SIGNAL(keyRelease(CatalogView *, QKeyEvent *)), this, SLOT(onViewKeyRelease(CatalogView *, QKeyEvent *)));
     connect(&middle_, SIGNAL(keyRelease(CatalogView *, QKeyEvent *)), this, SLOT(onViewKeyRelease(CatalogView *, QKeyEvent *)));
     connect(&right_, SIGNAL(keyRelease(CatalogView *, QKeyEvent *)), this, SLOT(onViewKeyRelease(CatalogView *, QKeyEvent *)));
+
+
+    connect(handwriting_widget_.get(), SIGNAL(showKeyboard()),
+            this, SLOT(onShowKeyboard()));
+    connect(handwriting_widget_.get(),
+            SIGNAL(handwritingKeyPressed(const QString &, const int &)),
+            this,
+            SLOT(onHandwritingKeyPressed(const QString &, const int &)));
 }
 
 void OnyxKeyboard::createTop()
@@ -299,7 +318,7 @@ void OnyxKeyboard::menuItemActivated(ContentView *item, int user_data)
     }
     else if(KEYBOARD_MENU_WRITE == menu_type)
     {
-        // TODO
+        writeFunctionClicked();
     }
 }
 
@@ -356,6 +375,51 @@ void OnyxKeyboard::languageClicked()
             resetData(false);
         }
     }
+}
+
+void OnyxKeyboard::writeFunctionClicked()
+{
+    is_handwriting_ = true;
+
+    int keyboard_width = this->width();
+    int keyboard_height = this->height();
+
+    top_.hide();
+    left_.hide();
+    middle_.hide();
+    right_.hide();
+    bottom_.hide();
+    menu_.hide();
+
+    handwriting_widget_->popup(keyboard_width, keyboard_height);
+
+    update();
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
+}
+
+void OnyxKeyboard::onShowKeyboard()
+{
+    is_handwriting_ = false;
+
+    top_.show();
+    left_.show();
+    middle_.show();
+    right_.show();
+    bottom_.show();
+    menu_.show();
+
+    initFocus();
+
+    update();
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
+}
+
+void OnyxKeyboard::onHandwritingKeyPressed(const QString &key_text,
+        const int &key_code)
+{
+    QKeyEvent * key_event = new QKeyEvent(QEvent::KeyPress, key_code,
+            Qt::NoModifier, key_text);
+    QApplication::sendEvent(parentWidget(), key_event);
 }
 
 }   // namespace ui
