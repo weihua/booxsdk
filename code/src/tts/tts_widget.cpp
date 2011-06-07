@@ -351,8 +351,7 @@ void TTSWidget::keyPressEvent(QKeyEvent *ke)
         ke->ignore();
         return;
     }
-    //QDialog::keyPressEvent(ke);
-    ke->accept();
+    QDialog::keyPressEvent(ke);
 }
 
 void TTSWidget::keyReleaseEvent(QKeyEvent *ke)
