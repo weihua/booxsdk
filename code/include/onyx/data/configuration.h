@@ -48,6 +48,8 @@ const char * const CONFIG_ENV_MATRIX_D      = "env_matrix.d";
 const char * const CONFIG_ENV_MATRIX_E      = "env_matrix.e";
 const char * const CONFIG_ENV_MATRIX_F      = "env_matrix.f";
 
+const char * const CONFIG_IS_COMIC_MODE_ACTIVATED = "comic_mode_activated";
+
 struct Configuration
 {
     QVariantMap options;        ///< Document related options.
