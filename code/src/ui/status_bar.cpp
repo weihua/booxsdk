@@ -758,6 +758,13 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
     else if (type != MENU && type != MESSAGE)
     {
         addPermanentWidget(ptr.get());
+        int right_margin_width = qgetenv("STATUS_BAR_RIGHT_MARGIN").toInt();
+        if (type == BATTERY && right_margin_width > 0)
+        {
+            right_margin_.reset(new OnyxLabel());
+            right_margin_->setFixedWidth(right_margin_width);
+            addPermanentWidget(right_margin_.get());
+        }
     }
     else
     {
