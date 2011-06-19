@@ -16,6 +16,8 @@ bool isIMX31L();
 
 bool is166E();
 
+bool isImx508();
+
 QString soundModule();
 
 int defaultRotation();
