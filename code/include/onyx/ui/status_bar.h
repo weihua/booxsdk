@@ -112,6 +112,8 @@ private:
     scoped_ptr<USBConnectionDialog> usb_connection_dialog_;
     scoped_ptr<ClockDialog> clock_dialog_;
     scoped_ptr<VolumeControlDialog> volume_dialog_;
+
+    scoped_ptr<OnyxLabel> right_margin_;
 };
 
 };  // namespace ui

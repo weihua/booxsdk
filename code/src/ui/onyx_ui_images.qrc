@@ -235,6 +235,7 @@
 
     <file>images/lock_home_and_back.png</file>
     <file>images/lock_page_turning.png</file>
+    <file>images/comic_mode.png</file>
 
   </qresource>
 </RCC>

@@ -53,6 +53,7 @@ public:
     inline bool isSketching() const;
     inline bool isErasing() const;
     inline bool isFreePen() const;
+    inline bool isComicMode() const;
 
 Q_SIGNALS:
     void stylusChanged(const int);
@@ -80,6 +81,7 @@ private:
     void setWaitDispSearchRes(FunctionStatus s);
     void setSketching(FunctionStatus s);
     void setErasing(FunctionStatus s);
+    void setComicMode(FunctionStatus s);
 
     void notify(FunctionID cur_id);
     void resetAnnotationGroup();
@@ -160,6 +162,11 @@ inline bool StatusManager::isDeleteAnnotation() const
 {
     return ( annotation_group_.getStatus(ID_DELETE_ANNOTATION) == FUNC_SELECTED &&
              stylus_group_.getStatus(ID_DELETE_ANNOTATION) == FUNC_SELECTED );
+}
+
+inline bool StatusManager::isComicMode() const
+{
+    return reading_tools_group_.getStatus(ID_COMIC_MODE) == FUNC_SELECTED;
 }
 
 };  // namespace vbf

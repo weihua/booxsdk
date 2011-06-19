@@ -375,12 +375,14 @@ void OnyxSearchDialog::onSearchClicked()
 
 void OnyxSearchDialog::onSearchNextClicked()
 {
+    setMode(MODE_SEARCHING);
     updateTitle();
     readyToSearch(true);
 }
 
 void OnyxSearchDialog::onSearchPrevClicked()
 {
+    setMode(MODE_SEARCHING);
     updateTitle();
     readyToSearch(false);
 }

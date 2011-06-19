@@ -87,6 +87,7 @@ enum ReadingToolsType
     CLEAR_COOKIES,
     AUTO_LOAD_IMAGE,
     CLOCK_TOOL,
+    COMIC_MODE,
     UNDEFINED_TOOL
 };
 
@@ -219,6 +220,7 @@ enum FunctionID
     ID_WAIT_DISPLAY_SEARCH_RES, // Not Used
     ID_SKETCHING,
     ID_ERASING,
+    ID_COMIC_MODE,
     ID_UNKNOWN
 };
 

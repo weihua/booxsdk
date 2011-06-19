@@ -621,8 +621,8 @@ void SinglePageLayout::restoreByReadingHistory(const QVariant & item)
         // move the view port
         // TODO. Take the rotation into consideration, otherwise the updated
         // view port is incorrect.
-        QPoint center(static_cast<int>(ctx.view_center_in_page.x()) * page_width,
-                      static_cast<int>(ctx.view_center_in_page.y()) * page_height);
+        QPoint center(static_cast<int>(ctx.view_center_in_page.x() * page_width),
+                      static_cast<int>(ctx.view_center_in_page.y() * page_height));
         moveViewportByCenter(center, 1.0f);
     }
     updatePageArea();
