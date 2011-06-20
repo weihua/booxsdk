@@ -205,7 +205,7 @@ void DialUpDialog::keyPressEvent(QKeyEvent *ke)
     if (ke->key() == Qt::Key_Escape)
     {
         ke->accept();
-        accept();
+        return;
     }
     QDialog::keyPressEvent(ke);
 }
@@ -215,8 +215,12 @@ void DialUpDialog::keyReleaseEvent(QKeyEvent *ke)
     ke->accept();
     if (ke->key() == Qt::Key_Escape)
     {
+        onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
         accept();
+        return;
     }
+
+    QDialog::keyPressEvent(ke);
 }
 
 bool DialUpDialog::event(QEvent * e)
@@ -554,6 +558,7 @@ void DialUpDialog::onGetFocus(OnyxLineEdit *object)
 void DialUpDialog::onCloseClicked()
 {
     reject();
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
 }
 
 void DialUpDialog::onItemActivated(CatalogView *catalog, ContentView *item, int user_data)
