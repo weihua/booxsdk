@@ -51,6 +51,8 @@ private Q_SLOTS:
     void onReport3GNetwork(const int signal, const int total, const int network);
     void showOffMessage();
 
+    void onDialogAccept();
+
 private:
     void createLayout();
     void clear();

@@ -129,10 +129,9 @@ DialUpDialog::~DialUpDialog()
 void DialUpDialog::loadConf()
 {
     sys::SystemConfig conf;
-    conf.loadDialupProfiles(all_peers_);
 
-    // TODO: fixed the bug that only one profile shows up.
-    // just create all profiles every time.
+    QString target_profiles = qgetenv("TARGET_3G_PROFILES");
+
     all_peers_.clear();
     for (int i = 0; i < APNS_COUNT; ++i)
     {
@@ -141,7 +140,15 @@ void DialUpDialog::loadConf()
         tmp.setUsername(APNS[i].username);
         tmp.setPassword(APNS[i].password);
         tmp.setApn(APNS[i].apn);
-        all_peers_.push_back(tmp);
+
+        if (!target_profiles.isEmpty() && !target_profiles.contains(APNS[i].display_name))
+        {
+            // do not add this profile
+        }
+        else
+        {
+            all_peers_.push_back(tmp);
+        }
     }
 
     if (all_peers_.size() > 0)
@@ -428,6 +435,12 @@ void DialUpDialog::updateStatus(QString status)
     onyx::screen::instance().updateWidget(&state_widget_, onyx::screen::ScreenProxy::GU);
 }
 
+void DialUpDialog::onDialogAccept()
+{
+    accept();
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
+}
+
 void DialUpDialog::onPppConnectionChanged(const QString &message, int status)
 {
     if (status == TG_CHECKING_NETWORK)
@@ -444,7 +457,7 @@ void DialUpDialog::onPppConnectionChanged(const QString &message, int status)
         result = result.arg(qPrintable(address()));
         updateStatus(result);
         saveConf();
-        QTimer::singleShot(1500, this, SLOT(accept()));
+        QTimer::singleShot(1500, this, SLOT(onDialogAccept()));
     }
     else if (status == TG_DISCONNECTED)
     {
