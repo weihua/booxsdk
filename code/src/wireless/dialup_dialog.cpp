@@ -123,7 +123,7 @@ DialUpDialog::DialUpDialog(QWidget *parent, SysStatus & sys)
 
 DialUpDialog::~DialUpDialog()
 {
-
+    clearDatas(apns_buttons_datas_);
 }
 
 void DialUpDialog::loadConf()
@@ -316,6 +316,9 @@ void DialUpDialog::createLayout()
     close_button_.setFocusPolicy(Qt::NoFocus);
     QObject::connect(&close_button_, SIGNAL(clicked()), this, SLOT(onCloseClicked()));
 
+    // TODO: optimize this
+    content_layout_.addSpacing(36);
+
     // ap layout.
     createAPNsButtons();
     qDebug()<<APNS_buttons_.size().height()<<" "<<APNS_buttons_.size().width()<<" "<<APNS_buttons_.sizeHint().height(); 
@@ -339,7 +342,6 @@ void DialUpDialog::createAPNsButtons()
 {
     APNS_buttons_.setSubItemType(ui::CheckBoxView::type());
     APNS_buttons_.setPreferItemSize(QSize(0, ITEM_HEIGHT));
-    ODatas d;
 
     for(int row = 0; row < all_peers_.size(); ++row)
     {
@@ -352,13 +354,13 @@ void DialUpDialog::createAPNsButtons()
             item->insert(TAG_CHECKED, true);
             selected_ = item;
         }
-        d.push_back(item);
+        apns_buttons_datas_.push_back(item);
     }
     
     
-    APNS_buttons_.setData(d, true);
-
-    APNS_buttons_.setMinimumHeight(all_peers_.size()*(ITEM_HEIGHT+APNS_buttons_.spacing()));    
+    APNS_buttons_.setData(apns_buttons_datas_, true);
+    APNS_buttons_.setFixedHeight(all_peers_.size()*(ITEM_HEIGHT+APNS_buttons_.spacing()));
+    APNS_buttons_.setFixedGrid(apns_buttons_datas_.size(), 1);
 
     QObject::connect(&APNS_buttons_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)),
             this, SLOT(onItemActivated(CatalogView*, ContentView*, int)));

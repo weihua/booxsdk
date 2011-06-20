@@ -87,6 +87,7 @@ private:
    
     ui::CatalogView APNS_buttons_;
     ui::CatalogView disconnect_button_;
+    ODatas apns_buttons_datas_;
     OData* selected_;
 
     SysStatus & sys_;
