@@ -6,6 +6,7 @@ namespace sys
 {
 static const QString IM31L = "imx31L";
 static const QString MARVELL = "166e";
+static const QString IMX508 = "imx508";
 
 QString platform()
 {
@@ -29,6 +30,11 @@ bool isIMX31L()
 bool is166E()
 {
     return platform() == MARVELL;
+}
+
+bool isImx508()
+{
+    return platform() == IMX508;
 }
 
 QString soundModule()
