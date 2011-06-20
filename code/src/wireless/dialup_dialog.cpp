@@ -130,21 +130,23 @@ void DialUpDialog::loadConf()
 {
     sys::SystemConfig conf;
     conf.loadDialupProfiles(all_peers_);
+
+    // TODO: fixed the bug that only one profile shows up.
+    // just create all profiles every time.
+    all_peers_.clear();
+    for (int i = 0; i < APNS_COUNT; ++i)
+    {
+        DialupProfile tmp;
+        tmp.setDisplayName(APNS[i].display_name);
+        tmp.setUsername(APNS[i].username);
+        tmp.setPassword(APNS[i].password);
+        tmp.setApn(APNS[i].apn);
+        all_peers_.push_back(tmp);
+    }
+
     if (all_peers_.size() > 0)
     {
         profile_ = all_peers_.front();
-    }
-    else
-    {
-        for(int i = 0; i < APNS_COUNT; ++i)
-        {
-            DialupProfile tmp;
-            tmp.setDisplayName(APNS[i].display_name);
-            tmp.setUsername(APNS[i].username);
-            tmp.setPassword(APNS[i].password);
-            tmp.setApn(APNS[i].apn);
-            all_peers_.push_back(tmp);
-        }
     }
 
     // Choose default peer.
