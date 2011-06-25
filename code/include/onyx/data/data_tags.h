@@ -25,6 +25,7 @@ static const QString TAG_BOOKINFO = "bookinfo";
 
 static const QString FILE_TAG = "file";
 static const QString DIR_TAG = "dir";
+static const QString WEBSITE_TAG ="website";
 
 static const QString TAG_FONT_FAMILY = "fontfamily";
 static const QString TAG_FONT_SIZE = "fontsize";
@@ -40,5 +41,7 @@ static const QString TAG_IS_PASSWD = "is_password"; // denote the data is passwo
 static const QString TAG_DEFAULT_VALUE = "default_value";
 
 static const QString TAG_MARKER = "marker";
+
+static const QString TAG_ICON = "icon";
 
 #endif
