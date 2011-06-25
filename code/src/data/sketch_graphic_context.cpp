@@ -6,8 +6,6 @@
 namespace sketch
 {
 
-using namespace std;
-
 int getPenColor(const SketchColor c)
 {
     int pen_color = 0xFF;
@@ -87,6 +85,12 @@ GraphicContext::~GraphicContext()
     }
 }
 
+QRect getDrawingArea(const QPoint & p1, const QPoint & p2, int point_size)
+{
+    int rad = (point_size / 2) + 2;
+    return QRect(p1, p2).normalized().adjusted(-rad, -rad, +rad, +rad);
+}
+
 void GraphicContext::fastDrawLine(const QPoint & p1,
                                   const QPoint & p2,
                                   const SketchContext & ctx)
@@ -97,8 +101,34 @@ void GraphicContext::fastDrawLine(const QPoint & p1,
     // Fast draw line
     onyx::screen::instance().drawLine(p1.x(), p1.y(), p2.x(), p2.y(), pen_color, point_size);
 #ifndef ENABLE_EINK_SCREEN
-    drawing_area_->update();
+    drawing_area_->update(getDrawingArea(p1, p2, point_size));
 #endif
+}
+
+QRect getDrawingArea(QVector<QPoint> & points, int point_size)
+{
+    QRect area;
+    if (points.empty())
+    {
+        return area;
+    }
+
+    QPoint p1 = points.first();
+    QPoint p2 = p1;
+    area = QRect(p1, p2);
+    if (points.size() > 1)
+    {
+        QVector<QPoint>::iterator iter = points.begin();
+        iter++;
+        for (; iter != points.end(); ++iter)
+        {
+            p2 = *iter;
+            area = area.united(QRect(p1, p2).normalized());
+            p1 = p2;
+        }
+    }
+    int rad = (point_size / 2) + 2;
+    return area.adjusted(-rad, -rad, +rad, +rad);
 }
 
 void GraphicContext::fastDrawLines(QVector<QPoint> & points, const SketchContext & ctx)
@@ -110,7 +140,7 @@ void GraphicContext::fastDrawLines(QVector<QPoint> & points, const SketchContext
     onyx::screen::instance().drawLines(points.data(), points.size(), pen_color, point_size);
 
 #ifndef ENABLE_EINK_SCREEN
-    drawing_area_->update();
+    drawing_area_->update(getDrawingArea(points, point_size));
 #endif
 }
 
@@ -139,8 +169,8 @@ void GraphicContext::drawLine(const QPoint & p1,
     bool is_steep = abs(py2 - py1) > abs(px2 - px1);
     if (is_steep)
     {
-        swap(px1, py1);
-        swap(px2, py2);
+        std::swap(px1, py1);
+        std::swap(px2, py2);
     }
 
     // setup line draw

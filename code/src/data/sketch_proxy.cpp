@@ -10,7 +10,9 @@ namespace sketch
 static const ZoomFactor ZOOM_ERROR = 0.001f;
 static const int FAST_DRAWING_BUF_SIZE = 1;
 static const int ERASE_UPDATE_INTERVAL = 300;
+#ifdef ENABLE_EINK_SCREEN
 static const int DRIVER_DRAW_INTERVAL = 50;
+#endif
 static const int POINTS_NUM = 1;
 
 // Transform the coordinate of sketch point by current orientation.
@@ -122,6 +124,7 @@ SketchProxy::SketchProxy()
              this,
              SLOT( onUpdateScreenTimeout() ) );
 
+#ifdef ENABLE_EINK_SCREEN
     // driver draw line
     driver_draw_timer_.setSingleShot( true );
     driver_draw_timer_.setInterval( DRIVER_DRAW_INTERVAL );
@@ -129,6 +132,7 @@ SketchProxy::SketchProxy()
              SIGNAL( timeout() ),
              this,
              SLOT( onForceDriverDrawLines() ) );
+#endif
 }
 
 SketchProxy::~SketchProxy()
@@ -797,15 +801,27 @@ void SketchProxy::addPoint(SketchPagePtr page, const SketchPosition & pos, bool 
     // draw the new point by driver
     if (isLastPositionValid())
     {
-        driverDrawLine(last_pos_.global_pos,
+        driverDrawLine(
+#ifdef ENABLE_EINK_SCREEN
+                       last_pos_.global_pos,
                        pos.global_pos,
+#else
+                       last_pos_.widget_pos,
+                       pos.widget_pos,
+#endif
                        ctx,
                        is_last_point);
     }
     else
     {
-        driverDrawLine(pos.global_pos,
+        driverDrawLine(
+#ifdef ENABLE_EINK_SCREEN
                        pos.global_pos,
+                       pos.global_pos,
+#else
+                       pos.widget_pos,
+                       pos.widget_pos,
+#endif
                        ctx,
                        is_last_point);
     }
@@ -964,7 +980,9 @@ void SketchProxy::driverDrawLines(StrokeLines &lines,
 {
     if (lines.empty() || (!is_last_point && lines.size() < POINTS_NUM))
     {
+#ifdef ENABLE_EINK_SCREEN
         driver_draw_timer_.start();
+#endif
         return;
     }
 
@@ -1004,7 +1022,9 @@ void SketchProxy::driverDrawLine(const QPoint & p1,
     transformCoordinate(screen_area, p1, gc_.widgetOrient(), real_p1);
     transformCoordinate(screen_area, p2, gc_.widgetOrient(), real_p2);
 
+#ifdef ENABLE_EINK_SCREEN
     driver_draw_timer_.stop();
+#endif
     stroke_lines_.push_back(StrokeLine(real_p1, real_p2));
     driverDrawLines(stroke_lines_, ctx, is_last_point);
 }
