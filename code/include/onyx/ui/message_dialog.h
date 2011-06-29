@@ -30,6 +30,10 @@ protected:
     OnyxPushButton *button(int button_id);
     void resizeEvent(QResizeEvent *e);
 
+    OnyxLabel & getInfoLabel();
+    QHBoxLayout & getInfoLayout();
+    QVBoxLayout & getContentLayout();
+
 private Q_SLOTS:
     void onButtonClicked();
 
