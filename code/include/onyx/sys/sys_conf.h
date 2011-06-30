@@ -43,6 +43,7 @@ public:
     bool dictionaryService(Service &);
     bool rssService(Service &);
     bool sudokuService(Service &);
+    bool news_feeds_Service(Service &);
     bool officeViewerService(Service & service);
     bool hasOfficeViewer();
     bool onyxReaderService(Service & service);

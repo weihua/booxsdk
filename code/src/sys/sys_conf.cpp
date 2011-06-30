@@ -106,6 +106,11 @@ bool SystemConfig::rssService(Service &service)
     return ServiceConfig::rssService(*database_, service);
 }
 
+bool SystemConfig::news_feeds_Service(Service &service)
+{
+    return ServiceConfig::news_feeds_Service(*database_, service);
+}
+
 bool SystemConfig::sudokuService(Service &service)
 {
     return ServiceConfig::sudokuService(*database_, service);
