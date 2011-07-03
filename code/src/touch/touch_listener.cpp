@@ -27,7 +27,6 @@ bool TouchEventListener::disconnect()
 
 void TouchEventListener::onReadyRead()
 {
-    static int count = 0;
     int bytes = socket_.bytesAvailable();
     int time = bytes / sizeof(TouchData);
     for(int i = 0; i < time; ++i)
