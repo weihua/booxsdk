@@ -186,7 +186,18 @@ void OnyxSearchDialog::createNavigateMenu()
     next_prev_.setFixedGrid(1, 2);
     next_prev_.setMargin(OnyxKeyboard::CATALOG_MARGIN);
     next_prev_.setFixedHeight(defaultItemHeight()+2*SPACING);
-    next_prev_.setFixedWidth(defaultItemHeight()*7);
+
+    int half_width = safeParentWidget(parentWidget())->width()/2;
+    int min = defaultItemHeight()*8;
+    if (half_width < min)
+    {
+        next_prev_.setFixedWidth(min);
+    }
+    else
+    {
+        next_prev_.setFixedWidth(half_width);
+    }
+
     next_prev_.setData(next_prev_datas_);
     next_prev_.setSearchPolicy(CatalogView::NeighborFirst
             | CatalogView::AutoHorRecycle);
