@@ -44,4 +44,6 @@ static const QString TAG_MARKER = "marker";
 
 static const QString TAG_ICON = "icon";
 
+static const QString TAG_ATTRIBUTE = "attribute";
+
 #endif
