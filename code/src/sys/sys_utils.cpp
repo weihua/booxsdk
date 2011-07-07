@@ -6,6 +6,16 @@
 #else
 #include <sys/sysinfo.h>
 #include <sys/vfs.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <linux/apm_bios.h>
+#include <sys/ioctl.h>
+#include <assert.h>
+#include <stdio.h>
+#include <linux/rtc.h>
+#include <sys/time.h>
+#include <time.h>
 #endif
 
 #include <QImageReader>
