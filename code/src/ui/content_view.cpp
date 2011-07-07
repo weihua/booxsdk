@@ -7,6 +7,7 @@
 #include "onyx/screen/screen_update_watcher.h"
 #include "onyx/ui/ui_utils.h"
 #include "onyx/ui/content_view.h"
+#include "onyx/sys/sys_conf.h"
 #include "onyx/data/data_tags.h"
 
 namespace ui
@@ -100,7 +101,10 @@ void ContentView::mousePressEvent(QMouseEvent *event)
     if (data())
     {
         setPressed(true);
-        repaintAndRefreshScreen();
+        if (repaint_on_mouse_release_)
+        {
+            repaintAndRefreshScreen();
+        }
     }
     QWidget::mousePressEvent(event);
 }
@@ -117,7 +121,7 @@ void ContentView::mouseReleaseEvent(QMouseEvent *event)
         emit mouse(s_mouse, event->globalPos());
     }
     setPressed(false);
-    if (data() && repaint_on_mouse_release_)
+    if (data())
     {
         repaintAndRefreshScreen();
     }
@@ -130,10 +134,21 @@ void ContentView::mouseReleaseEvent(QMouseEvent *event)
 
 void ContentView::mouseMoveEvent(QMouseEvent * e)
 {
-    if (isPressed() && !rect().contains(e->pos()) && data())
+    if (data())
     {
-        setPressed(false);
-        repaintAndRefreshScreen();
+        if (!rect().contains(e->pos()))
+        {
+            setPressed(false);
+            repaintAndRefreshScreen();
+        }
+        else
+        {
+            int direction = sys::SystemConfig::direction(s_mouse, e->globalPos());
+            if (direction != 0)
+            {
+                setPressed(false);
+            }
+        }
     }
 }
 
