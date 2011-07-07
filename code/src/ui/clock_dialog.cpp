@@ -216,6 +216,7 @@ void FullScreenClock::keyReleaseEvent(QKeyEvent *ke)
             onReturn();
             break;
         case Qt::Key_Escape:
+        case Qt::Key_Home:
             onCloseClicked();
             break;
     }
