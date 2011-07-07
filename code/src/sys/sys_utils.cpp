@@ -211,7 +211,16 @@ bool isImageZip(const QString &path, const int threshold)
         return true;
     }
     return false;
+}
 
+bool writeString(const char *dev, const char *str)
+{
+#ifdef BUILD_FOR_ARM
+    int fd = open(dev, O_RDWR);
+    write(fd, str, strlen(str));
+    close(fd);
+#endif
+    return true;
 }
 
 }
