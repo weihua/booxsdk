@@ -152,7 +152,7 @@ bool ScreenUpdateWatcher::enqueue(UpdateItem & item,
     item.rc = QRect(pt, s);
     item.wait = wait;
     item.waveform = w;
-    qDebug() << "add new request " << item.rc;
+    //qDebug() << "add new request " << item.rc;
     return true;
 }
 
@@ -231,7 +231,7 @@ void ScreenUpdateWatcher::updateScreenInternal(bool automatic,
     }
     if (!rc.isEmpty())
     {
-        qDebug() << "update screen " << rc << "Waveform " << w << "wait " << wait;
+        //qDebug() << "update screen " << rc << "Waveform " << w << "wait " << wait;
         onyx::screen::instance().updateWidgetRegion(0, rc, w, false, wait);
     }
 }
