@@ -55,6 +55,12 @@ static Service rss_service("com.onyx.service.feed_reader",
                             OPEN_METHOD,
                             "feed_reader");
 
+static Service newsfeeds_Service("com.onyx.service.rss_reader",
+                            "/com/onyx/object/rss_reader",
+                            "com.onyx.interface.rss_reader",
+                            OPEN_METHOD,
+                            "rss_reader");
+
 static Service sudoku_service("com.onyx.service.sudoku",
                             "/com/onyx/object/sudoku",
                             "com.onyx.interface.sudoku",
@@ -456,6 +462,12 @@ bool ServiceConfig::dictionaryService(QSqlDatabase &, Service & service)
 bool ServiceConfig::rssService(QSqlDatabase&, Service &service)
 {
     service = rss_service;
+    return true;
+}
+
+bool ServiceConfig::news_feeds_Service(QSqlDatabase&, Service &service)
+{
+    service = newsfeeds_Service;
     return true;
 }
 

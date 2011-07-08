@@ -83,6 +83,7 @@ private:
     static bool writePadService(QSqlDatabase &, Service & service);
     static bool dictionaryService(QSqlDatabase &, Service & service);
     static bool rssService(QSqlDatabase&, Service &);
+    static bool news_feeds_Service(QSqlDatabase&, Service &);
     static bool sudokuService(QSqlDatabase&, Service &);
     static bool officeViewerService(QSqlDatabase &, Service & service);
     static bool hasOfficeViewer();

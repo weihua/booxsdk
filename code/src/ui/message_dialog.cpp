@@ -222,5 +222,20 @@ bool MessageDialog::event(QEvent * e)
     return ret;
 }
 
+OnyxLabel & MessageDialog::getInfoLabel()
+{
+        return info_text_;
+}
+
+QHBoxLayout & MessageDialog::getInfoLayout()
+{
+        return info_hbox_;
+}
+
+QVBoxLayout & MessageDialog::getContentLayout()
+{
+        return content_vbox_;
+}
+
 
 }

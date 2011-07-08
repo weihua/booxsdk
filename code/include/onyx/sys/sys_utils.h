@@ -37,6 +37,8 @@ bool isImage(const QString& suffix);
 
 bool isImageZip(const QString &path, int threshold = 80);
 
+bool writeString(const char *dev, const char *str);
+
 }
 
 #endif  // SYSTEM_CONF_H__

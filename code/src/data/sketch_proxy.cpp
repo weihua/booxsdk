@@ -1057,7 +1057,7 @@ void SketchProxy::driverDrawLines(StrokeLines &lines,
     }
 
     gc_.fastDrawLines(points, ctx);
-    if (!sys::is166E())
+    if (!sys::is166E() && !sys::isImx508())
     {
         onyx::screen::instance().updateScreen(onyx::screen::ScreenProxy::DW, onyx::screen::ScreenCommand::WAIT_NONE);
     }
