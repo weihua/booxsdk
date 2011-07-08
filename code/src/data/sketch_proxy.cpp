@@ -119,10 +119,11 @@ SketchProxy::SketchProxy()
     // update erased area
     erase_update_timer_.setSingleShot( true );
     erase_update_timer_.setInterval( ERASE_UPDATE_INTERVAL );
-    connect( &erase_update_timer_,
-             SIGNAL( timeout() ),
-             this,
-             SLOT( onUpdateScreenTimeout() ) );
+    connect(&erase_update_timer_, SIGNAL(timeout()), this, SLOT(onUpdateScreenTimeout()));
+
+    // raw touch event handler
+    connect(&raw_event_listener_, SIGNAL(touchData(TouchData &)), this, SLOT(onReceivedTouchData(TouchData &)));
+
 
 #ifdef ENABLE_EINK_SCREEN
     // driver draw line
@@ -443,41 +444,97 @@ bool SketchProxy::eventFilter(QObject *obj, QEvent *event)
          event->type() == QEvent::MouseMove ||
          event->type() == QEvent::MouseButtonRelease))
     {
-        QMouseEvent *mouse_event = down_cast<QMouseEvent *>(event);
-
-        // check the drawing area
-        if (!attached_widget_->rect().contains(mouse_event->pos()))
+        // Ignore mouse events in imx508 platform
+        if (!sys::isImx508())
         {
-            // the document or the page is invalid, end the last stroke and return
-            if (stroke_ != 0 && last_page_ != 0)
+            QMouseEvent *mouse_event = down_cast<QMouseEvent *>(event);
+
+            // check the drawing area
+            if (!attached_widget_->rect().contains(mouse_event->pos()))
             {
-                endStroke(last_page_, last_pos_);
+                // the document or the page is invalid, end the last stroke and return
+                if (stroke_ != 0 && last_page_ != 0)
+                {
+                    endStroke(last_page_, last_pos_);
+                }
+                return true;
             }
-            return true;
-        }
 
-        switch (event->type())
-        {
-        case QEvent::MouseButtonPress:
-            sketchPenDown(mouse_event);
-            break;
-        case QEvent::MouseMove:
-            sketchPenMove(mouse_event);
-            break;
-        case QEvent::MouseButtonRelease:
-            sketchPenUp(mouse_event);
-            break;
-        default:
-            break;
+            switch (event->type())
+            {
+            case QEvent::MouseButtonPress:
+                sketchPenDown(mouse_event);
+                break;
+            case QEvent::MouseMove:
+                sketchPenMove(mouse_event);
+                break;
+            case QEvent::MouseButtonRelease:
+                sketchPenUp(mouse_event);
+                break;
+            default:
+                break;
+            }
         }
         return true;
     }
     return QObject::eventFilter(obj, event);
 }
 
+
+void SketchProxy::onReceivedTouchData(TouchData & data)
+{
+    if (attached_widget_ == 0)
+    {
+        qDebug("Not attached to any widget");
+        return;
+    }
+
+    // get widget pos
+    OnyxTouchPoint & touch_point = data.points[0];
+    QPoint global_pos(touch_point.x, touch_point.y);
+    QPoint widget_pos = attached_widget_->mapFromGlobal(global_pos);
+
+    // check whether the point is in widget
+    if (widget_pos.x() < 0 ||
+        widget_pos.y() < 0 ||
+        widget_pos.x() > attached_widget_->width() ||
+        widget_pos.y() > attached_widget_->height())
+    {
+        qDebug("Out of boundary");
+        return;
+    }
+
+    // construct a mouse event
+    QEvent::Type type = QEvent::MouseMove;
+    if (touch_point.pressure <= 0)
+    {
+        type = QEvent::MouseButtonRelease;
+    }
+
+    QMouseEvent me(type, widget_pos, global_pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    switch (type)
+    {
+    case QEvent::MouseButtonPress:
+        sketchPenDown(&me);
+        break;
+    case QEvent::MouseMove:
+        sketchPenMove(&me);
+        break;
+    case QEvent::MouseButtonRelease:
+        sketchPenUp(&me);
+        break;
+    default:
+        break;
+    }
+}
+
 void SketchProxy::attachWidget(QWidget * w)
 {
     w->installEventFilter(this);
+    if (sys::isImx508())
+    {
+        raw_event_listener_.connect();
+    }
     attached_widget_ = w;
     setDrawingArea(w);
 }
@@ -485,6 +542,10 @@ void SketchProxy::attachWidget(QWidget * w)
 void SketchProxy::deattachWidget(QWidget * w)
 {
     w->removeEventFilter(this);
+    if (sys::isImx508())
+    {
+        raw_event_listener_.disconnect();
+    }
     attached_widget_ = 0;
 }
 

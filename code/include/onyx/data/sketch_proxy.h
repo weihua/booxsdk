@@ -5,6 +5,8 @@
 #include "onyx/data/sketch_graphic_context.h"
 #include "onyx/data/sketch_document.h"
 
+#include "onyx/touch/touch_listener.h"
+
 namespace sketch
 {
 
@@ -82,6 +84,7 @@ public Q_SLOTS:
 private Q_SLOTS:
     void onUpdateScreenTimeout();
     void onForceDriverDrawLines();
+    void onReceivedTouchData(TouchData & data);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -141,6 +144,8 @@ private:
     Documents       docs_;               // supports multiple documents, for virtual document
     Documents       activated_docs_;     // activated documents
     QWidget         *attached_widget_;   // attached widget
+
+    TouchEventListener raw_event_listener_; // raw touch event listener
 
     SketchHandlers  sketch_handlers_;    // sketch/erase handlers
     SketchStrokePtr stroke_;             // current stroke
