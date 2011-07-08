@@ -49,5 +49,5 @@ add_library(onyx_data
   search_context.cpp
   ${MOC_SRCS}
 )
-target_link_libraries(onyx_data onyx_cms onyx_sys)
+target_link_libraries(onyx_data onyx_cms onyx_sys onyx_touch)
 strict_warning(onyx_data)
