@@ -168,8 +168,15 @@ void ContentView::changeEvent(QEvent *event)
 {
 }
 
+void ContentView::moveEvent(QMoveEvent * event)
+{
+    // qDebug() << " ContentView::moveEvent";
+    QWidget::moveEvent(event);
+}
+
 void ContentView::resizeEvent(QResizeEvent * event)
 {
+    // qDebug() << "ContentView::resizeEvent";
     QWidget::resizeEvent(event);
 }
 
@@ -388,8 +395,7 @@ void CheckBoxView::paintEvent(QPaintEvent * event)
             painter.setPen(Qt::black);
         }
         int title_x = icon_r.right() + MARGIN;
-        drawTitle(painter, QRect(title_x, rect().y(),
-                rect().width()-title_x, rect().height()));
+        drawTitle(painter, QRect(title_x, rect().y(), rect().width()-title_x, rect().height()));
     }
 }
 

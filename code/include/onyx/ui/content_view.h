@@ -44,6 +44,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
     void keyReleaseEvent(QKeyEvent *);
     void changeEvent(QEvent *event);
+    void moveEvent(QMoveEvent * event);
     void resizeEvent(QResizeEvent * event);
     void paintEvent(QPaintEvent * event);
     bool event(QEvent * event);
