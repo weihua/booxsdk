@@ -13,8 +13,10 @@ struct OnyxTouchPoint
     int width;
     int height;
     int pressure;
+    int buttons;
 };
 
+/// So far, supports two points only.
 struct TouchData
 {
     OnyxTouchPoint points[2];
