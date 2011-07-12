@@ -162,6 +162,7 @@ private:
     bool            need_update_once_;   // need update the screen of viewer at once
     SketchMode      mode_;               // current sketch mode
     SketchStatus    status_;             // current sketch status
+    int             pressure_of_last_point_; // pressure data of last touch point
 };
 
 };
