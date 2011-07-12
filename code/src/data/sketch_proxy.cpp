@@ -533,7 +533,7 @@ void SketchProxy::attachWidget(QWidget * w)
     w->installEventFilter(this);
     if (sys::isImx508())
     {
-        raw_event_listener_.connect();
+        raw_event_listener_.addWatcherWidget(w);
     }
     attached_widget_ = w;
     setDrawingArea(w);
@@ -544,7 +544,7 @@ void SketchProxy::deattachWidget(QWidget * w)
     w->removeEventFilter(this);
     if (sys::isImx508())
     {
-        raw_event_listener_.disconnect();
+        raw_event_listener_.removeWatcherWidget(w);
     }
     attached_widget_ = 0;
 }
