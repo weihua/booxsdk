@@ -71,7 +71,7 @@ void OnyxDialog::createDefaultLayout()
     title_vbox_.setContentsMargins(SPACING, 0, SPACING, 0);
 
     // title hbox.
-    title_icon_label_.setPixmap(QPixmap(":/images/dictionary_search.png"));
+    title_icon_label_.setPixmap(QPixmap(":/images/dialog.png"));
     title_text_label_.setAlignment(Qt::AlignLeft|Qt::AlignVCenter);
     title_icon_label_.setFixedHeight(defaultItemHeight());
     title_text_label_.setFixedHeight(defaultItemHeight());
