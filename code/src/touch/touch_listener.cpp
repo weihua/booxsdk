@@ -5,12 +5,15 @@
 
 TouchEventListener::TouchEventListener()
 : socket_(this)
+, enable_(true)
 {
     QObject::connect(&socket_, SIGNAL(readyRead()), this, SLOT(onReadyRead()));
+    connect();
 }
 
 TouchEventListener::~TouchEventListener()
 {
+    disconnect();
 }
 
 bool TouchEventListener::connect()
@@ -33,7 +36,41 @@ void TouchEventListener::onReadyRead()
     {
         TouchData d;
         socket_.read(reinterpret_cast<char *>(&d), sizeof(d));
-        emit touchData(d);
+        if (isEnabled())
+        {
+            emit touchData(d);
+        }
      }
 }
 
+bool TouchEventListener::addWatcherWidget(QObject *wnd)
+{
+    if (wnd)
+    {
+        wnd->installEventFilter(this);
+    }
+    return true;
+}
+
+bool TouchEventListener::removeWatcherWidget(QObject *wnd)
+{
+    if (wnd)
+    {
+        wnd->removeEventFilter(this);
+    }
+    return true;
+}
+
+bool TouchEventListener::eventFilter(QObject *obj,
+                                     QEvent *event)
+{
+    if (event->type() == QEvent::FocusIn)
+    {
+        enableBroadcast(true);
+    }
+    else if (event->type() == QEvent::FocusOut)
+    {
+        enableBroadcast(false);
+    }
+    return QObject::eventFilter(obj, event);
+}
