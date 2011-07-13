@@ -419,7 +419,7 @@ void SketchProxy::sketchPenDown(QMouseEvent *e)
 
 void SketchProxy::sketchPenMove(QMouseEvent *e)
 {
-    if (status_ == SKETCH_BEGIN || status_ == SKETCH_READY)
+    if (status_ == SKETCH_BEGIN)
     {
         status_ = SKETCH_MOVE;
     }
