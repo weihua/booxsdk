@@ -105,6 +105,7 @@ SketchProxy::SketchProxy()
     , need_update_once_(false)
     , mode_(MODE_SKETCHING)
     , status_(SKETCH_READY)
+    , pressure_of_last_point_(0)
 {
     resetLastPosition();
 
@@ -418,7 +419,7 @@ void SketchProxy::sketchPenDown(QMouseEvent *e)
 
 void SketchProxy::sketchPenMove(QMouseEvent *e)
 {
-    if (status_ == SKETCH_BEGIN)
+    if (status_ == SKETCH_BEGIN || status_ == SKETCH_READY)
     {
         status_ = SKETCH_MOVE;
     }
@@ -506,7 +507,11 @@ void SketchProxy::onReceivedTouchData(TouchData & data)
 
     // construct a mouse event
     QEvent::Type type = QEvent::MouseMove;
-    if (touch_point.pressure <= 0)
+    if (pressure_of_last_point_ == 0 && touch_point.pressure > 0)
+    {
+        type = QEvent::MouseButtonPress;
+    }
+    if (pressure_of_last_point_ > 0 && touch_point.pressure <= 0)
     {
         type = QEvent::MouseButtonRelease;
     }
@@ -526,6 +531,7 @@ void SketchProxy::onReceivedTouchData(TouchData & data)
     default:
         break;
     }
+    pressure_of_last_point_ = touch_point.pressure;
 }
 
 void SketchProxy::attachWidget(QWidget * w)
@@ -533,7 +539,7 @@ void SketchProxy::attachWidget(QWidget * w)
     w->installEventFilter(this);
     if (sys::isImx508())
     {
-        raw_event_listener_.connect();
+        raw_event_listener_.addWatcherWidget(w);
     }
     attached_widget_ = w;
     setDrawingArea(w);
@@ -544,7 +550,7 @@ void SketchProxy::deattachWidget(QWidget * w)
     w->removeEventFilter(this);
     if (sys::isImx508())
     {
-        raw_event_listener_.disconnect();
+        raw_event_listener_.removeWatcherWidget(w);
     }
     attached_widget_ = 0;
 }
