@@ -9,7 +9,6 @@
 #include <QDir>
 #include <QtEndian>
 
-
 namespace stardict
 {
 
@@ -110,20 +109,37 @@ bool DictInfo::loadFromIfo(const QString& ifofilename,
     return true;
 }
 
+// Pointer alignment issue with reinterpret_cast
+static int myConvert(char *p)
+{
+    int value = 0;
+    p += 4;
+    for(int i = 0; i < 4; ++i)
+    {
+        value |= *p;
+        value <<= 8;
+        --p;
+    }
+    return value;
+}
+
 const char *OffsetIndex::CACHE_MAGIC = "StarDict's Cache, Version: 0.1";
 void OffsetIndex::page_t::fill(char *data, int nent, long idx_)
 {
     idx = idx_;
     char *p = data;
     long len;
+    int off, size;
     for (int i = 0; i < nent; ++i)
     {
         entries[i].keystr = QString::fromUtf8(p);
         len = strlen(p);
         p += len + 1;
-        entries[i].off = qToBigEndian(*reinterpret_cast<quint32 *>(p));
+        off = myConvert(p);
+        entries[i].off = qToBigEndian(off);
         p += sizeof(quint32);
-        entries[i].size = qToBigEndian(*reinterpret_cast<quint32 *>(p));
+        size = myConvert(p);
+        entries[i].size = qToBigEndian(size);
         p += sizeof(quint32);
     }
 }
