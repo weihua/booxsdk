@@ -1,3 +1,10 @@
+#ifdef BUILD_FOR_ARM
+#include <QtGui/qscreen_qws.h>
+#include <QtGui/qwsdisplay_qws.h>
+#include <QtGui/qwsdisplay_qws.h>
+#include <qwindowsystem_qws.h>
+#endif
+
 #include <algorithm>
 #include <math.h>
 
@@ -114,9 +121,6 @@ void GraphicContext::fastDrawLine(const QPoint & p1,
     QPainter painter(screen_image_);
     painter.drawLine(p1.x(), p1.y(), p2.x(), p2.y());
     direct_painter_->endPainting();
-
-    QRegion drawing_region(getDrawingArea(p1, p2, point_size));
-    direct_painter_->flush(drawing_region);
 #else
     drawing_area_->update(getDrawingArea(p1, p2, point_size));
 #endif
@@ -168,27 +172,22 @@ void GraphicContext::fastDrawLines(QVector<QPoint> & points, const SketchContext
 
     // draw lines
     QPainter painter(screen_image_);
-
     QPoint pos1, pos2;
     int idx = 0;
-    pos1 = points_[0];
+    pos1 = points[0];
     idx++;
-    while (idx < points_.size())
+    while (idx < points.size())
     {
-        pos2 = points_[idx];
+        pos2 = points[idx];
         drawLine(pos1, pos2, ctx, painter);
         idx++;
         pos1 = pos2;
     }
-    if (count <= 1)
+    if (points.size() <= 1)
     {
         drawLine(pos1, pos1, ctx, painter);
     }
-
     direct_painter_->endPainting();
-
-    QRegion drawing_region(getDrawingArea(points, point_size));
-    direct_painter_->flush(drawing_region);
 #else
     drawing_area_->update(getDrawingArea(points, point_size));
 #endif
