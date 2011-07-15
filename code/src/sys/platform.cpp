@@ -48,7 +48,7 @@ QString soundModule()
         }
         else if (is166E())
         {
-            mod = "snd-soc-booxe";
+            mod = "snd_soc_booxe";
         }
         else
         {
