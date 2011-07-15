@@ -10,7 +10,7 @@ namespace ui
 {
 static const QString TAG_INDEX = "lang_index";
 static const QString TITLE_INDEX = "title_index";
-static const int ITEM_HEIGHT = 50;
+static const int ITEM_HEIGHT = 45;
 static const QString BUTTON_STYLE =    "\
 QPushButton                             \
 {                                       \
@@ -67,6 +67,7 @@ static const APN APNS[] =
     {"O2", "", "", "o2"},
     {"movistar.es", "movistar", "movistar", "movistar"},
     {"web.htgprs", "", "", "htgprs"},
+    {"Plus", "", "", "plus"},
     {"China Unicom", "", "", "unicom"},
     {"China Telecom", "", "", "telecom"},
 };

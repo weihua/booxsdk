@@ -110,15 +110,18 @@ bool DictInfo::loadFromIfo(const QString& ifofilename,
 }
 
 // Pointer alignment issue with reinterpret_cast
-static int myConvert(char *p)
+static unsigned int myConvert(char *p)
 {
-    int value = 0;
-    p += 4;
+    unsigned int value = 0;
+    unsigned int temp = 0;
+    unsigned char * t = (unsigned char *)(p);
+    t += 3;
     for(int i = 0; i < 4; ++i)
     {
-        value |= *p;
         value <<= 8;
-        --p;
+        temp = *t;
+        value |= temp;
+        --t;
     }
     return value;
 }
@@ -129,7 +132,7 @@ void OffsetIndex::page_t::fill(char *data, int nent, long idx_)
     idx = idx_;
     char *p = data;
     long len;
-    int off, size;
+    unsigned int off, size;
     for (int i = 0; i < nent; ++i)
     {
         entries[i].keystr = QString::fromUtf8(p);

@@ -1,6 +1,9 @@
 #ifndef SKETCH_GRAPHIC_CONTEXT_H_
 #define SKETCH_GRAPHIC_CONTEXT_H_
 
+#ifdef BUILD_FOR_ARM
+#include <QDirectPainter>
+#endif
 #include "onyx/data/sketch_utils.h"
 
 namespace sketch
@@ -40,7 +43,14 @@ private:
     RotateDegree    widget_orient_;
     SketchColor     color_;
     SketchShape     shape_;
-    unsigned char * img_;
+    unsigned char   *img_;
+
+#ifndef ENABLE_EINK_SCREEN
+#ifdef  BUILD_FOR_ARM
+    QDirectPainter  *direct_painter_;
+    QImage          *screen_image_;
+#endif
+#endif
 };
 
 };
