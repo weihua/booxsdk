@@ -24,6 +24,8 @@ public:
     bool translate(const QString &word, QString& result);
     bool similarWords(const QString &word, QStringList & result, const int offset, const int count);
 
+    bool fuzzyTranslate(const QString &word, QString& result, QString& fuzzy_word);
+
 private:
     void loadPlugins();
     void unloadPlugins();

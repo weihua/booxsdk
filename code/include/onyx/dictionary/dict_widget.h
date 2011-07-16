@@ -70,7 +70,7 @@ private:
     void checkSelectedButton(bool clear_focus = true);
 
     // for the result of dictionary look up
-    void formatResult(QString &result);
+    void formatResult(QString &result, QString &fuzzy_word);
 
 private Q_SLOTS:
     void onTimeout();

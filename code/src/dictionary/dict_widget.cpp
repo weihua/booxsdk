@@ -109,7 +109,7 @@ bool DictWidget::ensureVisible(const QRectF & rect,
     return changed;
 }
 
-void DictWidget::formatResult(QString &result)
+void DictWidget::formatResult(QString &result, QString &fuzzy_word)
 {
     if (result.isEmpty())
     {
@@ -119,6 +119,18 @@ void DictWidget::formatResult(QString &result)
     {
         result.replace("\n", "<br>");
     }
+
+    // prepend the look up word
+    QString prepend("%1<br><br>");
+    if (!fuzzy_word.isEmpty())
+    {
+        prepend = prepend.arg(fuzzy_word);
+    }
+    else
+    {
+        prepend = prepend.arg(word_);
+    }
+    result.prepend(prepend);
 }
 
 bool DictWidget::lookup(const QString &word)
@@ -135,9 +147,10 @@ bool DictWidget::lookup(const QString &word)
 
     // Title
     QString result;
-    bool ret = dict_.translate(word_, result);
+    QString fuzzy_word("");
+    bool ret = dict_.fuzzyTranslate(word_, result, fuzzy_word);
 
-    formatResult(result);
+    formatResult(result, fuzzy_word);
 
     // Result
     doc_.setHtml(result);

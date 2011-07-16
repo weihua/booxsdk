@@ -20,6 +20,7 @@ public:
 
     virtual bool translate(const QString &word, QString& result) { return true;}
     virtual bool similarWords(const QString &word, QStringList & result, const int offset, const int count) { return true; }
+    virtual bool fuzzyTranslate(const QString &word, QString& result, QString &fuzzy_word) { return true; };
 };
 
 

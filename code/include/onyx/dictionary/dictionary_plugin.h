@@ -26,6 +26,9 @@ public:
 
     virtual bool translate(const QString &word, QString& result) = 0;
     virtual bool similarWords(const QString &word, QStringList & result, const int offset, const int count) = 0;
+
+    // new added method, translate with fuzzy match
+    virtual bool fuzzyTranslate(const QString &word, QString& result, QString &fuzzy_word) = 0;
 };
 typedef Dictionary * DictionaryPtr;
 

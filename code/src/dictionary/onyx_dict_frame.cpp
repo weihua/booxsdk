@@ -320,7 +320,7 @@ void OnyxDictFrame::connectWithChildren()
             this, SLOT(onItemActivated(CatalogView *, ContentView *, int)));
 }
 
-void OnyxDictFrame::formatResult(QString &result)
+void OnyxDictFrame::formatResult(QString &result, QString &fuzzy_word)
 {
     if (result.isEmpty())
     {
@@ -330,6 +330,20 @@ void OnyxDictFrame::formatResult(QString &result)
     {
         result.replace("\n", "<br>");
     }
+
+    // prepend the look up word
+    QString prepend("%1<br><br>");
+    qDebug() << "at OnyxDictFrame::formatResult, fuzzy word: " << fuzzy_word;
+    if (!fuzzy_word.isEmpty())
+    {
+
+        prepend = prepend.arg(fuzzy_word);
+    }
+    else
+    {
+        prepend = prepend.arg(word_);
+    }
+    result.prepend(prepend);
 }
 
 bool OnyxDictFrame::lookup(const QString &word)
@@ -346,9 +360,10 @@ bool OnyxDictFrame::lookup(const QString &word)
 
     // Title
     QString result;
-    bool ret = dict_mgr_.translate(word_, result);
+    QString fuzzy_word;
+    bool ret = dict_mgr_.fuzzyTranslate(word_, result, fuzzy_word);
 
-    formatResult(result);
+    formatResult(result, fuzzy_word);
 
     // Result
     doc_.setHtml(result);

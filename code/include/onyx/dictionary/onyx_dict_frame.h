@@ -80,7 +80,7 @@ private:
     void ttsClicked();
 
     // for the result of dictionary look up
-    void formatResult(QString &result);
+    void formatResult(QString &result, QString &fuzzy_word);
 
 private:
     QVBoxLayout big_layout_;

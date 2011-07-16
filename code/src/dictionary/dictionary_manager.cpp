@@ -104,6 +104,42 @@ bool DictionaryManager::translate(const QString &word,
     return true;
 }
 
+bool DictionaryManager::fuzzyTranslate(const QString &word, QString& result, QString& fuzzy_word)
+{
+    if (word.isEmpty())
+    {
+        result.clear();
+        return false;
+    }
+
+    // Check dictionary in used.
+    if (selected_dictionary_.isEmpty())
+    {
+        qWarning("Not dictionary is selected.");
+        return false;
+    }
+
+    DictionaryPtr dict = dictionary(selected_dictionary_);
+    if (dict == 0)
+    {
+        qWarning("No dictionary %s found", qPrintable(selected_dictionary_));
+        return false;
+    }
+
+    // Use try...catch in case if there is problem with dictionary plugin.
+    try
+    {
+        dict->fuzzyTranslate(word, result, fuzzy_word);
+    }
+    catch(...)
+    {
+        qWarning("Dictionary exception catched.");
+        return false;
+    }
+
+    return true;
+}
+
 /// This function returns the similar words around the specified word.
 /// \count How many similar words that need to return.
 bool DictionaryManager::similarWords(const QString &word,
