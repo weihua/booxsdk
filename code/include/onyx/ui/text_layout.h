@@ -45,6 +45,11 @@ int calculateMultiLinesLayout(QTextLayout & layout,
                               const QRect & rect,
                               int lines);
 
+QString calculateMultiLinesText(const QFont & font,
+                              const QString & text,
+                              const Qt::Alignment align,
+                              int width,
+                              int lines);
 
 void drawSingleLineText(QPainter &painter,
                         const QFont & font,

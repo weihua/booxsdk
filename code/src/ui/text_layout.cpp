@@ -281,6 +281,72 @@ int calculateMultiLinesLayout(QTextLayout & layout,
     return total;
 }
 
+// format the text to multi-lines to fit to the width, and append
+// ellipsis if not able to display all.
+QString calculateMultiLinesText(const QFont & font,
+                              const QString & text,
+                              const Qt::Alignment align,
+                              int width,
+                              int lines)
+{
+    // the line limit is non zero
+    if (lines <= 0)
+    {
+        return QString("");
+    }
+
+    QTextLayout layout(text);
+    // Construct the layout.
+    layout.setCacheEnabled(false);
+    layout.setFont(font);
+    QTextOption option = layout.textOption();
+    option.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+    layout.setTextOption(option);
+
+    layout.beginLayout();
+    QString result;
+    int count = 1;
+    int total = 0;
+    QTextLine line = layout.createLine();
+    while (line.isValid() && count <= lines)
+    {
+        line.setLineWidth(width);
+        if (align & Qt::AlignLeft)
+        {
+            line.setPosition(QPoint(0, total));
+        }
+        else if (align & Qt::AlignHCenter)
+        {
+            int x = static_cast<int>((width - line.naturalTextWidth()) / 2);
+            line.setPosition(QPoint(x, total));
+        }
+        else if (align & Qt::AlignRight)
+        {
+            int x = static_cast<int>(width - line.naturalTextWidth());
+            line.setPosition(QPoint(x, total));
+        }
+        total += static_cast<int>(line.height());
+        if (1 != count)
+        {
+            result.append("\n");
+        }
+        result.append(text.mid(line.textStart(), line.textLength()));
+
+        line = layout.createLine();
+        ++count;
+    }
+
+    // replace the last three chars to ellipsis if still has valid lines
+    if (line.isValid())
+    {
+        result.replace(result.length()-3, 3, "...");
+    }
+
+    layout.endLayout();
+
+    return result;
+}
+
 void drawSingleLineText(QPainter &painter,
                         const QFont & font,
                         const QString & text,
