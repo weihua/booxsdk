@@ -68,6 +68,7 @@ static const APN APNS[] =
     {"movistar.es", "movistar", "movistar", "movistar"},
     {"web.htgprs", "", "", "htgprs"},
     {"Plus", "", "", "plus"},
+    {"Vodafone", "", "", "vodafone"},
     {"China Unicom", "", "", "unicom"},
     {"China Telecom", "", "", "telecom"},
 };
