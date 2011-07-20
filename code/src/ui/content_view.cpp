@@ -25,7 +25,6 @@ ContentView::ContentView(QWidget *parent)
         , pen_width_(3)
         , bk_color_(Qt::white)
 {
-    setFocusPolicy(Qt::StrongFocus);
     setAutoFillBackground(false);
 }
 
@@ -45,6 +44,15 @@ bool ContentView::isChecked()
 
 bool ContentView::updateData(OData* data, bool force)
 {
+    if (data)
+    {
+        setFocusPolicy(Qt::StrongFocus);
+    }
+    else
+    {
+        setFocusPolicy(Qt::NoFocus);
+    }
+
     if (data_ == data && !force)
     {
         return false;
