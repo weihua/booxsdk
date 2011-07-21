@@ -146,8 +146,11 @@ void ContentView::mouseMoveEvent(QMouseEvent * e)
     {
         if (!rect().contains(e->pos()))
         {
-            setPressed(false);
-            repaintAndRefreshScreen();
+            if (isPressed())
+            {
+                setPressed(false);
+                repaintAndRefreshScreen();
+            }
         }
         else
         {
