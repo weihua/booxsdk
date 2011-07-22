@@ -75,7 +75,7 @@ public slots:
     void setFixedGrid(int rows, int cols);
     bool isFixedGrid();
     QSize preferItemSize();
-    void setPreferItemSize(const QSize &size, bool fixed = true);
+    void setPreferItemSize(const QSize &size, bool fixed = false);
     int rows();
     int cols();
 
