@@ -198,7 +198,6 @@ void FullScreenClock::keyPressEvent(QKeyEvent *ke)
     ke->accept();
 }
 
-
 void FullScreenClock::keyReleaseEvent(QKeyEvent *ke)
 {
     // Check the current selected type.
@@ -221,6 +220,16 @@ void FullScreenClock::keyReleaseEvent(QKeyEvent *ke)
             break;
     }
 }
+
+void FullScreenClock::mousePressEvent(QMouseEvent *event)
+{
+}
+
+void FullScreenClock::mouseReleaseEvent(QMouseEvent *event)
+{
+    onCloseClicked();
+}
+
 
 bool FullScreenClock::event(QEvent *e)
 {

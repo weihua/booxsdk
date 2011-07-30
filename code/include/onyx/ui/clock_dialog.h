@@ -50,8 +50,12 @@ private:
     void keyPressEvent(QKeyEvent *);
     void keyReleaseEvent(QKeyEvent *);
     bool event(QEvent *e);
+
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+
     void createLayout();
-    void paintEvent(QPaintEvent *);  
+    void paintEvent(QPaintEvent *);
     void drawTime(QPainter *);
     void drawDate(QPainter *);
 
