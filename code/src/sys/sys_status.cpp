@@ -91,8 +91,11 @@ static void putDeviceFile()
     path = QDir::home().path();
 #endif
     QDir dir(path);
-    qputenv("ADEPT_DEVICE_FILE", dir.absoluteFilePath(DEVICE_FILE).toAscii());
-    qDebug("ADEPT_DEVICE_FILE : %s", qgetenv("ADEPT_DEVICE_FILE").constData());
+    if (!isImx508())
+    {
+        qputenv("ADEPT_DEVICE_FILE", dir.absoluteFilePath(DEVICE_FILE).toAscii());
+        qDebug("ADEPT_DEVICE_FILE : %s", qgetenv("ADEPT_DEVICE_FILE").constData());
+    }
 
     qputenv("ADEPT_ACTIVATION_FILE", dir.absoluteFilePath(ACTIVATION_FILE).toAscii());
     qDebug("ADEPT_ACTIVATION_FILE : %s", qgetenv("ADEPT_ACTIVATION_FILE").constData());
