@@ -39,7 +39,7 @@ CatalogView::CatalogView(Factory * factory, QWidget *parent)
         , sub_item_checked_exclusive_(true)
         , size_(200, 150)
         , bk_color_(Qt::white)
-        , fixed_size_(true)
+        , fixed_size_(false)
 {
     createLayout();
 }
@@ -706,7 +706,7 @@ ContentView* CatalogView::createSubItem()
     {
         if (fixed_size_)
         {
-            // instance->setFixedSize(s);
+            instance->setFixedSize(s);
         }
     }
     return instance;

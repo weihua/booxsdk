@@ -50,6 +50,10 @@ QString soundModule()
         {
             mod = "snd_soc_booxe";
         }
+        else if (isImx508())
+        {
+            mod = "snd_soc_imx_3stack_wm8976";
+        }
         else
         {
             qDebug("No sound module found, check profile.");
