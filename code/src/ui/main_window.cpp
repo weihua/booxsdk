@@ -24,7 +24,7 @@ MainWindow::MainWindow(QObject *parent)
                   (MENU | PROGRESS | MESSAGE | CLOCK | BATTERY)))
 {
     setAutoFillBackground(true);
-    setBackgroundRole(QPalette::Base);
+    setBackgroundRole(QPalette::Foreground);
 
 #ifndef Q_WS_QWS
     resize(600, 800);
