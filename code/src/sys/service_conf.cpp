@@ -79,6 +79,18 @@ static   Service onyx_reader("com.onyx.service.onyx_reader",
                             OPEN_METHOD,
                             "onyx_reader");
 
+static   Service cool_reader("com.onyx.service.cool_reader",
+                             "/com/onyx/object/cool_reader",
+                             "com.onyx.interface.cool_reader",
+                            OPEN_METHOD,
+                            "cr3");
+
+static   Service html_reader("com.onyx.service.htmlreader",
+                            "/com/onyx/object/htmlreader",
+                            "com.onyx.interface.htmlreader",
+                           OPEN_METHOD,
+                           "html_reader");
+
 static   Service office_viewer("com.onyx.service.office_viewer",
                             "/com/onyx/object/office_viewer",
                             "com.onyx.interface.office_viewer",
@@ -263,6 +275,22 @@ void ServiceConfig::loadDefaultServices()
 
         // Seems it can not open tar file.
         DEFAULT_SERVICES.push_back(onyx_reader);
+
+        // cool_reader based service
+        if (!has_office_viewer)
+        {
+            cool_reader.mutable_extensions().push_back("doc");
+        }
+        cool_reader.mutable_extensions().push_back("txt");
+        cool_reader.mutable_extensions().push_back("fb2");
+        cool_reader.mutable_extensions().push_back("html");
+        cool_reader.mutable_extensions().push_back("tcr");
+        cool_reader.mutable_extensions().push_back("rtf");
+        cool_reader.mutable_extensions().push_back("epub");
+
+
+        // Seems it can not open tar file.
+        DEFAULT_SERVICES.push_back(cool_reader);
 
         // Office viewer.
         if (has_office_viewer)
@@ -486,6 +514,18 @@ bool ServiceConfig::nabooReaderService(QSqlDatabase &, Service & service)
 bool ServiceConfig::onyxReaderService(QSqlDatabase &, Service & service)
 {
     service = onyx_reader;
+    return true;
+}
+
+bool ServiceConfig::coolReaderService(QSqlDatabase &, Service & service)
+{
+    service = cool_reader;
+    return true;
+}
+
+bool ServiceConfig::htmlReaderService(QSqlDatabase &, Service & service)
+{
+    service = html_reader;
     return true;
 }
 

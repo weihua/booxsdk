@@ -131,6 +131,16 @@ bool SystemConfig::onyxReaderService(Service & service)
     return ServiceConfig::onyxReaderService(*database_, service);
 }
 
+bool SystemConfig::coolReaderService(Service & service)
+{
+    return ServiceConfig::coolReaderService(*database_, service);
+}
+
+bool SystemConfig::htmlReaderService(Service & service)
+{
+    return ServiceConfig::htmlReaderService(*database_, service);
+}
+
 bool SystemConfig::nabooReaderService(Service & service)
 {
     return ServiceConfig::nabooReaderService(*database_, service);
