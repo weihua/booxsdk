@@ -68,7 +68,8 @@ bool TouchEventListener::eventFilter(QObject *obj,
     {
         enableBroadcast(true);
     }
-    else if (event->type() == QEvent::FocusOut)
+    else if (event->type() == QEvent::FocusOut ||
+             event->type() == QEvent::Hide)
     {
         enableBroadcast(false);
     }

@@ -45,6 +45,9 @@ protected:
     void displayAssociatedChars(const QString & current_text);
     bool adjustAssociatedChar(const QString & dst_text, int index);
 
+    void showEvent(QShowEvent * event);
+    void hideEvent(QHideEvent * event);
+
 private Q_SLOTS:
     void onFinishCharacterTimeOut();
     void onAutoSelect();

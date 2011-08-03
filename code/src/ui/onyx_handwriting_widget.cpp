@@ -287,6 +287,25 @@ bool OnyxHandwritingWidget::adjustAssociatedChar(const QString & dst_text, int i
     return handwriting_mgr.adjustAssociatedChar(dst_text, index);
 }
 
+void OnyxHandwritingWidget::showEvent(QShowEvent * event)
+{
+    if (sketch_widget_)
+    {
+        sketch_widget_->attachSketchProxy(sketch_proxy_.get());
+    }
+    QWidget::showEvent(event);
+}
+
+void OnyxHandwritingWidget::hideEvent(QHideEvent * event)
+{
+    if (sketch_widget_)
+    {
+        sketch_widget_->deattachSketchProxy();
+    }
+    QWidget::hideEvent(event);
+}
+
+
 void OnyxHandwritingWidget::onTextSelected(const QString & text, int index)
 {
     // stop the auto selection timer if necessary
