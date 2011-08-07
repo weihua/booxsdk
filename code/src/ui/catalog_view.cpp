@@ -150,7 +150,8 @@ void CatalogView::arrangeSubWidgets()
     bool add = false;
     ContentView * p = 0;
     int index = 0;
-    if (paginator().rows() != rows || paginator().cols() != cols || isFixedGrid())
+    // Always update.
+    //if (paginator().rows() != rows || paginator().cols() != cols || isFixedGrid())
     {
         // Remove all widgets from layout.
         for (int i = 0; i < sub_items_.size(); ++i)
@@ -706,7 +707,10 @@ ContentView* CatalogView::createSubItem()
     {
         if (fixed_size_)
         {
-            instance->setFixedSize(s);
+            int w = (rect().width() - left_margin_ - right_margin_) /  cols();
+            int h = (rect().height() - top_margin_ - bottom_margin_) / rows();
+            instance->setFixedSize(QSize(w, h));
+            //instance->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         }
     }
     return instance;
@@ -735,7 +739,8 @@ QSize CatalogView::preferItemSize()
 void CatalogView::setPreferItemSize(const QSize &size, bool fixed)
 {
     fixed_size_ = fixed;
-    if (size_ != size)
+    // Always update.
+    // if (size_ != size)
     {
         size_ = size;
         arrangeAll();
