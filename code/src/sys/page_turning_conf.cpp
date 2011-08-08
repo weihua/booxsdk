@@ -7,7 +7,7 @@
 namespace sys
 {
 int PageTurningConfig::direction_ = 1;
-int PageTurningConfig::THRESHOLD = 10;
+int PageTurningConfig::THRESHOLD = -1;
 
 /// Page turning configuration. By default, from right to left or
 /// from bottom to top is interpreted as next.
@@ -61,11 +61,11 @@ int PageTurningConfig::direction(const QPoint & old_position, const QPoint & new
         delta = delta_y;
     }
 
-    if (delta < -THRESHOLD)
+    if (delta < -distance())
     {
         return direction_;
     }
-    else if (delta > THRESHOLD)
+    else if (delta > distance())
     {
         return -direction_;
     }
@@ -87,6 +87,14 @@ void PageTurningConfig::setDirection(int conf)
 /// Return the distance threshold.
 int PageTurningConfig::distance()
 {
+    if (THRESHOLD <= 0)
+    {
+        THRESHOLD = qgetenv("PAN_DISTANCE").toInt();
+    }
+    if (THRESHOLD <= 0)
+    {
+        THRESHOLD = 10;
+    }
     return THRESHOLD;
 }
 
