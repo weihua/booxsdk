@@ -89,7 +89,7 @@ int PageTurningConfig::distance()
 {
     if (THRESHOLD <= 0)
     {
-        THRESHOLD = qgetenv("PAN_DISTANCE").toInt();
+        THRESHOLD = qgetenv("SWIPE_DISTANCE").toInt();
     }
     if (THRESHOLD <= 0)
     {
