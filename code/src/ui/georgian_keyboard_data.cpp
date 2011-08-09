@@ -116,7 +116,7 @@ void GeorgianKeyboardData::initLeftKeyShiftCode()
 {
     const QChar Georgian_SHITT_LEFT[] = {
             QChar(0x10E5), QChar(0x10ED), QChar(0x10D4),
-            QChar(0x10D0), QChar(0x10E1), QChar(0x10D3),
+            QChar(0x10D0), QChar(0x10E8), QChar(0x10D3),
             QChar(0x10EB), QChar(0x10EE), QChar(0x10E9), };
     for (int i = 0; i < 9; i++)
     {
@@ -128,7 +128,7 @@ void GeorgianKeyboardData::initLeftKeyShiftCode()
 void GeorgianKeyboardData::initMiddleKeyShiftCode()
 {
     const QChar Georgian_SHIFT_MIDDLE[] = {
-            QChar(0x10E0), QChar(0x10D7), QChar(0x10E7),
+            QChar(0x10E6), QChar(0x10D7), QChar(0x10E7),
             QChar(0x10E4), QChar(0x10D2), QChar(0x10F0),
             QChar(0x10D5), QChar(0x10D1), QChar(0x10DC), };
     for (int i = 0; i < 9; i++)
