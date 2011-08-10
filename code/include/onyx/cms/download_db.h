@@ -15,8 +15,10 @@ enum DownloadState
 {
     STATE_INVALID = -1,
     DOWNLOADING,
-    FINISHED,
-    FAILED,
+    FINISHED,       ///< Finished but not read.
+    FAILED,         ///< Don't ever download it again.
+    PENDING,        ///< Download next time.
+    FINISHED_READ,  ///< Download finished and has been read.
 };
 
 class DownloadItemInfo : public OData
@@ -93,7 +95,6 @@ public:
     bool open();
     bool close();
 
-    DownloadInfoList list();
     DownloadInfoList pendingList(const DownloadInfoList & input = DownloadInfoList(),
                              bool force_all = false,
                              bool sort = true);
@@ -101,6 +102,14 @@ public:
     bool update(const DownloadItemInfo & item);
     bool updateState(const QString & url, DownloadState state = FINISHED);
     bool remove(const QString & url);
+
+    QStringList list(DownloadState state = FINISHED);
+    DownloadInfoList all(DownloadState state = STATE_INVALID);
+
+    int  itemCount(DownloadState state = FINISHED);
+    bool markAsRead(const QString & path, DownloadState state = FINISHED_READ);
+    void markAllAsRead(DownloadState state = FINISHED_READ);
+    QString getPathByUrl(const QString & url);
 
 private:
     bool makeSureTableExist(QSqlDatabase &db);
