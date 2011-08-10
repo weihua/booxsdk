@@ -557,7 +557,6 @@ bool CatalogView::goPrev()
 
 void CatalogView::keyReleaseEvent ( QKeyEvent *ke )
 {
-    this->layout_.setEnabled(false);
     ke->ignore();
     switch ( ke->key())
     {
@@ -582,10 +581,9 @@ void CatalogView::keyReleaseEvent ( QKeyEvent *ke )
         }
         break;
     default:
-        break;
+        return;
     }
     ke->accept();
-    this->layout_.setEnabled(true);
 }
 
 void CatalogView::keyPressEvent(QKeyEvent*e )
