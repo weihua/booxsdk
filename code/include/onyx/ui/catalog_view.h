@@ -99,7 +99,6 @@ public slots:
 
     // sub_item_checked_exclusive_ will set to true on default.
     void setSubItemCheckedExclusive(bool value);
-    QGridLayout & getLayout() { return layout_;}
 
 protected Q_SLOTS:
     virtual void onItemActivated(ContentView *item, int);
