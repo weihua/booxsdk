@@ -1,3 +1,5 @@
+
+
 # The Onyx Boox SDK
 
 ## Introduction
@@ -46,3 +48,10 @@ static libraries by running
 
 If you are running a 64-bit environment, please make sure you have
 32-bit runtime libraries installed. (For example, on Arch Linux, it is `multilib/lib32-gcc-libs`.)
+
+
+
+# Open source packages
+
+Please visit http://opensource.onyx-international.com/ to download all source packages.
+
