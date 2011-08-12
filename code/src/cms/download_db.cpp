@@ -142,14 +142,19 @@ bool DownloadDB::close()
 }
 
 /// Return all download item list including pending list, finished list and the others.
-DownloadInfoList DownloadDB::list()
+QStringList DownloadDB::list(DownloadState state)
 {
-    return pendingList(DownloadInfoList(), true, true);
+    QStringList list;
+    DownloadInfoList infoList = all(state);
+
+    for(int i = 0; i < infoList.size(); ++i)
+    {
+        list.push_back(infoList[i].path());
+    }
+    return list;
 }
 
-DownloadInfoList DownloadDB::pendingList(const DownloadInfoList & input,
-                                     bool force_all,
-                                     bool sort)
+DownloadInfoList DownloadDB::all(DownloadState state)
 {
     DownloadInfoList list;
 
@@ -171,7 +176,7 @@ DownloadInfoList DownloadDB::pendingList(const DownloadInfoList & input,
         DownloadItemInfo item(m);
 
         // Ignore items finished.
-        if (item.state() != FINISHED || force_all)
+        if (item.state() == state || state == STATE_INVALID)
         {
             if (!list.contains(item))
             {
@@ -180,6 +185,14 @@ DownloadInfoList DownloadDB::pendingList(const DownloadInfoList & input,
         }
     }
 
+    return list;
+}
+
+DownloadInfoList DownloadDB::pendingList(const DownloadInfoList & input,
+                                     bool force_all,
+                                     bool sort)
+{
+    DownloadInfoList list = force_all ? all(STATE_INVALID) : all(FINISHED);
     // check input now.
     foreach(DownloadItemInfo i, input)
     {
@@ -238,6 +251,38 @@ bool DownloadDB::updateState(const QString & myUrl, DownloadState state)
     }
 
     return false;
+}
+
+int  DownloadDB::itemCount(DownloadState state)
+{
+    return list(state).size();
+}
+
+bool DownloadDB::markAsRead(const QString & path,
+                            DownloadState state)
+{
+    bool found = false;
+    DownloadInfoList list = all(STATE_INVALID);
+    foreach(DownloadItemInfo info, list)
+    {
+        if (path == info.path())
+        {
+            found = true;
+            info.setState(state);
+            update(info);
+        }
+    }
+    return found;
+}
+
+void DownloadDB::markAllAsRead(DownloadState state)
+{
+    DownloadInfoList list = all(STATE_INVALID);
+    foreach(DownloadItemInfo info, list)
+    {
+        info.setState(state);
+        update(info);
+    }
 }
 
 bool DownloadDB::remove(const QString & url)

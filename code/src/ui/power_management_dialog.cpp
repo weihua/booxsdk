@@ -33,6 +33,11 @@ static const Interval SHUTDOWN_ITEMS[] =
 };
 static const int SHUTDOWN_COUNT = sizeof(SHUTDOWN_ITEMS) / sizeof(SHUTDOWN_ITEMS[0]);
 
+static bool isPmExclusive()
+{
+    return (qgetenv("PM_INCLUSIVE").toInt() <= 0);
+}
+
 PowerManagementDialog::PowerManagementDialog(QWidget *parent, SysStatus & ref)
     : OnyxDialog(parent)
     , status_(ref)
@@ -210,10 +215,35 @@ void PowerManagementDialog::onStandbyButtonChanged(bool state)
         }
     }
 
-    // Never shutdown.
-    int j = shutdown_buttons_.size() - 1;
-    shutdown_buttons_[j]->setChecked(true);
-    shutdown_interval_ = SHUTDOWN_ITEMS[j].seconds;
+    if (isPmExclusive())
+    {
+        // Never shutdown.
+        int j = shutdown_buttons_.size() - 1;
+        shutdown_buttons_[j]->setChecked(true);
+        shutdown_interval_ = SHUTDOWN_ITEMS[j].seconds;
+    }
+    else
+    {
+        int j = -1;
+        while (++j < static_cast<int>(shutdown_buttons_.size()))
+        {
+            if (shutdown_buttons_[j]->isChecked() && j <= i)
+            {
+                if (SHUTDOWN_ITEMS[j].seconds > STANDBY_ITEMS[i].seconds)
+                {
+                    return;
+                }
+                j = i + 1;
+                if (j >= static_cast<int>(shutdown_buttons_.size()))
+                {
+                    j = shutdown_buttons_.size() - 1;
+                }
+                shutdown_buttons_[j]->setChecked(true);
+                shutdown_interval_ = SHUTDOWN_ITEMS[j].seconds;
+                return;
+            }
+        }
+    }
 }
 
 void PowerManagementDialog::onShutdownButtonChanged(bool state)
@@ -229,10 +259,36 @@ void PowerManagementDialog::onShutdownButtonChanged(bool state)
         }
     }
 
-    // Never deep sleep.
-    int j = standby_buttons_.size() - 1;
-    standby_buttons_[j]->setChecked(true);
-    standby_interval_ = STANDBY_ITEMS[j].seconds;
+    if (isPmExclusive())
+    {
+        // Never deep sleep.
+        int j = standby_buttons_.size() - 1;
+        standby_buttons_[j]->setChecked(true);
+        standby_interval_ = STANDBY_ITEMS[j].seconds;
+    }
+    else
+    {
+        int j = standby_buttons_.size() - 1;
+        while (j >= 0)
+        {
+            if (standby_buttons_[j]->isChecked())
+            {
+                if ((SHUTDOWN_ITEMS[i].seconds > STANDBY_ITEMS[j].seconds  && STANDBY_ITEMS[j].seconds > 0) ||
+                    (SHUTDOWN_ITEMS[i].seconds == 0 && STANDBY_ITEMS[j].seconds == 0))
+                {
+                    return;
+                }
+                else
+                {
+                    j = std::max(0, i - 1);
+                    standby_buttons_[j]->setChecked(true);
+                    standby_interval_ = STANDBY_ITEMS[j].seconds;
+                }
+                return;
+            }
+            --j;
+        }
+    }
 }
 
 bool PowerManagementDialog::event(QEvent* qe)
