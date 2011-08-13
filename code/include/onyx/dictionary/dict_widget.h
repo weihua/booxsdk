@@ -95,6 +95,7 @@ private:
     OnyxPushButton explanation_button_;
     OnyxPushButton similar_words_button_;
     OnyxPushButton dictionaries_button_;
+    OnyxPushButton close_button_;
 //    OnyxPushButton open_dictionary_tool_button_;
     QButtonGroup    button_group_;
 
