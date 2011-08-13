@@ -1245,7 +1245,8 @@ QString SysStatus::currentConnection()
     {
         if (ni.flags().testFlag(QNetworkInterface::IsUp) && !ni.addressEntries().empty())
         {
-            if (ni.name().contains("eth", Qt::CaseInsensitive))
+            if (ni.name().contains("eth", Qt::CaseInsensitive) ||
+                ni.name().contains("wlan", Qt::CaseInsensitive))
             {
                 return "wifi";
             }
