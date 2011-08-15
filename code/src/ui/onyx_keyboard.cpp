@@ -247,9 +247,9 @@ void OnyxKeyboard::onItemActivated(CatalogView *catalog,
             key_text = item_data->value(TAG_TITLE).toString();
             key_code = key_text.at(0).unicode();
         }
-        QKeyEvent * key_event = new QKeyEvent(QEvent::KeyPress, key_code,
-                Qt::NoModifier, key_text);
-        QApplication::sendEvent(parentWidget(), key_event);
+        // Either use postEvent with new or sendEvent directly.
+        QKeyEvent key_event(QEvent::KeyPress, key_code,  Qt::NoModifier, key_text);
+        QApplication::sendEvent(parentWidget(), &key_event);
     }
 }
 
@@ -417,9 +417,8 @@ void OnyxKeyboard::onShowKeyboard()
 void OnyxKeyboard::onHandwritingKeyPressed(const QString &key_text,
         const int &key_code)
 {
-    QKeyEvent * key_event = new QKeyEvent(QEvent::KeyPress, key_code,
-            Qt::NoModifier, key_text);
-    QApplication::sendEvent(parentWidget(), key_event);
+    QKeyEvent key_event(QEvent::KeyPress, key_code,  Qt::NoModifier, key_text);
+    QApplication::sendEvent(parentWidget(), &key_event);
 }
 
 }   // namespace ui

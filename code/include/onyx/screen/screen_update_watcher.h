@@ -35,6 +35,8 @@ public Q_SLOTS:
     void guUpdateScreen();
     void gcUpdateScreen();
 
+    void enableUpdate(bool enable = true);
+
 public:
     bool isQueueEmpty();
 

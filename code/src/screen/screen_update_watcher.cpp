@@ -202,6 +202,11 @@ void ScreenUpdateWatcher::gcUpdateScreen()
     updateScreenInternal(false, onyx::screen::ScreenProxy::GC);
 }
 
+void ScreenUpdateWatcher::enableUpdate(bool enable)
+{
+    onyx::screen::instance().enableUpdate(enable);
+}
+
 void ScreenUpdateWatcher::updateScreenInternal(bool automatic,
                                                onyx::screen::ScreenProxy::Waveform waveform)
 {
