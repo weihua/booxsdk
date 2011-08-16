@@ -40,6 +40,9 @@ CatalogView::CatalogView(Factory * factory, QWidget *parent)
         , size_(200, 150)
         , bk_color_(Qt::white)
         , fixed_size_(false)
+#ifdef BUILD_WITH_TFT
+        , arrange_policy_(ROW_FIRST)
+#endif
 {
     createLayout();
 }
@@ -137,6 +140,18 @@ void CatalogView::setSpacing(int s)
     layout_.setVerticalSpacing(spacing_);
 }
 
+#ifdef  BUILD_WITH_TFT
+void CatalogView::setArrangePolicy(enum ArrangePolicy policy)
+{
+    if (policy != ROW_FIRST && policy != COLUMN_FIRST)
+    {
+        qDebug() << "ArrangePolicy not correct " << policy;
+        return;
+    }
+    arrange_policy_ = policy;
+}
+#endif
+
 /// Arrange all sub widgets according to current widget size.
 /// Ensure we fill the grid layout. Widget level, different from associateData,
 /// associateData will update all associated data.
@@ -147,9 +162,7 @@ void CatalogView::arrangeSubWidgets()
     int cols = 0;
     calculateLayout(rows, cols);
 
-    bool add = false;
     ContentView * p = 0;
-    int index = 0;
     // Always update.
     //if (paginator().rows() != rows || paginator().cols() != cols || isFixedGrid())
     {
@@ -161,7 +174,6 @@ void CatalogView::arrangeSubWidgets()
             p->hide();
         }
         sub_items_.clear();
-        add = true;
         if (isFixedGrid())
         {
             rows = paginator().rows();
@@ -171,6 +183,23 @@ void CatalogView::arrangeSubWidgets()
         paginator().resize(rows * cols);
     }
 
+#ifdef BUILD_WITH_TFT
+    if (arrange_policy_ == COLUMN_FIRST)
+    {
+        addSubWidgetByColumn(rows, cols);
+    }
+    else
+#endif
+    {
+        addSubWidgetByRow(rows, cols);
+    }
+}
+
+void CatalogView::addSubWidgetByRow(int rows, int cols)
+{
+    ContentView * p = 0;
+    int index = 0;
+
     for (int i = 0; i < rows; ++i)
     {
         for (int j = 0; j < cols; ++j)
@@ -178,10 +207,32 @@ void CatalogView::arrangeSubWidgets()
             if (index <  sub_items_.size())
             {
                 p = sub_items_.at(index);
-                if (add)
-                {
-                    layout_.addWidget(p, i, j);
-                }
+                layout_.addWidget(p, i, j);
+                p->show();
+            }
+            else
+            {
+                p = createSubItem();
+                layout_.addWidget(p, i, j);
+            }
+            ++index;
+        }
+    }
+}
+
+void CatalogView::addSubWidgetByColumn(int rows, int cols)
+{
+    ContentView * p = 0;
+    int index = 0;
+
+    for (int j = 0; j < cols; ++j)
+    {
+        for (int i = 0; i < rows; ++i)
+        {
+            if (index <  sub_items_.size())
+            {
+                p = sub_items_.at(index);
+                layout_.addWidget(p, i, j);
                 p->show();
             }
             else
