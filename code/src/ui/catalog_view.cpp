@@ -616,7 +616,6 @@ void CatalogView::keyReleaseEvent ( QKeyEvent *ke )
             if (!goNext())
             {
                 emit keyRelease(this, ke);
-                this->layout_.setEnabled(true);
                 return;
             }
         }
@@ -626,7 +625,6 @@ void CatalogView::keyReleaseEvent ( QKeyEvent *ke )
             if (!goPrev())
             {
                 emit keyRelease(this, ke);
-                this->layout_.setEnabled(true);
                 return;
             }
         }
@@ -857,7 +855,6 @@ void CatalogView::onItemActivated(ContentView *item, int user_data)
 
 void CatalogView::onItemKeyRelease(ContentView *item, QKeyEvent *key)
 {
-    this->layout_.setEnabled(false);
     QWidget * p = 0;
     int index = visibleSubItems().indexOf(item);
 
@@ -894,7 +891,6 @@ void CatalogView::onItemKeyRelease(ContentView *item, QKeyEvent *key)
         onyx::screen::watcher().enqueue(item, onyx::screen::ScreenProxy::DW, onyx::screen::ScreenCommand::WAIT_NONE);
         onyx::screen::watcher().enqueue(p, onyx::screen::ScreenProxy::DW, onyx::screen::ScreenCommand::WAIT_NONE);
     }
-    this->layout_.setEnabled(true);
 }
 
 void CatalogView::onMouseMoved(QPoint last, QPoint current)
