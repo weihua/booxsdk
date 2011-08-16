@@ -239,7 +239,7 @@ QByteArray readString(const char *dev, int size)
     data.resize(size);
 #ifdef BUILD_FOR_ARM
     int fd = open(dev, O_RDONLY);
-    read(fd, data.data(), data.size);
+    read(fd, data.data(), data.size());
     close(fd);
 #endif
     return data;
