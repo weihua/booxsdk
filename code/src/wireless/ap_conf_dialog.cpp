@@ -386,21 +386,16 @@ int ApConfigDialog::popup()
         psk_edit_.setText(profile_.wepKey1());
     }
 
-    QWidget *p = parentWidget();
-    if (p == 0)
-    {
-        p = QApplication::desktop();
-    }
+    QWidget *p = ui::safeParentWidget(parentWidget());
     QRect parent_rect = p->rect();
-    int border = Shadows::PIXELS;
-    int width = parent_rect.width() - border * 2;
+    int width = parent_rect.width();
     if (size().width() != width)
     {
         resize(width, height());
     }
 
-    int x = Shadows::PIXELS;
-    int y = p->height() - height() - 2 * Shadows::PIXELS;
+    int x = 0;
+    int y = p->height() - height();
     move(x, y);
 
     onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
