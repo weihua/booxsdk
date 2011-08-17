@@ -501,7 +501,7 @@ void SketchProxy::onReceivedTouchData(TouchData & data)
         widget_pos.x() > attached_widget_->width() ||
         widget_pos.y() > attached_widget_->height())
     {
-        qDebug("Out of boundary");
+        // qDebug("Out of boundary");
         return;
     }
 
