@@ -39,6 +39,8 @@ bool isImageZip(const QString &path, int threshold = 80);
 
 bool writeString(const char *dev, const char *str);
 
+QByteArray readString(const char *dev, int size = 0x400);
+
 }
 
 #endif  // SYSTEM_CONF_H__

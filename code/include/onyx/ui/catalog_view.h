@@ -34,6 +34,14 @@ public:
          AutoVerRecycle = 0x04,
      };
 
+#ifdef BUILD_WITH_TFT
+     enum ArrangePolicy
+     {
+         ROW_FIRST = 0x1,
+         COLUMN_FIRST = 0x02,
+     };
+#endif
+
 public:
     CatalogView(Factory * factory = 0, QWidget *parent = 0);
     ~CatalogView();
@@ -59,6 +67,10 @@ public slots:
     int spacing() { return spacing_; }
 
     void setTitle(const QString &title);
+
+#ifdef BUILD_WITH_TFT
+    void setArrangePolicy(enum ArrangePolicy policy);
+#endif
 
     void showBorder(bool show = true) { show_border_ = show; }
     bool hasBorder() { return show_border_; }
@@ -141,6 +153,8 @@ private:
     void createLayout();
     void calculateLayout(int &rows, int &cols);
     void arrangeSubWidgets();
+    void addSubWidgetByRow(int rows, int cols);
+    void addSubWidgetByColumn(int rows, int cols);
 
     int moveLeft(int current);
     int moveRight(int current);
@@ -184,6 +198,10 @@ private:
     QString sub_item_type_;
     Qt::GlobalColor bk_color_;
     bool fixed_size_;
+
+#ifdef BUILD_WITH_TFT
+    enum ArrangePolicy arrange_policy_;
+#endif
 };
 
 
