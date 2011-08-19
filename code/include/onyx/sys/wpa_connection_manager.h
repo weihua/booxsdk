@@ -45,6 +45,8 @@ public Q_SLOTS:
     QString address();
     QString hardwareAddress();
 
+    void queryStatus();
+
 private Q_SLOTS:
     bool enableSdio(bool enable = true) const;
     bool sdioState() const ;
