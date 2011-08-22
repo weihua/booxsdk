@@ -22,6 +22,8 @@ QString soundModule();
 
 int defaultRotation();
 
+int batteryPercentageThreshold();
+
 }
 
 #endif  // ONYX_SYSTEM_PLATFORM_H__
