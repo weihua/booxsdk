@@ -74,7 +74,7 @@ int defaultRotation()
 
 int batteryPercentageThreshold()
 {
-    return 2;
+    return 5;
 }
 
 }    // namespace sys
