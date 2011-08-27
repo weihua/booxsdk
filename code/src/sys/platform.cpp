@@ -72,5 +72,15 @@ int defaultRotation()
     return rotation;
 }
 
+bool collectUserBehavior()
+{
+    static bool enable_collection = false;
+    if (qgetenv("ENABLE_COLLECT_USER_BEHAVIOR").toInt() > 0)
+    {
+        enable_collection = true;
+    }
+    return enable_collection;
+}
+
 }    // namespace sys
 

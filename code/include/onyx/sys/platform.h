@@ -22,6 +22,8 @@ QString soundModule();
 
 int defaultRotation();
 
+bool collectUserBehavior();
+
 }
 
 #endif  // ONYX_SYSTEM_PLATFORM_H__

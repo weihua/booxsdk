@@ -9,6 +9,7 @@
 #endif
 #include "onyx/base/dbus.h"
 #include "onyx/base/device.h"
+#include "onyx/data/user_behavior.h"
 #include "wpa_connection.h"
 #include "wpa_connection_manager.h"
 
@@ -145,6 +146,8 @@ class SysStatus : public QObject
     bool setBrightness(const unsigned char brightness);
     unsigned char brightness();
 
+    void reportUserBehavior(const onyx::data::UserBehavior &behaviour);
+
     // The following signals must be the same with system manager.
     // Need a better way to sync them.
   signals:
@@ -199,6 +202,8 @@ class SysStatus : public QObject
 
     void configKeyboard();
 
+    void userBehaviorSignal(const QByteArray &data);
+
   private slots:
     void onBatteryChanged(int, int);
     void onMountTreeChanged(bool mounted, const QString &mount_point);
@@ -240,6 +245,8 @@ class SysStatus : public QObject
     void onMultiTouchReleaseDetected(int, int, int, int, int, int, int, int);
 
     void onConfigKeyboard();
+
+    void onUserBehaviorSignal(const QByteArray &data);
 
   private:
     SysStatus();

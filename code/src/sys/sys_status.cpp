@@ -390,6 +390,15 @@ void SysStatus::installSlots()
     {
         qDebug("\nCan not connect the configKeyboard signal\n");
     }
+
+    if (!connection_.connect(service, object, iface,
+                             "userBehaviorSignal",
+                             this,
+                             SLOT(onUserBehaviorSignal(
+                                     const QByteArray &))))
+    {
+        qDebug("\nCan not connect the reportUserBehavior signal\n");
+    }
 }
 
 bool SysStatus::batteryStatus(int& current,
@@ -1747,6 +1756,28 @@ unsigned char SysStatus::brightness()
     return 0;
 }
 
+/// Report user behavior. This function is used
+/// by reader apps to notify user behavior to listeners.
+void SysStatus::reportUserBehavior(const onyx::data::UserBehavior &behavior)
+{
+    QByteArray data;
+    onyx::data::serialize(behavior, data);
+
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "reportUserBehavior"      // method.
+    );
+
+    message << data;
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+}
+
 void SysStatus::dump()
 {
     int left;
@@ -1925,6 +1956,11 @@ void SysStatus::onMultiTouchReleaseDetected(int x1, int y1, int width1, int heig
 void SysStatus::onConfigKeyboard()
 {
     emit configKeyboard();
+}
+
+void SysStatus::onUserBehaviorSignal(const QByteArray &data)
+{
+    emit userBehaviorSignal(data);
 }
 
 }   // namespace sys

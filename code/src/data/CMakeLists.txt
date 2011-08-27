@@ -21,6 +21,7 @@ qt4_wrap_cpp(MOC_SRCS
   ${ONYXSDK_DIR}/include/onyx/data/handwriting_widget.h
   ${ONYXSDK_DIR}/include/onyx/data/handwriting_functions_model.h
   ${ONYXSDK_DIR}/include/onyx/data/data.h
+  ${ONYXSDK_DIR}/include/onyx/data/user_behavior.h
 )
 
 add_library(onyx_data
@@ -47,6 +48,7 @@ add_library(onyx_data
   content.cpp
   data.cpp
   search_context.cpp
+  user_behavior.cpp
   ${MOC_SRCS}
 )
 target_link_libraries(onyx_data onyx_cms onyx_sys onyx_touch)
