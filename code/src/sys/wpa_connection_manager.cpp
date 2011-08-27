@@ -671,3 +671,8 @@ QString WpaConnectionManager::hardwareAddress()
     return result;
 }
 
+void WpaConnectionManager::queryStatus()
+{
+    QVariantMap info;
+    proxy().status(info);
+}

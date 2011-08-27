@@ -82,5 +82,19 @@ bool collectUserBehavior()
     return enable_collection;
 }
 
+int batteryPercentageThreshold()
+{
+    static int threshold = -1;
+    if (threshold < 0)
+    {
+        threshold = qgetenv("BATTERY_THRESHOLD").toInt();
+    }
+    if (threshold)
+    {
+        threshold = 5;
+    }
+    return threshold;
+}
+
 }    // namespace sys
 

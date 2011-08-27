@@ -24,6 +24,8 @@ int defaultRotation();
 
 bool collectUserBehavior();
 
+int batteryPercentageThreshold();
+
 }
 
 #endif  // ONYX_SYSTEM_PLATFORM_H__

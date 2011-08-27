@@ -1,3 +1,5 @@
+#include "onyx/sys/platform.h"
+
 #include "onyx/ui/onyx_handwriting_widget.h"
 #include "onyx/data/data_tags.h"
 #include "onyx/ui/keyboard_data.h"
@@ -256,6 +258,10 @@ void OnyxHandwritingWidget::onFinishCharacterTimeOut()
 
     // clear the strokes on keyboard
     sketch_widget_->onClearSketches();
+    if (sys::isImx508())
+    {
+        sketch_widget_->update();
+    }
 
     // clear all of the points
     handwriting_mgr.clearPoints();
