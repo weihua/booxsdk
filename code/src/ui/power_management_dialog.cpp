@@ -22,10 +22,12 @@ struct ItemStruct
 /// Define all display items.
 static const ItemStruct DISPLAY_ITEMS[] =
 {
+    {QT_TRANSLATE_NOOP("pm","never standby & shutdown"), 0, 0},
     {QT_TRANSLATE_NOOP("pm","3 minutes to standby"), 180 * 1000, 0},
     {QT_TRANSLATE_NOOP("pm","5 minutes to shutdown"), 0, 300 * 1000},
-    {QT_TRANSLATE_NOOP("pm","3 minutes to standby / 5 minutes to shutdown"), 180 * 1000, 300 * 1000},
-    {QT_TRANSLATE_NOOP("pm","10 minutes to standby / 15 minutes to shutdown"), 600 * 1000, 900 * 1000},
+    {QT_TRANSLATE_NOOP("pm","10 minutes to shutdown"), 0, 600 * 1000},
+    {QT_TRANSLATE_NOOP("pm","3 minutes to standby /\n5 minutes to shutdown"), 180 * 1000, 300 * 1000},
+    {QT_TRANSLATE_NOOP("pm","10 minutes to standby /\n15 minutes to shutdown"), 600 * 1000, 900 * 1000},
 };
 
 static const int DISPLAY_COUNT = sizeof(DISPLAY_ITEMS) / sizeof(DISPLAY_ITEMS[0]);
@@ -48,7 +50,7 @@ PowerManagementDialog::PowerManagementDialog(QWidget *parent, SysStatus & ref)
     setModal(true);
     if(isPmExclusive())
     {
-        resize(400, 300);
+        resize(400, 360);
     }
     else
     {
@@ -137,7 +139,7 @@ void PowerManagementDialog::createLayout()
     buttons_.setPreferItemSize(QSize(0, ITEM_HEIGHT));
     ODatas d;
 
-    int display_cout = isPmExclusive() ? 2: DISPLAY_COUNT;
+    const int display_cout = isPmExclusive() ? 4: DISPLAY_COUNT;
     for (int row = 0; row < display_cout; ++row)
     {
         OData * item = new OData;
