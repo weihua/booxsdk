@@ -40,6 +40,6 @@ ADD_EXECUTABLE(dictionary_test unittests/libdict_test.cpp ${SRCS} ${MOC_SRCS})
 TARGET_LINK_LIBRARIES(dictionary_test onyx_sys onyx_screen
         onyx_ui dictionary tts sound
         ${QT_LIBRARIES}
-        ${ZLIB_LIBRARIES})
+        ${ADD_LIB})
 SET_TARGET_PROPERTIES(dictionary_test PROPERTIES  RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_PATH})
 
