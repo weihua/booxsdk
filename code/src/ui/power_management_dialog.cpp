@@ -189,6 +189,7 @@ void PowerManagementDialog::createLayout()
 
     ver_layout_.addStretch(0);
     ver_layout_.addLayout(&hor_layout_);
+    ver_layout_.addSpacing(8);
 }
 
 void PowerManagementDialog::onButtonChanged(CatalogView *catalog, ContentView *item, int user_data)
@@ -226,15 +227,8 @@ bool PowerManagementDialog::event(QEvent* qe)
 
 void PowerManagementDialog::onOkClicked()
 {
-    if (standby_interval_ != sys_standby_interval_)
-    {
-        status_.setSuspendInterval(standby_interval_);
-    }
-
-    if (shutdown_interval_ != sys_shutdown_interval_ )
-    {
-        status_.setShutdownInterval(shutdown_interval_);
-    }
+    status_.setSuspendInterval(standby_interval_);
+    status_.setShutdownInterval(shutdown_interval_);
     accept();
     onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC);
 }
