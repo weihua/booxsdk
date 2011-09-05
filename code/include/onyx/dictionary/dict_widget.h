@@ -23,6 +23,8 @@ public:
     bool ensureVisible(const QRectF & rect, bool update_parent = false);
     bool lookup(const QString &word);
 
+    bool isInRetrieveWordsMode();
+
 protected:
     virtual void keyReleaseEvent(QKeyEvent *);
     virtual void keyPressEvent(QKeyEvent *);

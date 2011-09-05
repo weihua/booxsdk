@@ -745,5 +745,10 @@ void DictWidget::onCloseClicked()
     emit closeClicked();
 }
 
+bool DictWidget::isInRetrieveWordsMode()
+{
+    return this->internal_state_ == RETRIEVING_WORD;
+}
+
 }   // namespace ui
 
