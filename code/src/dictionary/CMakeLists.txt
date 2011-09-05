@@ -32,7 +32,7 @@ QT4_ADD_RESOURCES(dictionary_ui_res ${resource_srcs})
 
 
 ADD_LIBRARY(dictionary ${SRCS} ${MOC_SRCS} ${dictionary_ui_res})
-TARGET_LINK_LIBRARIES(dictionary onyx_ui)
+TARGET_LINK_LIBRARIES(dictionary onyx_ui ${ADD_LIB})
 
 ########### Unit Tests #####################
 INCLUDE_DIRECTORIES(.)
