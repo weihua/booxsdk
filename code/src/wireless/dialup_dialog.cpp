@@ -71,6 +71,7 @@ static const APN APNS[] =
     {"Vodafone", "", "", "vodafone"},
     {"China Unicom", "", "", "unicom"},
     {"China Telecom", "", "", "telecom"},
+    {"Mobilebox", "", "", "mobilebox"}
 };
 static const int APNS_COUNT = sizeof(APNS)/sizeof(APNS[0]);
 
