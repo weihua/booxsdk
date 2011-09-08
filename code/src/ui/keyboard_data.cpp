@@ -1,6 +1,7 @@
 #include "onyx/ui/keyboard_data.h"
 #include "onyx/ui/onyx_keyboard.h"
 #include "onyx/sys/sys.h"
+#include "onyx/sys/platform.h"
 
 namespace ui
 {
@@ -124,7 +125,7 @@ void KeyboardData::initMenuKeyCode()
     l->insert(TAG_FONT_SIZE, MENU_FONT_SIZE);
     menu_codes_.push_back(l);
 
-    if (SysStatus::instance().hasTouchScreen())
+    if (SysStatus::instance().hasTouchScreen() && !sys::isAk98())
     {
         ODataPtr dd(createData(QApplication::tr("Write")));
         dd->insert(TAG_MENU_TYPE, OnyxKeyboard::KEYBOARD_MENU_WRITE);
