@@ -48,6 +48,7 @@ bool TouchEventListener::addWatcherWidget(QObject *wnd)
     if (wnd)
     {
         wnd->installEventFilter(this);
+        enableBroadcast(true);
     }
     return true;
 }
@@ -57,6 +58,7 @@ bool TouchEventListener::removeWatcherWidget(QObject *wnd)
     if (wnd)
     {
         wnd->removeEventFilter(this);
+        enableBroadcast(false);
     }
     return true;
 }
@@ -64,13 +66,15 @@ bool TouchEventListener::removeWatcherWidget(QObject *wnd)
 bool TouchEventListener::eventFilter(QObject *obj,
                                      QEvent *event)
 {
-    if (event->type() == QEvent::FocusIn)
+    if (event->type() == QEvent::FocusIn ||
+        event->type() == QEvent::Show)
     {
         enableBroadcast(true);
     }
     else if (event->type() == QEvent::FocusOut ||
              event->type() == QEvent::Hide)
     {
+
         enableBroadcast(false);
     }
     return QObject::eventFilter(obj, event);
