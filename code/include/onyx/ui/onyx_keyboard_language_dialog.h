@@ -27,6 +27,8 @@ private:
 
     QLocale getLocale(const QString language_text);
 
+    bool enableGeorgian();
+
 private:
     QVBoxLayout layout_;
     CatalogView language_group_;

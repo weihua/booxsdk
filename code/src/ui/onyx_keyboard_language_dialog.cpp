@@ -61,6 +61,11 @@ void OnyxKeyboardLanguageDialog::createLayout()
             SLOT(onItemActivated(CatalogView *, ContentView *, int)));
 }
 
+bool OnyxKeyboardLanguageDialog::enableGeorgian()
+{
+    return qgetenv("ENABLE_GEORGIAN_LANGUAGE").toInt() > 0;
+}
+
 void OnyxKeyboardLanguageDialog::createLanguageGroup()
 {
     language_group_.setSubItemType(CheckBoxView::type());
@@ -68,6 +73,13 @@ void OnyxKeyboardLanguageDialog::createLanguageGroup()
 
     for (int i=0; i<LANGUAGE_COUNT; i++)
     {
+        if (LANGUAGES[i].locale.name() == QLocale(QLocale::Georgian).name())
+        {
+            if (!enableGeorgian())
+            {
+                continue;
+            }
+        }
         ODataPtr dd(new OData);
         dd->insert(TAG_TITLE, LANGUAGES[i].text);
         if (LANGUAGES[i].locale.name() == language_.name())
