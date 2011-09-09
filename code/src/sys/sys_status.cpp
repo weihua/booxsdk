@@ -144,6 +144,14 @@ void SysStatus::installSlots()
     }
 
     if (!connection_.connect(service, object, iface,
+                             "mountTreeSignal2",
+                             this,
+                             SLOT(onMountTreeChanged2(bool, const QString &, const QString &))))
+    {
+        qDebug("\nCan not connect the mountTreeSignal2!\n");
+    }
+
+    if (!connection_.connect(service, object, iface,
                              "sdCardChangedSignal",
                              this,
                              SLOT(onSdCardChanged(bool))))
@@ -1803,6 +1811,24 @@ void SysStatus::onMountTreeChanged(bool inserted, const QString &mount_point)
     }
     emit mountTreeSignal(inserted, mount_point);
 }
+
+void SysStatus::onMountTreeChanged2(bool inserted, const QString &mount_point, const QString &reason)
+{
+    if (mount_point == SDMMC_ROOT)
+    {
+        sd_mounted_ = inserted;
+    }
+    if (mount_point == USB_ROOT)
+    {
+        usb_mounted_ = inserted;
+    }
+    if (mount_point == LIBRARY_ROOT)
+    {
+        flash_mounted_ = inserted;
+    }
+    emit mountTreeSignal2(inserted, mount_point, reason);
+}
+
 
 /// The SD card hardware event handler. It does not mean the mount tree changed.
 void SysStatus::onSdCardChanged(bool insert)

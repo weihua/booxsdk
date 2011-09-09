@@ -557,7 +557,7 @@ void StatusBar::onStylusChanged(bool inserted)
 void StatusBar::onConnectToPC(bool connected)
 {
     // Popup dialog.
-    if (connected && isActiveWindow())
+    if (connected && isActiveWindow() && ui::safeParentWidget(parentWidget())->isActiveWindow())
     {
         int ret = usbConnectionDialog(true)->exec();
         closeUSBDialog();
