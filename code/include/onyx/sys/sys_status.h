@@ -152,6 +152,7 @@ class SysStatus : public QObject
     // Need a better way to sync them.
   signals:
     void mountTreeSignal(bool inserted, const QString &mount_point);
+    void mountTreeSignal2(bool inserted, const QString &mount_point, const QString & reason);
     void sdCardChangedSignal(bool insert);
     void sdioChangedSignal(bool on);
     void batterySignal(int value, int status);
@@ -207,6 +208,7 @@ class SysStatus : public QObject
   private slots:
     void onBatteryChanged(int, int);
     void onMountTreeChanged(bool mounted, const QString &mount_point);
+    void onMountTreeChanged2(bool mounted, const QString &mount_point, const QString & reason);
     void onSdCardChanged(bool insert);
     void onSdioChanged(bool on);
     void onSystemIdle();
