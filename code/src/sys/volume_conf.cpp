@@ -58,17 +58,18 @@ QVector<int> VolumeConfig::volumes()
     if (VOLUMES.size() <= 0)
     {
         if(sys::soundModule().compare("snd_soc_imx_3stack_wm8976") == 0 ||
-           sys::soundModule().compare("snd-soc-booxe") == 0)
+           sys::soundModule().compare("snd_soc_booxe") == 0)
         {
             VOLUMES.push_back(0);
-            VOLUMES.push_back(43);
+            VOLUMES.push_back(2);
+            VOLUMES.push_back(8);
+            VOLUMES.push_back(16);
+            VOLUMES.push_back(30);//5
+            VOLUMES.push_back(40);
             VOLUMES.push_back(50);
-            VOLUMES.push_back(59);
-            VOLUMES.push_back(68);
-            VOLUMES.push_back(77);
-            VOLUMES.push_back(85);
-            VOLUMES.push_back(90);
-            VOLUMES.push_back(95);
+            VOLUMES.push_back(60);
+            VOLUMES.push_back(80);
+            VOLUMES.push_back(90);//10
             VOLUMES.push_back(100);
         }
         else
@@ -77,12 +78,12 @@ QVector<int> VolumeConfig::volumes()
             VOLUMES.push_back(60);
             VOLUMES.push_back(64);
             VOLUMES.push_back(68);
-            VOLUMES.push_back(72);
+            VOLUMES.push_back(72);//5
             VOLUMES.push_back(76);
             VOLUMES.push_back(80);
             VOLUMES.push_back(85);
             VOLUMES.push_back(90);
-            VOLUMES.push_back(95);
+            VOLUMES.push_back(95);//10
             VOLUMES.push_back(100);
         }
     }
