@@ -365,7 +365,6 @@ void OnyxSearchDialog::onSearchClicked()
 {
     if (editor()->text().isEmpty())
     {
-        onCloseClicked();
         return;
     }
 
