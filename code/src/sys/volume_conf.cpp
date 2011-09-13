@@ -57,8 +57,8 @@ QVector<int> VolumeConfig::volumes()
     static QVector<int> VOLUMES;
     if (VOLUMES.size() <= 0)
     {
-        if(sys::soundModule().compare("snd_soc_imx_3stack_wm8976") == 0 ||
-           sys::soundModule().compare("snd_soc_booxe") == 0)
+
+        if(sys::is166E() || sys::isImx508())
         {
             VOLUMES.push_back(0);
             VOLUMES.push_back(2);
