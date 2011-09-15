@@ -186,6 +186,18 @@ void ScreenUpdateWatcher::enqueue(QWidget *widget,
     }
 }
 
+void ScreenUpdateWatcher::flush(QWidget *widget,
+                                onyx::screen::ScreenProxy::Waveform w,
+                                onyx::screen::ScreenCommand::WaitMode wait)
+{
+    if (widget)
+    {
+        widget->update();
+        enqueue(widget, w, wait);
+        QApplication::processEvents();
+    }
+}
+
 /// Get item from queue and decide which waveform to use.
 void ScreenUpdateWatcher::updateScreen()
 {
@@ -236,7 +248,6 @@ void ScreenUpdateWatcher::updateScreenInternal(bool automatic,
     }
     if (!rc.isEmpty())
     {
-        //qDebug() << "update screen " << rc << "Waveform " << w << "wait " << wait;
         onyx::screen::instance().updateWidgetRegion(0, rc, w, false, wait);
     }
 }
