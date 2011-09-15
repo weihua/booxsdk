@@ -1,6 +1,7 @@
 #include "onyx/dictionary/dict_widget.h"
 #include "onyx/screen/screen_proxy.h"
 #include "onyx/ui/ui_utils.h"
+#include "onyx/sys/sys.h"
 
 namespace ui
 {
@@ -548,7 +549,7 @@ void DictWidget::createLayout()
 //    top_hbox_.addWidget(&open_dictionary_tool_button_);
 
     top_hbox_.addWidget(&func_description_label_, 0, Qt::AlignRight);
-    top_hbox_.addWidget(&close_button_);
+
 
     retrieve_words_button_.useDefaultHeight();
     explanation_button_.useDefaultHeight();
@@ -582,9 +583,6 @@ void DictWidget::createLayout()
     connect(&dictionaries_button_, SIGNAL(clicked(bool)), this,
             SLOT(onDictListClicked(bool)), Qt::QueuedConnection);
 
-    connect(&close_button_, SIGNAL(clicked(bool)), this,
-            SLOT(onCloseClicked()));
-
 //    connect(&open_dictionary_tool_button_, SIGNAL(clicked(bool)), this,
 //                SLOT(onOpenDictionaryToolClicked(bool)), Qt::QueuedConnection);
 
@@ -607,8 +605,13 @@ void DictWidget::createLayout()
     explanation_button_.setCheckable(true);
     similar_words_button_.setCheckable(true);
     dictionaries_button_.setCheckable(true);
-    close_button_.setCheckable(false);
 //    open_dictionary_tool_button_.setCheckable(true);
+
+    top_hbox_.addWidget(&close_button_);
+    connect(&close_button_, SIGNAL(clicked(bool)), this,
+            SLOT(onCloseClicked()), Qt::QueuedConnection);
+    close_button_.setFocusPolicy(Qt::NoFocus);
+    close_button_.setCheckable(false);
 
     // Focus on explanation button on dictionary startup.
     explanation_button_.setChecked(true);
