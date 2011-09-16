@@ -18,10 +18,12 @@
 #include "onyx/ui/status_bar_item_music_player.h"
 #include "onyx/ui/number_dialog.h"
 #include "onyx/ui/power_management_dialog.h"
+#include "onyx/ui/legacy_power_management_dialog.h"
 #include "onyx/ui/clock_dialog.h"
 #include "onyx/ui/ui_utils.h"
 #include "onyx/data/keys.h"
 #include "onyx/ui/keyboard_config_dialog.h"
+#include "onyx/sys/platform.h"
 
 namespace ui
 {
@@ -326,8 +328,17 @@ void StatusBar::onMessageAreaClicked()
 
 void StatusBar::onBatteryClicked()
 {
-    PowerManagementDialog dialog(0, sys::SysStatus::instance());
-    dialog.exec();
+    if (sys::isIMX31L())
+    {
+        LegacyPowerManagementDialog dialog(0, sys::SysStatus::instance());
+        dialog.exec();
+    }
+    else
+    {
+        PowerManagementDialog dialog(0, sys::SysStatus::instance());
+        dialog.exec();
+    }
+
     onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU);
 }
 
