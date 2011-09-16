@@ -7,7 +7,7 @@
 // Make sure they are the same as defined in the udev rules.
 // See /etc/udev/rules.d/10-naboo.rules for details.
 #ifdef BUILD_WITH_TFT
-const char * const SDMMC_DEVICE        = "/dev/mmcblk0p1";
+const char * const SDMMC_DEVICE        = "/dev/mmcblk0"; //not p1
 #else
 const char * const SDMMC_DEVICE        = "/dev/sdmmc";
 #endif
