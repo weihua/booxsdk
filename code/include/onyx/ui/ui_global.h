@@ -125,6 +125,7 @@ enum SketchMode
 {
     MODE_SKETCHING = 10,
     MODE_ERASING,
+    MODE_MERGING,
     MODE_UNKNOWN
 };
 
