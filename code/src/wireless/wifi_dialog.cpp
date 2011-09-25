@@ -140,7 +140,7 @@ void WifiDialog::paintEvent(QPaintEvent *e)
 
     QPainterPath path;
     path.addRoundedRect(content_layout_.contentsRect().adjusted(2, 2, -2, -2), 8, 8, Qt::AbsoluteSize);
-    painter.fillPath(path, QBrush(QColor(220, 220, 220)));
+    painter.fillPath(path, QBrush(QColor(230, 230, 230)));
     painter.setPen(QColor(Qt::black));
     painter.drawPath(path);
 }
