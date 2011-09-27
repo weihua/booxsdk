@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QLabel>
+
+#include "onyx/screen/screen_proxy.h"
 #include "onyx/ui/line_edit.h"
 #include "onyx/data/data.h"
 
@@ -35,6 +37,9 @@ public:
 
     void setBkColor(Qt::GlobalColor color) { bk_color_ = color; }
     Qt::GlobalColor bkColor() { return bk_color_; }
+
+    void setFocusWaveform(onyx::screen::ScreenProxy::Waveform w);
+    onyx::screen::ScreenProxy::Waveform focusWaveform();
 
 protected:
     // set true to enable, false to disable.
@@ -69,6 +74,7 @@ private:
     bool repaint_on_mouse_release_;
     int pen_width_;
     Qt::GlobalColor bk_color_;
+    onyx::screen::ScreenProxy::Waveform waveform_;
 };
 
 

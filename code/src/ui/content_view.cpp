@@ -24,6 +24,7 @@ ContentView::ContentView(QWidget *parent)
         , repaint_on_mouse_release_(true)
         , pen_width_(3)
         , bk_color_(Qt::white)
+        , waveform_(onyx::screen::ScreenProxy::DW)
 {
     setAutoFillBackground(false);
 }
@@ -206,16 +207,27 @@ bool ContentView::event(QEvent * e)
     return QWidget::event(e);
 }
 
+
+void ContentView::setFocusWaveform(onyx::screen::ScreenProxy::Waveform w)
+{
+    waveform_ = w;
+}
+
+onyx::screen::ScreenProxy::Waveform ContentView::focusWaveform()
+{
+    return waveform_;
+}
+
 void ContentView::focusInEvent(QFocusEvent * e)
 {
     QWidget::focusInEvent(e);
-    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::DW, onyx::screen::ScreenCommand::WAIT_NONE);
+    onyx::screen::watcher().enqueue(this, focusWaveform(), onyx::screen::ScreenCommand::WAIT_NONE);
 }
 
 void ContentView::focusOutEvent(QFocusEvent * e)
 {
     QWidget::focusOutEvent(e);
-    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::DW, onyx::screen::ScreenCommand::WAIT_NONE);
+    onyx::screen::watcher().enqueue(this, focusWaveform(), onyx::screen::ScreenCommand::WAIT_NONE);
 }
 
 void ContentView::paintEvent(QPaintEvent * event)
