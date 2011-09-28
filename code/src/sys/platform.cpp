@@ -12,6 +12,7 @@ static const QString AK98 = "ak98";
 QString platform()
 {
     static QString p;
+#ifndef BUILD_WITH_TFT
     if (p.isEmpty())
     {
         p = qgetenv("PLATFORM");
@@ -20,6 +21,9 @@ QString platform()
             p = IM31L;
         }
     }
+#else
+    p = AK98;
+#endif
     return p;
 }
 
