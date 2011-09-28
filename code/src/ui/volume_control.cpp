@@ -104,7 +104,7 @@ void VolumeControlDialog::paintEvent(QPaintEvent *e)
     int x = 10;
     for (int i = 1 ;i < volumes.size(); ++i)
     {
-        painter.fillRect(x,height()-30,15,15,current_ >= volumes[i] ? Qt::white : Qt::black);
+        painter.fillRect(x,height()-30-i*2,15,15+i*2,current_ >= volumes[i] ? Qt::black : Qt::white);
         map_.insert(x,volumes[i]);
         x += 20;
     }
