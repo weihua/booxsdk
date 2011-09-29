@@ -1,4 +1,11 @@
-#include "alsa_sound.h"
+#include <stdlib.h>
+#include <stdio.h>
+
+#ifndef _WINDOWS
+#include <unistd.h>
+#endif
+
+#include "onyx/sound/alsa_sound.h"
 
 AlsaSound::AlsaSound()
     :
@@ -44,7 +51,7 @@ int AlsaSound::volume()
     return 0;
 }
 
-bool AlsaSound::setVolume(const int volume)
+bool AlsaSound::setVolume(int volume)
 {
     if (volume < 0)
     {

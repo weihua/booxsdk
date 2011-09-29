@@ -15,7 +15,7 @@ public:
 
 public:
     int volume();
-    bool setVolume(const int volume);
+    bool setVolume(int volume);
 
     /// Set sample size, usually it's 8 or 16.
     bool setBitsPerSample(int bps);
@@ -42,6 +42,7 @@ public:
 private:
    int mono2Stereo(const unsigned char* mono_buf, long unsigned int frames, unsigned char* stereo_buf);
 
+   bool setParams(unsigned int bitspersample, unsigned int channels, unsigned int samplerate);
 private:
 #ifdef BUILD_WITH_TFT
     snd_mixer_t      *mixer_;
