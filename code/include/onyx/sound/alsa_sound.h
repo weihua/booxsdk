@@ -36,8 +36,13 @@ public:
     inline bool isEnabled() { return enable_; }
     inline void enable(bool enable = true) { enable_ = enable; }
 
-    bool open();
-    void close();
+    bool openMixer();
+    void closeMixer();
+
+    bool openPCMHandler();
+    void closePCMHandler();
+
+    bool updateParameters();
 
 private:
    int mono2Stereo(const unsigned char* mono_buf, long unsigned int frames, unsigned char* stereo_buf);

@@ -25,7 +25,8 @@ AlsaSound::AlsaSound()
     , stereo_buff_(0)
 {
 #ifdef BUILD_WITH_TFT
-    if (open())
+    openPCMHandler();
+    if (openMixer())
     {
         snd_mixer_selem_set_playback_volume_range(pcm_element_, 0, 100);
     }
@@ -34,7 +35,8 @@ AlsaSound::AlsaSound()
 
 AlsaSound::~AlsaSound()
 {
-    close();
+    closePCMHandler();
+    closeMixer();
 }
 
 int AlsaSound::volume()
@@ -49,6 +51,14 @@ int AlsaSound::volume()
     return (ll + lr) >> 1;
 #endif
     return 0;
+}
+
+void setPCMVolume(snd_mixer_elem_t *pcm_element, snd_mixer_selem_channel_id_t chn, int volume)
+{
+    if (snd_mixer_selem_has_playback_channel(pcm_element, chn))
+    {
+        snd_mixer_selem_set_playback_volume(pcm_element, chn, volume);
+    }
 }
 
 bool AlsaSound::setVolume(int volume)
@@ -74,46 +84,48 @@ bool AlsaSound::setVolume(int volume)
     }
 
 #ifdef BUILD_WITH_TFT
-    //left
-    snd_mixer_selem_set_playback_volume(pcm_element_,
-                                        SND_MIXER_SCHN_FRONT_LEFT,
-                                        volume);
-    //right
-    snd_mixer_selem_set_playback_volume(pcm_element_,
-                                        SND_MIXER_SCHN_FRONT_RIGHT,
-                                        volume);
+    qDebug("AlsaSound set volume:%d", volume);
+    //snd_mixer_selem_set_playback_volume_all(pcm_element_, volume);
+
+    long min = 0, max = 100;
+    snd_mixer_selem_get_playback_volume_range(pcm_element_, &min, &max);
+    qDebug("Min vol:%d, Max vol:%d", min, max);
+
+    setPCMVolume(pcm_element_, SND_MIXER_SCHN_FRONT_LEFT, volume);
+    setPCMVolume(pcm_element_, SND_MIXER_SCHN_FRONT_RIGHT, volume);
+    setPCMVolume(pcm_element_, SND_MIXER_SCHN_REAR_LEFT, volume);
+    setPCMVolume(pcm_element_, SND_MIXER_SCHN_REAR_RIGHT, volume);
+    setPCMVolume(pcm_element_, SND_MIXER_SCHN_FRONT_CENTER, volume);
+    setPCMVolume(pcm_element_, SND_MIXER_SCHN_WOOFER, volume);
+    setPCMVolume(pcm_element_, SND_MIXER_SCHN_SIDE_LEFT, volume);
+    setPCMVolume(pcm_element_, SND_MIXER_SCHN_SIDE_RIGHT, volume);
+    setPCMVolume(pcm_element_, SND_MIXER_SCHN_REAR_CENTER, volume);
+    setPCMVolume(pcm_element_, SND_MIXER_SCHN_LAST, volume);
 #endif
     return true;
 }
 
 bool AlsaSound::setBitsPerSample(int bps)
 {
-    if (setParams(bps, channels_, samplerate_))
-    {
-        bps_ = bps;
-        return true;
-    }
-    return false;
+    bps_ = bps;
+    return true;
 }
 
 bool AlsaSound::setChannels(int channels)
 {
-    if (setParams(bps_, channels, samplerate_))
-    {
-        channels_ = channels;
-        return true;
-    }
-    return false;
+    channels_ = channels;
+    return true;
 }
 
 bool AlsaSound::setSamplingRate(int rate)
 {
-    if (setParams(bps_, channels_, rate))
-    {
-        samplerate_ = rate;
-        return true;
-    }
-    return false;
+    samplerate_ = rate;
+    return true;
+}
+
+bool AlsaSound::updateParameters()
+{
+    return setParams(bps_, channels_, samplerate_);
 }
 
 bool AlsaSound::setRec()
@@ -142,8 +154,10 @@ bool AlsaSound::setParams(unsigned int bitspersample, unsigned int channels, uns
     if (snd_pcm_set_params (pcm_handle_, format, SND_PCM_ACCESS_RW_INTERLEAVED,
                             channels, samplerate, 0, 500*1000) < 0)
     {
+        qDebug("snd_pcm_set_params fails!!");
         if (channels == 1)
         {
+            qDebug("channels = 1, reset params.");
             if ((rc = snd_pcm_set_params (pcm_handle_, format, SND_PCM_ACCESS_RW_INTERLEAVED, 2, samplerate, 0, 500*1000)) < 0)
             {
                 fprintf(stderr, "Error setting PCM params %s.\n", snd_strerror(rc));
@@ -220,16 +234,38 @@ bool AlsaSound::play(unsigned char *data, int size)
     return true;
 }
 
-bool AlsaSound::open()
+bool AlsaSound::openPCMHandler()
 {
-#ifdef BUILD_WITH_TFT
+    if (pcm_handle_ != 0)
+    {
+        qDebug("PCM Handler has already been opened.");
+        return true;
+    }
+
     // open handler
     if (snd_pcm_open(&pcm_handle_, "default", SND_PCM_STREAM_PLAYBACK, 0) < 0)
     {
         qDebug("Could not initial ALSA sound system.\n");
         return false;
     }
+    return true;
+}
 
+void AlsaSound::closePCMHandler()
+{
+    snd_pcm_drain(pcm_handle_);
+    snd_pcm_close(pcm_handle_);
+    pcm_handle_  = 0;
+    if (stereo_buff_)
+    {
+        free (stereo_buff_);
+        stereo_buff_len_ = 0;
+    }
+}
+
+bool AlsaSound::openMixer()
+{
+#ifdef BUILD_WITH_TFT
     int sts = snd_mixer_open(&mixer_, 0);
     if (sts != 0)
     {
@@ -262,30 +298,25 @@ bool AlsaSound::open()
         while (pcm_element_ != 0)
         {
             QString element_name = snd_mixer_selem_get_name(pcm_element_);
-            if (element_name.compare("Master") == 0)
+            qDebug("Element Name:%s", qPrintable(element_name));
+            if (element_name.startsWith("Headphone"))
             {
+                //Anyka onyx supports headphone volume adjustment now, update this function later
+                qDebug("Select element:%s", qPrintable(element_name));
                 return true;
             }
-	        pcm_element_ = snd_mixer_elem_next(pcm_element_);
+	    pcm_element_ = snd_mixer_elem_next(pcm_element_);
         }
-        qDebug("Cannot find master element.");
+        qDebug("Cannot find Headphone");
     }
 #endif
     return false;
 }
 
-void AlsaSound::close()
+void AlsaSound::closeMixer()
 {
 #ifdef BUILD_WITH_TFT
     snd_mixer_close(mixer_);
-    snd_pcm_drain(pcm_handle_);
-    snd_pcm_close(pcm_handle_);
-    pcm_handle_  = 0;
-    if (stereo_buff_)
-    {
-        free (stereo_buff_);
-        stereo_buff_len_ = 0;
-    }
 #endif
 }
 
