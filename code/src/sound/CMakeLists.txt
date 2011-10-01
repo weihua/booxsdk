@@ -9,8 +9,18 @@ QT4_WRAP_CPP(MOC_SRCS ${hrds})
 FILE(GLOB srcs *.cpp)
 SET(srcs ${srcs} ${hrds} ${MOC_SRCS})
 
+IF (BUILD_WITH_TFT)
+    set(ALSALIB asound)
+ELSE (BUILD_WITH_TFT)
+    set(ALSALIB )
+ENDIF (BUILD_WITH_TFT)
+
 # Sound library.
 ADD_LIBRARY(sound ${srcs})
+TARGET_LINK_LIBRARIES(sound
+   ${ALSALIB}
+   ${QT_LIBRARIES}
+)
 
 # Unittest
 add_definitions(-DSAMPLE_ROOT="${CMAKE_SOURCE_DIR}/unittest/data")
