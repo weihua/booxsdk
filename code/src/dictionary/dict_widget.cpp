@@ -137,7 +137,7 @@ void DictWidget::formatResult(QString &result, QString &fuzzy_word)
 
 bool DictWidget::lookup(const QString &word)
 {
-    if (word.isEmpty())
+    if (word.isEmpty() || word_ == word.trimmed())
     {
         return false;
     }
