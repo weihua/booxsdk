@@ -737,6 +737,7 @@ ContentView* CatalogView::createSubItem()
     connect(instance, SIGNAL(activated(ContentView*,int)), this, SLOT(onItemActivated(ContentView *,int)));
     connect(instance, SIGNAL(keyRelease(ContentView*, QKeyEvent*)), this, SLOT(onItemKeyRelease(ContentView *, QKeyEvent*)));
     connect(instance, SIGNAL(mouse(QPoint, QPoint)), this, SLOT(onMouseMoved(QPoint, QPoint)));
+    connect(instance, SIGNAL(focusChanged(ContentView*)), this, SLOT(onItemFocusChanged(ContentView*)));
     sub_items_.push_back(instance);
 
     QSize s = preferItemSize();
@@ -851,6 +852,11 @@ void CatalogView::onItemActivated(ContentView *item, int user_data)
     }
     setChecked();
     emit itemActivated(this, item, user_data);
+}
+
+void CatalogView::onItemFocusChanged(ContentView *item)
+{
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::DW, onyx::screen::ScreenCommand::WAIT_NONE);
 }
 
 void CatalogView::onItemKeyRelease(ContentView *item, QKeyEvent *key)

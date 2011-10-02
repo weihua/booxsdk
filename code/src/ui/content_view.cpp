@@ -221,13 +221,14 @@ onyx::screen::ScreenProxy::Waveform ContentView::focusWaveform()
 void ContentView::focusInEvent(QFocusEvent * e)
 {
     QWidget::focusInEvent(e);
-    onyx::screen::watcher().enqueue(this, focusWaveform(), onyx::screen::ScreenCommand::WAIT_NONE);
+    emit focusChanged(this);
 }
 
 void ContentView::focusOutEvent(QFocusEvent * e)
 {
     QWidget::focusOutEvent(e);
-    onyx::screen::watcher().enqueue(this, focusWaveform(), onyx::screen::ScreenCommand::WAIT_NONE);
+    emit focusChanged(this);
+    //onyx::screen::watcher().enqueue(this, focusWaveform(), onyx::screen::ScreenCommand::WAIT_NONE);
 }
 
 void ContentView::paintEvent(QPaintEvent * event)

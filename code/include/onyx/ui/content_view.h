@@ -60,6 +60,7 @@ Q_SIGNALS:
     void activated(ContentView *item, int user_data);
     void keyRelease(ContentView *item, QKeyEvent *key);
     void mouse(QPoint last, QPoint current);
+    void focusChanged(ContentView *item);
 
 protected:
     bool isPressed();

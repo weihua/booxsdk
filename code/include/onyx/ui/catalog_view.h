@@ -116,6 +116,7 @@ protected Q_SLOTS:
     virtual void onItemActivated(ContentView *item, int);
     virtual void onItemKeyRelease(ContentView *item, QKeyEvent *key);
     virtual void onMouseMoved(QPoint last, QPoint current);
+    virtual void onItemFocusChanged(ContentView *item);
 
 protected:
     void mousePressEvent(QMouseEvent *event);
