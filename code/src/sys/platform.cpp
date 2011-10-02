@@ -27,6 +27,11 @@ QString platform()
     return p;
 }
 
+QString touchType()
+{
+    return qgetenv("TOUCH_TYPE");
+}
+
 bool isIMX31L()
 {
     return platform() == IM31L;
@@ -45,6 +50,11 @@ bool isImx508()
 bool isAk98()
 {
     return platform() == AK98;
+}
+
+bool isIRTouch()
+{
+    return (touchType().compare("ir", Qt::CaseInsensitive) == 0);
 }
 
 QString soundModule()
