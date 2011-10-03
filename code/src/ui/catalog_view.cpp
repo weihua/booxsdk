@@ -856,7 +856,7 @@ void CatalogView::onItemActivated(ContentView *item, int user_data)
 
 void CatalogView::onItemFocusChanged(ContentView *item)
 {
-    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::DW, onyx::screen::ScreenCommand::WAIT_NONE);
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::DW, onyx::screen::ScreenCommand::WAIT_NONE);
 }
 
 void CatalogView::onItemKeyRelease(ContentView *item, QKeyEvent *key)
@@ -896,7 +896,7 @@ void CatalogView::onItemKeyRelease(ContentView *item, QKeyEvent *key)
     {
 //        onyx::screen::watcher().enqueue(item, onyx::screen::ScreenProxy::DW, onyx::screen::ScreenCommand::WAIT_NONE);
 //        onyx::screen::watcher().enqueue(p, onyx::screen::ScreenProxy::DW, onyx::screen::ScreenCommand::WAIT_NONE);
-        onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::DW, onyx::screen::ScreenCommand::WAIT_NONE);
+        onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::DW, onyx::screen::ScreenCommand::WAIT_NONE);
     }
 }
 
