@@ -122,7 +122,7 @@ void SystemActions::generateActions(const std::vector<int> & actions)
                 shared_ptr<QAction> br(new QAction(exclusiveGroup()));
                 br->setCheckable(true);
                 br->setText(QCoreApplication::tr("Brightness"));
-                br->setIcon(QIcon(QPixmap(":/images/return_to_library.png")));
+                br->setIcon(QIcon(QPixmap(":/images/brightness.png")));
                 br->setData(BACKLIGHT_BRIGHTNESS);
                 actions_.push_back(br);
                 break;
