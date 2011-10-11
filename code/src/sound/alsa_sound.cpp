@@ -211,20 +211,24 @@ bool AlsaSound::setParams(unsigned int bitspersample, unsigned int channels, uns
 
 void AlsaSound::changeVolume(unsigned char *data, qint64 size, int chan)
 {
+    int count = size >> 1;
     if (chan > 1)
     {
-        for (qint64 i = 0; i < size/2; i+=2)
+        float left_factor = left_volume_ / 100.0;
+        float right_factor = right_volume_ / 100.0;
+        for (qint64 i = 0; i < count; i+=2)
         {
-            ((short*)data)[i]*= left_volume_/100.0;
-            ((short*)data)[i+1]*= right_volume_/100.0;
+            ((short*)data)[i]*= left_factor;
+            ((short*)data)[i+1]*= right_factor;
         }
     }
     else
     {
         int l = qMax(left_volume_, right_volume_);
-        for (qint64 i = 0; i < size/2; i++)
+        float v_factor = l / 100.0;
+        for (qint64 i = 0; i < count; i++)
         {
-            ((short*)data)[i]*= l/100.0;
+            ((short*)data)[i]*= v_factor;
         }
     }
 }
@@ -273,6 +277,7 @@ bool AlsaSound::play(unsigned char *data, int size)
 
         if (rc < 0)
         {
+            qDebug("rc:%d, need recover pcm.", rc);
             if (snd_pcm_recover(pcm_handle_, rc, 0) < 0)
             {
                 return false;
