@@ -7,6 +7,12 @@
 
 #include "onyx/sound/alsa_sound.h"
 
+#define USE_SOFTWARE_VOLUME 1
+const QString configFile()
+{
+    return QDir::homePath() +"/.MusicPlayer/config";
+}
+
 AlsaSound::AlsaSound()
     :
 #ifdef BUILD_WITH_TFT
@@ -22,26 +28,45 @@ AlsaSound::AlsaSound()
     , audio_data_per_ms_(1)
     , conv2stereo_(false)
     , stereo_buff_len_(0)
+    , left_volume_(50)
+    , right_volume_(50)
     , stereo_buff_(0)
 {
 #ifdef BUILD_WITH_TFT
     openPCMHandler();
+
+#ifdef USE_SOFTWARE_VOLUME
+    QSettings settings(configFile(), QSettings::IniFormat);
+    left_volume_ = settings.value("Volume/left", 50).toInt();
+    right_volume_ = settings.value("Volume/right", 50).toInt();
+#else
     if (openMixer())
     {
         snd_mixer_selem_set_playback_volume_range(pcm_element_, 0, 100);
     }
+#endif
+
 #endif
 }
 
 AlsaSound::~AlsaSound()
 {
     closePCMHandler();
+#ifdef USE_SOFTWARE_VOLUME
+    QSettings settings(configFile(), QSettings::IniFormat);
+    settings.setValue("Volume/left", left_volume_);
+    settings.setValue("Volume/right", right_volume_);
+#else
     closeMixer();
+#endif
 }
 
 int AlsaSound::volume()
 {
 #ifdef BUILD_WITH_TFT
+#ifdef USE_SOFTWARE_VOLUME
+    return (left_volume_ + right_volume_) >> 1;
+#else
     long ll = 0, lr = 0;
     snd_mixer_handle_events(mixer_);
     snd_mixer_selem_get_playback_volume(pcm_element_,
@@ -49,6 +74,7 @@ int AlsaSound::volume()
     snd_mixer_selem_get_playback_volume(pcm_element_,
                                         SND_MIXER_SCHN_FRONT_RIGHT, &lr);
     return (ll + lr) >> 1;
+#endif
 #endif
     return 0;
 }
@@ -85,8 +111,12 @@ bool AlsaSound::setVolume(int volume)
 
 #ifdef BUILD_WITH_TFT
     qDebug("AlsaSound set volume:%d", volume);
-    //snd_mixer_selem_set_playback_volume_all(pcm_element_, volume);
 
+#ifdef USE_SOFTWARE_VOLUME
+    left_volume_ = volume;
+    right_volume_ = volume;
+#else
+    //snd_mixer_selem_set_playback_volume_all(pcm_element_, volume);
     long min = 0, max = 100;
     snd_mixer_selem_get_playback_volume_range(pcm_element_, &min, &max);
     qDebug("Min vol:%d, Max vol:%d", min, max);
@@ -101,6 +131,8 @@ bool AlsaSound::setVolume(int volume)
     setPCMVolume(pcm_element_, SND_MIXER_SCHN_SIDE_RIGHT, volume);
     setPCMVolume(pcm_element_, SND_MIXER_SCHN_REAR_CENTER, volume);
     setPCMVolume(pcm_element_, SND_MIXER_SCHN_LAST, volume);
+#endif
+
 #endif
     return true;
 }
@@ -177,12 +209,36 @@ bool AlsaSound::setParams(unsigned int bitspersample, unsigned int channels, uns
     return true;
 }
 
+void AlsaSound::changeVolume(unsigned char *data, qint64 size, int chan)
+{
+    if (chan > 1)
+    {
+        for (qint64 i = 0; i < size/2; i+=2)
+        {
+            ((short*)data)[i]*= left_volume_/100.0;
+            ((short*)data)[i+1]*= right_volume_/100.0;
+        }
+    }
+    else
+    {
+        int l = qMax(left_volume_, right_volume_);
+        for (qint64 i = 0; i < size/2; i++)
+        {
+            ((short*)data)[i]*= l/100.0;
+        }
+    }
+}
+
 bool AlsaSound::play(unsigned char *data, int size)
 {
 #ifdef BUILD_WITH_TFT
     static const unsigned int MAX_VOLUME_FOR_AK98 = 0xa186;
     bool ret;
     unsigned long frames = size / byte_per_frames_;
+
+#ifdef USE_SOFTWARE_VOLUME
+    changeVolume(data, size, channels_);
+#endif
 
     if (conv2stereo_)
     {

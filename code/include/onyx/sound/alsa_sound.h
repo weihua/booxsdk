@@ -46,7 +46,7 @@ public:
 
 private:
    int mono2Stereo(const unsigned char* mono_buf, long unsigned int frames, unsigned char* stereo_buf);
-
+   void changeVolume(unsigned char *data, qint64 size, int chan);
    bool setParams(unsigned int bitspersample, unsigned int channels, unsigned int samplerate);
 private:
 #ifdef BUILD_WITH_TFT
@@ -63,6 +63,8 @@ private:
     int           audio_data_per_ms_;
     bool          conv2stereo_;
     int           stereo_buff_len_;
+    int           left_volume_;
+    int           right_volume_;
     unsigned char *stereo_buff_;
 };
 
