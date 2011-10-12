@@ -170,7 +170,7 @@ void DialUpDialog::loadConf()
         }
     }
 
-    if (profile_.apn().isEmpty())
+    if (profile_.apn().isEmpty() || !target_profiles.contains(profile_.apn()))
     {
         // By default use the first one.
         DialupProfile tmp(all_peers_[0]);
