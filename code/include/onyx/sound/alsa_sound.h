@@ -17,6 +17,9 @@ public:
     int volume();
     bool setVolume(int volume);
 
+    int bpf() { return byte_per_frames_; }
+    int audioDataPerMs() { return audio_data_per_ms_; }
+
     /// Set sample size, usually it's 8 or 16.
     bool setBitsPerSample(int bps);
 
