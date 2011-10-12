@@ -239,6 +239,12 @@ void ReadingToolsActions::generateActions(const vector<ReadingToolsType> & value
                 act->setIcon(QIcon(QPixmap(":/images/comic_mode.png")));
             }
             break;
+        case IMAGE_EMBOLDEN_TOOL:
+            {
+                act->setText(QCoreApplication::tr("Glyph Embolden"));
+                act->setIcon(QIcon(QPixmap(":/images/sketch_shape_5.png")));
+            }
+            break;
         default:
             break;
         }
