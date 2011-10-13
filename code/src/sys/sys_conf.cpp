@@ -419,7 +419,7 @@ bool SystemConfig::isSDMounted()
 
 bool SystemConfig::isFlashMounted()
 {
-    return isMounted("/dev/mtdblock5");
+    return isMounted("/dev/mtdblock6");
 }
 
 bool SystemConfig::isMounted(const std::string & point)
@@ -432,7 +432,7 @@ bool SystemConfig::isMounted(const std::string & point)
 
     if (mount_fp == NULL)
     {
-        qFatal("Can't get mount point list %s", MOUNT_FS_DESC_FILE);
+        qDebug("Can't get mount point list %s", MOUNT_FS_DESC_FILE);
         return false;
     }
 
@@ -451,6 +451,7 @@ bool SystemConfig::isMounted(const std::string & point)
     // Finish with mount_fp.
     endmntent(mount_fp);
 #endif
+    qDebug("Cannot find mount point.");
     return false;
 }
 
