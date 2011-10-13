@@ -414,12 +414,19 @@ bool SystemConfig::exportNotes(const QString & src, const QString & dst)
 
 bool SystemConfig::isSDMounted()
 {
-    return isMounted(SDMMC_DEVICE);
+    //return isMounted(SDMMC_DEVICE);
+    return QFile::exists(SDMMC_DEVICE);
 }
 
 bool SystemConfig::isFlashMounted()
 {
-    return isMounted("/dev/mtdblock6");
+    //return isMounted("/dev/mtdblock6");
+    QFile file("/proc/mounts");
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        return false;
+    }
+    return file.readAll().contains(LIBRARY_ROOT);
 }
 
 bool SystemConfig::isMounted(const std::string & point)
