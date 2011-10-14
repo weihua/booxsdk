@@ -88,7 +88,8 @@ enum ReadingToolsType
     AUTO_LOAD_IMAGE,
     CLOCK_TOOL,
     COMIC_MODE,
-    UNDEFINED_TOOL
+    IMAGE_EMBOLDEN_TOOL,
+    UNDEFINED_TOOL,
 };
 
 enum NetworkType

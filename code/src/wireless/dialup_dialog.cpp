@@ -67,11 +67,11 @@ static const APN APNS[] =
     {"O2", "", "", "o2"},
     {"movistar.es", "movistar", "movistar", "movistar"},
     {"web.htgprs", "", "", "htgprs"},
+    {"Mobilebox", "", "", "mobilebox"},
     {"Plus", "", "", "plus"},
     {"Vodafone", "", "", "vodafone"},
     {"China Unicom", "", "", "unicom"},
-    {"China Telecom", "", "", "telecom"},
-    {"Mobilebox", "", "", "mobilebox"}
+    {"China Telecom", "", "", "telecom"}
 };
 static const int APNS_COUNT = sizeof(APNS)/sizeof(APNS[0]);
 
@@ -170,7 +170,7 @@ void DialUpDialog::loadConf()
         }
     }
 
-    if (profile_.apn().isEmpty())
+    if (profile_.apn().isEmpty() || !target_profiles.contains(profile_.apn()))
     {
         // By default use the first one.
         DialupProfile tmp(all_peers_[0]);
