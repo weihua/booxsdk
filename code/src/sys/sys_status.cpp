@@ -1786,6 +1786,31 @@ void SysStatus::reportUserBehavior(const onyx::data::UserBehavior &behavior)
     }
 }
 
+bool SysStatus::enableMultiTouch(bool enable)
+{
+    if (!sys::isIRTouch())
+    {
+        qWarning("enableMultiTouch can only be used on ir touch.\n");
+        return false;
+    }
+
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "enableMultiTouch"      // method.
+    );
+
+    message << enable;
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+        return false;
+    }
+    return true;
+}
+
 void SysStatus::dump()
 {
     int left;

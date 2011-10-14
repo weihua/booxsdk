@@ -148,6 +148,8 @@ class SysStatus : public QObject
 
     void reportUserBehavior(const onyx::data::UserBehavior &behaviour);
 
+    bool enableMultiTouch(bool enable = true);
+
     // The following signals must be the same with system manager.
     // Need a better way to sync them.
   signals:
