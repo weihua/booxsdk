@@ -10,15 +10,15 @@ static const QString PUSH_BUTTON_STYLE =   "\
 QPushButton                             \
 {                                       \
     background: white;                  \
-    font-size: 20px, bold;              \
+    font-size: 26px, bold;              \
     border-width: 1px;                  \
     border-color: black;                \
     border-style: solid;                \
     border-radius: 3;                   \
     color: black;                       \
     padding: 0px;                       \
-    min-width: 130px;                   \
-    min-height: 32px;                   \
+    min-width: 120px;                   \
+    min-height: 60px;                   \
 }                                       \
 QPushButton:pressed                     \
 {                                       \
