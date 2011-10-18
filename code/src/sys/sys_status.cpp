@@ -475,7 +475,8 @@ bool SysStatus::isUSBMounted()
 
 bool SysStatus::isSDMounted()
 {
-    return QFile::exists(SDMMC_DEVICE);
+    //return QFile::exists(SDMMC_DEVICE);
+    return sys::SystemConfig::isSDMounted();
 }
 
 bool SysStatus::isFlashMounted()
@@ -483,13 +484,15 @@ bool SysStatus::isFlashMounted()
 #ifdef _WINDOWS
     return true;
 #endif
-
+    /*
     QFile file("/proc/mounts");
     if (!file.open(QIODevice::ReadOnly))
     {
         return false;
     }
     return file.readAll().contains(LIBRARY_ROOT);
+    */
+    return sys::SystemConfig::isFlashMounted();
 }
 
 bool SysStatus::isMusicPlayerRunning()
