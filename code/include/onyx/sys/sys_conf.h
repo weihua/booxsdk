@@ -150,7 +150,7 @@ public:
     // Mount tree
     static bool isSDMounted();
     static bool isFlashMounted();
-    static bool isMounted(const std::string & point);
+    static bool isMounted(const QString & point);
 
     // show browsing history or not
     static bool showBrowsingHistory();

@@ -414,22 +414,15 @@ bool SystemConfig::exportNotes(const QString & src, const QString & dst)
 
 bool SystemConfig::isSDMounted()
 {
-    //return isMounted(SDMMC_DEVICE);
-    return QFile::exists(SDMMC_DEVICE);
+    return isMounted(SDMMC_DEVICE);
 }
 
 bool SystemConfig::isFlashMounted()
 {
-    //return isMounted("/dev/mtdblock6");
-    QFile file("/proc/mounts");
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        return false;
-    }
-    return file.readAll().contains(LIBRARY_ROOT);
+    return isMounted("/dev/mtdblock6");
 }
 
-bool SystemConfig::isMounted(const std::string & point)
+bool SystemConfig::isMounted(const QString & point)
 {
 #ifndef _WINDOWS
     const char* MOUNT_FS_DESC_FILE  = "/proc/mounts";
@@ -449,7 +442,9 @@ bool SystemConfig::isMounted(const std::string & point)
     {
         // We get a mount entry in /proc/mounts
         // qDebug("%s\t%s", mnt_entry->mnt_fsname,  mnt_entry->mnt_dir);
-        if (point == mnt_entry->mnt_fsname)
+        QString mnt_fsname(mnt_entry->mnt_fsname);
+        qDebug("Mount Name:%s, Point Name:%s", qPrintable(mnt_fsname), qPrintable(point));
+        if (mnt_fsname.contains(point))
         {
             return true;
         }
