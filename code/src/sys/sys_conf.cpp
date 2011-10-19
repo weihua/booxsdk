@@ -146,6 +146,16 @@ bool SystemConfig::nabooReaderService(Service & service)
     return ServiceConfig::nabooReaderService(*database_, service);
 }
 
+bool SystemConfig::musicPlayerService(Service & service)
+{
+    return ServiceConfig::musicPlayerService(*database_, service);
+}
+
+bool SystemConfig::audioPlayerService(Service & service)
+{
+    return ServiceConfig::audioPlayerService(*database_, service);
+}
+
 bool SystemConfig::registerService(const Service &service,
                                    const QString &path)
 {

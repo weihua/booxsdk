@@ -50,6 +50,8 @@ public:
     bool nabooReaderService(Service &  service);
     bool coolReaderService(Service & service);
     bool htmlReaderService(Service & service);
+    bool musicPlayerService(Service & service);
+    bool audioPlayerService(Service & service);
     bool registerService(const Service &, const QString &);
     bool unRegisterService(const Service &);
 

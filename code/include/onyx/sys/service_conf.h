@@ -86,6 +86,8 @@ private:
     static bool news_feeds_Service(QSqlDatabase&, Service &);
     static bool sudokuService(QSqlDatabase&, Service &);
     static bool officeViewerService(QSqlDatabase &, Service & service);
+    static bool musicPlayerService(QSqlDatabase &, Service & service);
+    static bool audioPlayerService(QSqlDatabase &, Service & service);
     static bool hasOfficeViewer();
     static bool nabooReaderService(QSqlDatabase &, Service & service);
     static bool onyxReaderService(QSqlDatabase &, Service & service);

@@ -103,6 +103,18 @@ static   Service comic_reader("com.onyx.service.comic_reader",
                             OPEN_METHOD,
                             "comic_reader");
 
+static   Service music_player("com.onyx.service.music",
+                            "/com/onyx/object/music",
+                            "com.onyx.interface.music",
+                            OPEN_METHOD,
+                            "music_player");
+
+static   Service audio_player("com.onyx.service.audio_player",
+                            "/com/onyx/object/audio_player",
+                            "com.onyx.interface.audio_player",
+                            OPEN_METHOD,
+                            "audio_player");
+
 Service::Service()
 {
 }
@@ -330,6 +342,14 @@ void ServiceConfig::loadDefaultServices()
         comic_reader.mutable_extensions().push_back("cbz");
         comic_reader.mutable_extensions().push_back("zip");
         DEFAULT_SERVICES.push_back(comic_reader);
+
+        music_player.mutable_extensions().push_back("mp3");
+        music_player.mutable_extensions().push_back("wav");
+
+        audio_player.mutable_extensions().push_back("mp3");
+        audio_player.mutable_extensions().push_back("wav");
+        audio_player.mutable_extensions().push_back("rm");
+        audio_player.mutable_extensions().push_back("wma");
     }
 }
 
@@ -399,27 +419,16 @@ bool ServiceConfig::metService(QSqlDatabase &, Service &service)
 
 bool ServiceConfig::musicService(QSqlDatabase &database, Service & service)
 {
-    // music service.
-    static Service music_service("com.onyx.service.music",
-                                 "/com/onyx/object/music",
-                                 "com.onyx.interface.music",
-                                 OPEN_METHOD,
-#ifndef BUILD_WITH_TFT
-                                 "music_player");
-#else
-                                 "audio_player");
-#endif
 
-    if (music_service.extensions().size() <= 0)
-    {
-        music_service.mutable_extensions().push_back("mp3");
-#ifndef BUILD_WITH_TFT
-        music_service.mutable_extensions().push_back("rm");
-        music_service.mutable_extensions().push_back("wma");
-        music_service.mutable_extensions().push_back("wav");
-#endif
-    }
-    service = music_service;
+//    if (music_service.extensions().size() <= 0)
+//    {
+//        music_service.mutable_extensions().push_back("mp3");
+//#ifndef BUILD_WITH_TFT
+//        music_service.mutable_extensions().push_back("rm");
+//        music_service.mutable_extensions().push_back("wma");
+//        music_service.mutable_extensions().push_back("wav");
+//#endif
+//    service = music_service;
     return true;
 }
 
@@ -545,6 +554,18 @@ bool ServiceConfig::comicReaderService(QSqlDatabase &, Service & service)
 bool ServiceConfig::officeViewerService(QSqlDatabase &, Service & service)
 {
     service = office_viewer;
+    return true;
+}
+
+bool ServiceConfig::musicPlayerService(QSqlDatabase &, Service & service)
+{
+    service = music_player;
+    return true;
+}
+
+bool ServiceConfig::audioPlayerService(QSqlDatabase &, Service & service)
+{
+    service = audio_player;
     return true;
 }
 
