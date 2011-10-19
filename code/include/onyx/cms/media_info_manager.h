@@ -10,7 +10,7 @@ namespace cms
 class MediaInfoManager
 {
 public:
-    explicit MediaInfoManager();
+    MediaInfoManager();
     ~MediaInfoManager();
 
 public:
@@ -18,7 +18,18 @@ public:
 
     void update(bool is_sd_card = false);
 
+    void scan(bool scan_sd_card = false);
+    QStringList extNames(MediaType type);
+
 private:
+    bool scanFoldersRecursively(QDir & dir,QStringList & result);
+    QStringList booksExtNames();
+    QStringList musicExtNames();
+    QStringList picturesExtNames();
+
+    QString internalStoragePath();
+    QString sdPath();
+
     void recurseCollect(const QString &sub_dir, const QStringList &name_filters,
             QStringList &path_list);
     QStringList getFullFilter(const QStringList &lower_filter);
