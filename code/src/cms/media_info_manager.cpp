@@ -31,7 +31,8 @@ bool MediaInfoManager::scanFoldersRecursively(QDir & dir,
         }
         else if (iter->isDir())
         {
-            scanFoldersRecursively(QDir(iter->absoluteFilePath()), result);
+            QDir d(iter->absoluteFilePath());
+            scanFoldersRecursively(d, result);
         }
     }
     return true;
@@ -122,7 +123,7 @@ void MediaInfoManager::scan(bool scan_sd_card)
     if (scan_sd_card)
     {
         QDir sd(sdPath());
-        scanFoldersRecursively(dir, result);
+        scanFoldersRecursively(sd, result);
     }
 
     QStringList booksExts = booksExtNames();
