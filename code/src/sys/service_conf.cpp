@@ -343,13 +343,15 @@ void ServiceConfig::loadDefaultServices()
         comic_reader.mutable_extensions().push_back("zip");
         DEFAULT_SERVICES.push_back(comic_reader);
 
-        music_player.mutable_extensions().push_back("mp3");
-        music_player.mutable_extensions().push_back("wav");
-
         audio_player.mutable_extensions().push_back("mp3");
         audio_player.mutable_extensions().push_back("wav");
         audio_player.mutable_extensions().push_back("rm");
         audio_player.mutable_extensions().push_back("wma");
+        DEFAULT_SERVICES.push_back(audio_player);
+
+        music_player.mutable_extensions().push_back("mp3");
+        music_player.mutable_extensions().push_back("wav");
+        DEFAULT_SERVICES.push_back(music_player);
     }
 }
 
