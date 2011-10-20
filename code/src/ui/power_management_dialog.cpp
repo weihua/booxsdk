@@ -225,10 +225,50 @@ bool PowerManagementDialog::event(QEvent* qe)
     return ret;
 }
 
+void PowerManagementDialog::setSuspendInterval()
+{
+    if (sys_standby_interval_ != standby_interval_)
+    {
+        status_.setSuspendInterval(standby_interval_);
+    }
+}
+
+void PowerManagementDialog::setShutdownInterval()
+{
+    if (sys_shutdown_interval_ != shutdown_interval_)
+    {
+        status_.setShutdownInterval(shutdown_interval_);
+    }
+}
+
 void PowerManagementDialog::onOkClicked()
 {
-    status_.setSuspendInterval(standby_interval_);
-    status_.setShutdownInterval(shutdown_interval_);
+    /*
+     * The setting logic here is coherent with PowerManager. Therefore the order
+     * of the setting actions should be specified according to the two values.
+     * The zero value should be set first.
+     *
+     * In my suggestion, later UI design should only provide values, should not
+     * contains the logic of setting those values. That can make least coherence
+     * between UI and non-UI objects.
+     */
+    bool set_standby_first = true;
+    if (0 != standby_interval_)
+    {
+        set_standby_first = false;
+    }
+
+    if (set_standby_first)
+    {
+        setSuspendInterval();
+        setShutdownInterval();
+    }
+    else
+    {
+        setShutdownInterval();
+        setSuspendInterval();
+    }
+
     accept();
     onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC);
 }

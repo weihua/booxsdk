@@ -28,6 +28,9 @@ private:
     void keyReleaseEvent(QKeyEvent *);
     bool event(QEvent*);
 
+    void setSuspendInterval();
+    void setShutdownInterval();
+
 private Q_SLOTS:
     void onButtonChanged(CatalogView *catalog, ContentView *item, int user_data);
     void onOkClicked();
