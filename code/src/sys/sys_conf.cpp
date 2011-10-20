@@ -570,6 +570,11 @@ int SystemConfig::distance()
     return PageTurningConfig::distance();
 }
 
+int SystemConfig::whichArea(const QPoint & old_position, const QPoint & new_position)
+{
+    return PageTurningConfig::whichArea(old_position, new_position);
+}
+
 /// Return the default download folder. Ensure the folder exist.
 QString SystemConfig::downloadFolder()
 {

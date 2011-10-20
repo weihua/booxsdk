@@ -120,6 +120,7 @@ public:
     static int direction(const QPoint & old_position, const QPoint & new_position);
     static void setDirection(int);
     static int distance();
+    static int whichArea(const QPoint & old_position, const QPoint & new_position);
 
     // Internet settings.
     QString downloadFolder();
