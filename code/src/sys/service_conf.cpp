@@ -413,10 +413,10 @@ bool ServiceConfig::musicService(QSqlDatabase &database, Service & service)
     if (music_service.extensions().size() <= 0)
     {
         music_service.mutable_extensions().push_back("mp3");
+        music_service.mutable_extensions().push_back("wav");
 #ifndef BUILD_WITH_TFT
         music_service.mutable_extensions().push_back("rm");
         music_service.mutable_extensions().push_back("wma");
-        music_service.mutable_extensions().push_back("wav");
 #endif
     }
     service = music_service;
