@@ -1,5 +1,9 @@
 // Authors: John
 
+#ifdef BUILD_FOR_ARM
+#include <QtGui/qscreen_qws.h>
+#endif
+
 /// Public header of the system configuration library.
 #include "onyx/sys/page_turning_conf.h"
 
