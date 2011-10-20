@@ -27,6 +27,9 @@ private:
     void keyReleaseEvent(QKeyEvent *);
     bool event(QEvent*);
 
+    void setSuspendInterval();
+    void setShutdownInterval();
+
 private Q_SLOTS:
     void onStandbyButtonChanged(bool);
     void onShutdownButtonChanged(bool);

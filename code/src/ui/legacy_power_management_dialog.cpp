@@ -248,16 +248,40 @@ bool LegacyPowerManagementDialog::event(QEvent* qe)
     return ret;
 }
 
-void LegacyPowerManagementDialog::onOkClicked(bool)
+
+void LegacyPowerManagementDialog::setSuspendInterval()
 {
-    if (standby_interval_ != sys_standby_interval_)
+    if (sys_standby_interval_ != standby_interval_)
     {
         status_.setSuspendInterval(standby_interval_);
     }
+}
 
-    if (shutdown_interval_ != sys_shutdown_interval_ )
+void LegacyPowerManagementDialog::setShutdownInterval()
+{
+    if (sys_shutdown_interval_ != shutdown_interval_)
     {
         status_.setShutdownInterval(shutdown_interval_);
+    }
+}
+
+void LegacyPowerManagementDialog::onOkClicked(bool)
+{
+    bool set_standby_first = true;
+    if (0 != standby_interval_)
+    {
+        set_standby_first = false;
+    }
+
+    if (set_standby_first)
+    {
+        setSuspendInterval();
+        setShutdownInterval();
+    }
+    else
+    {
+        setShutdownInterval();
+        setSuspendInterval();
     }
 
     accept();

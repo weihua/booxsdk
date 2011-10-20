@@ -225,10 +225,41 @@ bool PowerManagementDialog::event(QEvent* qe)
     return ret;
 }
 
+void PowerManagementDialog::setSuspendInterval()
+{
+    if (sys_standby_interval_ != standby_interval_)
+    {
+        status_.setSuspendInterval(standby_interval_);
+    }
+}
+
+void PowerManagementDialog::setShutdownInterval()
+{
+    if (sys_shutdown_interval_ != shutdown_interval_)
+    {
+        status_.setShutdownInterval(shutdown_interval_);
+    }
+}
+
 void PowerManagementDialog::onOkClicked()
 {
-    status_.setSuspendInterval(standby_interval_);
-    status_.setShutdownInterval(shutdown_interval_);
+    bool set_standby_first = true;
+    if (0 != standby_interval_)
+    {
+        set_standby_first = false;
+    }
+
+    if (set_standby_first)
+    {
+        setSuspendInterval();
+        setShutdownInterval();
+    }
+    else
+    {
+        setShutdownInterval();
+        setSuspendInterval();
+    }
+
     accept();
     onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC);
 }
