@@ -345,7 +345,6 @@ void ServiceConfig::loadDefaultServices()
 
         audio_player.mutable_extensions().push_back("mp3");
         audio_player.mutable_extensions().push_back("wav");
-        audio_player.mutable_extensions().push_back("rm");
         audio_player.mutable_extensions().push_back("wma");
         DEFAULT_SERVICES.push_back(audio_player);
 
