@@ -87,6 +87,7 @@ private:
     scoped_ptr<TTSInterface> tts_impl_; ///< Backend instance.
     QTimer timer_;
     int span_;      ///< Serves as interval.
+    int idle_count_;
 };
 
 }   // namespace tts

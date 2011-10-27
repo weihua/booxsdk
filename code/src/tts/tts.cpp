@@ -11,7 +11,9 @@ static const int SAMPLE_RATE = 44100;
 static const int CHANNELS = 1;
 
 TTS::TTS(const QLocale & locale)
-: span_(3000), tts_impl_(0)
+: span_(3000)
+, tts_impl_(0)
+, idle_count_(0)
 {
     init(locale); //Loading TTS plugins & init;
 }
@@ -183,7 +185,22 @@ void TTS::setState(TTS_State state)
         sound_.reset(0);
     }
 
-    sys::SysStatus::instance().enableIdle(state != TTS_PLAYING);
+    if (state == TTS_PLAYING)
+    {
+        if (idle_count_ <= 0)
+        {
+            sys::SysStatus::instance().enableIdle(false);
+            ++idle_count_;
+        }
+    }
+    else
+    {
+        if (idle_count_ > 0)
+        {
+            sys::SysStatus::instance().enableIdle(true);
+        }
+        idle_count_ = 0;
+    }
 }
 
 void TTS::onPlayFinished(int)
