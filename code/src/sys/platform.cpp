@@ -109,7 +109,7 @@ int batteryPercentageThreshold()
     {
         threshold = qgetenv("BATTERY_THRESHOLD").toInt();
     }
-    if (threshold)
+    if (threshold <= 0)
     {
         threshold = 5;
     }
