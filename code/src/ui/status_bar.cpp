@@ -749,6 +749,10 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
         connect(item, SIGNAL(clicked(const int, const int)),
                 this, SLOT(onProgressChanged(const int, const int)));
         break;
+    case MESSAGE:
+        item = new StatusBarItemMessage(this);
+        connect(item, SIGNAL(clicked()), this, SLOT(onMessageAreaClicked()));
+        break;
     default:
         break;
     }
