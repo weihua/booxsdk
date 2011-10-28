@@ -3,6 +3,8 @@
 #include "onyx/ui/ui_utils.h"
 #include "onyx/ui/onyx_keyboard_utils.h"
 #include "onyx/data/data_tags.h"
+#include "onyx/ui/ui_utils.h"
+#include "onyx/sys/platform.h"
 
 
 static const int MODE_FULL      = 0;
@@ -54,6 +56,10 @@ void OnyxSearchDialog::adjustSizeAndPosition()
         setFixedSize(parent_rect.width(), defaultItemHeight() * 2 + 2 *SPACING);
     }
     y = parent->height() - height();
+    if (sys::isIRTouch())
+    {
+        y -= ui::statusBarHeight();
+    }
     move(x, y);
 }
 
