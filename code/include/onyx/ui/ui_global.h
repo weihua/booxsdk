@@ -171,6 +171,7 @@ enum SystemAction
     FULL_SCREEN,
     EXIT_FULL_SCREEN,
     BACKLIGHT_BRIGHTNESS,
+    SYSTEM_VOLUME,
 };
 
 enum AnnotationMode
