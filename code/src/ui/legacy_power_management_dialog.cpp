@@ -2,6 +2,7 @@
 #include "onyx/screen/screen_proxy.h"
 #include "onyx/ui/legacy_power_management_dialog.h"
 #include "onyx/ui/keyboard_navigator.h"
+#include "onyx/sys/sys_status.h"
 
 namespace ui
 {
@@ -119,6 +120,15 @@ void LegacyPowerManagementDialog::createLayout()
     // The big layout.
     ver_layout_.setContentsMargins(SPACING, 0, SPACING, 0);
     ver_layout_.addSpacing(10);
+
+    //Current battery indicator
+    //SysStatus::batteryStatus
+    int left, status;
+    sys::SysStatus::instance().batteryStatus(left, status);
+    battery_indicator_label_.setText(QApplication::tr("Power of battery : %1% left").arg(left));
+    ver_layout_.addWidget(&battery_indicator_label_);
+    ver_layout_.addSpacing(5);;
+
 
     // Standby layout
     // Label.

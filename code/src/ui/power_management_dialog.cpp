@@ -4,6 +4,7 @@
 #include "onyx/ui/keyboard_navigator.h"
 #include "onyx/data/data_tags.h"
 #include "onyx/screen/screen_update_watcher.h"
+#include "onyx/sys/sys_status.h"
 
 namespace ui
 {
@@ -132,6 +133,27 @@ void PowerManagementDialog::createLayout()
     // The big layout.
     ver_layout_.setContentsMargins(SPACING, 0, SPACING, 0);
     ver_layout_.addSpacing(10);
+
+    {
+        battery_power_.setSubItemType(CoverView::type());
+        battery_power_.setMargin(5, 5, 5, 5);
+        battery_power_.setPreferItemSize(QSize(0, 60));
+        ODatas d;
+
+        OData * item = new OData;
+        int left, status;
+        sys::SysStatus::instance().batteryStatus(left, status);
+        item->insert(TAG_TITLE, tr("Power of battery : %1% left").arg(left));
+        d.push_back(item);
+
+
+        battery_power_.setData(d, true);
+        battery_power_.setMinimumHeight( 60 );
+        battery_power_.setMinimumWidth(100);
+        battery_power_.setFocusPolicy(Qt::NoFocus);
+
+        ver_layout_.addWidget(&battery_power_);
+    }
 
     // Create display items
     buttons_.setSubItemType(CheckBoxView::type());

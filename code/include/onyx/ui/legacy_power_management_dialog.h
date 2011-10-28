@@ -50,6 +50,8 @@ private:
     QButtonGroup standby_group_;
     Buttons standby_buttons_;
 
+    OnyxLabel battery_indicator_label_;
+
     QVBoxLayout shutdown_layout_;
     QHBoxLayout shutdown_hor_layout_;
     OnyxLabel shutdown_image_label_;
