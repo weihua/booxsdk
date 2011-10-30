@@ -112,7 +112,7 @@ void SystemActions::generateActions(const std::vector<int> & actions)
             }
         case SYSTEM_VOLUME:
             {
-                // Music.
+                // system volume.
                 shared_ptr<QAction> volume(new QAction(exclusiveGroup()));
                 volume->setCheckable(true);
                 volume->setText(QCoreApplication::tr("Volume"));

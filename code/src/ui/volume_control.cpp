@@ -30,7 +30,7 @@ VolumeControlDialog::VolumeControlDialog(QWidget *parent)
 
     createLayout();
     setModal(true);
-    setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
     setFocusPolicy(Qt::NoFocus);
 
     timer_.setSingleShot(true);
@@ -94,6 +94,7 @@ void VolumeControlDialog::resizeEvent(QResizeEvent *e)
 
 void VolumeControlDialog::paintEvent(QPaintEvent *e)
 {
+    static const int MY_WIDTH = 15;
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.fillRect(rect(), QBrush(QColor(190, 190, 190)));
@@ -104,9 +105,9 @@ void VolumeControlDialog::paintEvent(QPaintEvent *e)
     int x = 10;
     for (int i = 1 ;i < volumes.size(); ++i)
     {
-        painter.fillRect(x,height()-30-i*2,15,15+i*2,current_ >= volumes[i] ? Qt::black : Qt::white);
+        painter.fillRect(x,height()-30-i*2, MY_WIDTH , MY_WIDTH + i * 2,current_ >= volumes[i] ? Qt::black : Qt::white);
         map_.insert(x,volumes[i]);
-        x += 20;
+        x += MY_WIDTH + 5;
     }
 }
 
