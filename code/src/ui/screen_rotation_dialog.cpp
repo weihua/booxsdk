@@ -105,7 +105,7 @@ namespace ui
     int ScreenRotationDialog::popup()
     {
         show();
-        onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC, onyx::screen::ScreenCommand::WAIT_ALL);
+        onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC, true, onyx::screen::ScreenCommand::WAIT_ALL);
         return QDialog::exec();
     }
 

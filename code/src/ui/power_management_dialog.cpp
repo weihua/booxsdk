@@ -42,6 +42,7 @@ PowerManagementDialog::PowerManagementDialog(QWidget *parent, SysStatus & ref)
     : OnyxDialog(parent)
     , status_(ref)
     , ver_layout_(&content_widget_)
+    , battery_power_(0)
     , hor_layout_(0)
     , sys_standby_interval_(0)
     , standby_interval_(0)
@@ -134,26 +135,12 @@ void PowerManagementDialog::createLayout()
     ver_layout_.setContentsMargins(SPACING, 0, SPACING, 0);
     ver_layout_.addSpacing(10);
 
-    {
-        battery_power_.setSubItemType(CoverView::type());
-        battery_power_.setMargin(5, 5, 5, 5);
-        battery_power_.setPreferItemSize(QSize(0, 60));
-        ODatas d;
-
-        OData * item = new OData;
-        int left, status;
-        sys::SysStatus::instance().batteryStatus(left, status);
-        item->insert(TAG_TITLE, tr("Power of battery : %1% left").arg(left));
-        d.push_back(item);
-
-
-        battery_power_.setData(d, true);
-        battery_power_.setMinimumHeight( 60 );
-        battery_power_.setMinimumWidth(100);
-        battery_power_.setFocusPolicy(Qt::NoFocus);
-
-        ver_layout_.addWidget(&battery_power_);
-    }
+    QString t(tr("Battery remaining %1%"));
+    int left = 100, status = 0;
+    status_.batteryStatus(left, status);
+    t = t.arg(left);
+    battery_power_.setText(t);
+    ver_layout_.addWidget(&battery_power_);
 
     // Create display items
     buttons_.setSubItemType(CheckBoxView::type());

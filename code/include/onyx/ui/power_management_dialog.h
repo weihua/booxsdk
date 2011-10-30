@@ -39,7 +39,7 @@ private:
     SysStatus & status_;
     QVBoxLayout ver_layout_;
 
-    CatalogView battery_power_;
+    OnyxLabel battery_power_;
 
     CatalogView buttons_;
     OData *interval_selected_;
