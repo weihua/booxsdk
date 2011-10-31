@@ -25,7 +25,7 @@ class StatusBar : public QStatusBar
 {
     Q_OBJECT
 public:
-    StatusBar(QWidget *parent, StatusBarItemTypes items = MENU|PROGRESS|MESSAGE|BATTERY|MUSIC_PLAYER);
+    StatusBar(QWidget *parent, StatusBarItemTypes items = MENU|PROGRESS|BATTERY|MUSIC_PLAYER);
     ~StatusBar(void);
 
 public:
