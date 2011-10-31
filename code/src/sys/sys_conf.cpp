@@ -424,7 +424,7 @@ bool SystemConfig::exportNotes(const QString & src, const QString & dst)
 
 bool SystemConfig::isSDMounted()
 {
-    return isMounted(SDMMC_DEVICE);
+    return isMounted("/dev/mmcblk");
 }
 
 bool SystemConfig::isFlashMounted()
