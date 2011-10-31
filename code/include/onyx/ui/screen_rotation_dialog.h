@@ -42,10 +42,11 @@ protected:
 private:
     void createLayout();
     enum Type { UP, DOWN, LEFT, RIGHT};
-    void rotation(Type t);
+    void rotate(Type t);
 
 private:
     RotationWidget rotation_widget_;
+    Type rotation_;
 
 private:
     NO_COPY_AND_ASSIGN(ScreenRotationDialog);

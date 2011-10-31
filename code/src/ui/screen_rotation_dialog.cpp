@@ -25,7 +25,7 @@ namespace ui
 
     void ScreenRotationDialog::closeEvent(QCloseEvent *)
     {
-        onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC);
+        //onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU);
     }
 
     void ScreenRotationDialog::keyPressEvent(QKeyEvent *ke)
@@ -39,20 +39,20 @@ namespace ui
         switch (ke->key())
         {
         case Qt::Key_Up:
-            rotation(UP);
             accept();
+            rotation_ = UP;
             break;
         case Qt::Key_Left:
-            rotation(LEFT);
             accept();
+            rotation_ = LEFT;
             break;
         case Qt::Key_Right:
-            rotation(RIGHT);
             accept();
+            rotation_ = RIGHT;
             break;
         case Qt::Key_Down:
-            rotation(DOWN);
             accept();
+            rotation_ = DOWN;
             break;
         case Qt::Key_Escape:
             reject();
@@ -79,26 +79,26 @@ namespace ui
         if((x < y) &&
             y < (h-h*x/w))
         {
-            rotation(LEFT);
             accept();
+            rotation_ = LEFT;
         }
         else if((x > y) &&
                 (y > (h-h*x/w)))
         {
-            rotation(RIGHT);
             accept();
+            rotation_ = RIGHT;
         }
         else if((x < y) &&
                 (y > (h-h*x/w)))
         {
-            rotation(DOWN);
             accept();
+            rotation_ = DOWN;
         }
         else if((x > y) &&
                 (y < (h-h*x/w)))
         {
-            rotation(UP);
             accept();
+            rotation_ = UP;
         }
     }
 
@@ -106,7 +106,13 @@ namespace ui
     {
         show();
         onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC, true, onyx::screen::ScreenCommand::WAIT_ALL);
-        return QDialog::exec();
+        int ret = QDialog::exec();
+        if (ret == QDialog::Accepted)
+        {
+            onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU, true, onyx::screen::ScreenCommand::WAIT_ALL);
+            rotate(rotation_);
+        }
+        return ret;
     }
 
     void ScreenRotationDialog::createLayout()
@@ -116,7 +122,7 @@ namespace ui
         vbox_.addStretch();
     }
 
-    void ScreenRotationDialog::rotation(Type t)
+    void ScreenRotationDialog::rotate(Type t)
     {
         int degree = sys::SysStatus::instance().screenTransformation();
         switch(t)
@@ -126,8 +132,8 @@ namespace ui
             sys::SysStatus::instance().setScreenTransformation(degree);
             break;
         case DOWN:
-            //degree = (degree+180)%360;
-            //sys::SysStatus::instance().setScreenTransformation(0);
+            degree = (degree+180)%360;
+            sys::SysStatus::instance().setScreenTransformation(0);
             break;
         case LEFT:
             degree = (degree+270)%360;
