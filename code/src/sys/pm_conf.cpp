@@ -35,7 +35,7 @@ int PMConfig::suspendInterval(QSqlDatabase &database)
     QSqlQuery query(database);
     query.prepare( "select value from power_management where key = ? ");
     query.addBindValue("suspend_interval");
-    int interval = 300 * 1000;
+    int interval = 180 * 1000;
     int t = qgetenv("SUSPEND_INTERVAL").toInt();
     if (t > 0)
     {
