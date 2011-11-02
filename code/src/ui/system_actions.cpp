@@ -55,20 +55,20 @@ void SystemActions::generateActions(const std::vector<int> & actions)
         case SCREEN_UPDATE_TYPE:
             {
                 // Screen update type.
-                shared_ptr<QAction> screen(new QAction(exclusiveGroup()));
-                screen->setCheckable(true);
-                if (onyx::screen::instance().defaultWaveform() == onyx::screen::ScreenProxy::GC)
-                {
-                    screen->setText(QCoreApplication::tr("Full Refresh Off"));
-                    screen->setIcon(QIcon(QPixmap(":/images/fast_update.png")));
-                }
-                else
-                {
-                    screen->setText(QCoreApplication::tr("Full Refresh On"));
-                    screen->setIcon(QIcon(QPixmap(":/images/full_update.png")));
-                }
-                screen->setData(SCREEN_UPDATE_TYPE);
-                actions_.push_back(screen);
+//                shared_ptr<QAction> screen(new QAction(exclusiveGroup()));
+//                screen->setCheckable(true);
+//                if (onyx::screen::instance().defaultWaveform() == onyx::screen::ScreenProxy::GC)
+//                {
+//                    screen->setText(QCoreApplication::tr("Full Refresh Off"));
+//                    screen->setIcon(QIcon(QPixmap(":/images/fast_update.png")));
+//                }
+//                else
+//                {
+//                    screen->setText(QCoreApplication::tr("Full Refresh On"));
+//                    screen->setIcon(QIcon(QPixmap(":/images/full_update.png")));
+//                }
+//                screen->setData(SCREEN_UPDATE_TYPE);
+//                actions_.push_back(screen);
                 break;
             }
         case FULL_SCREEN:
