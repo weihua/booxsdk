@@ -7,6 +7,7 @@ namespace ui
 {
 
 static const int TIMEOUT = 3000;
+static QVector<int> volumes;
 
 // VolumeControlDialog
 VolumeControlDialog::VolumeControlDialog(QWidget *parent)
@@ -20,9 +21,12 @@ VolumeControlDialog::VolumeControlDialog(QWidget *parent)
     , label_(0)
 {
     SysStatus & sys_status = SysStatus::instance();
-    SystemConfig sys_conf;
-    min_ = sys_conf.minVolume();
-    max_ = sys_conf.maxVolume();
+    SystemConfig conf;
+    min_ = conf.minVolume();
+    max_ = conf.maxVolume();
+    volumes = conf.volumes();
+    conf.close();
+
     current_ = sys_status.volume() - min_;
 
     // connect the signals with sys_state_
@@ -99,9 +103,6 @@ void VolumeControlDialog::paintEvent(QPaintEvent *e)
     painter.setRenderHint(QPainter::Antialiasing);
     painter.fillRect(rect(), QBrush(QColor(190, 190, 190)));
 
-    SystemConfig sys_conf;
-    QVector<int>  volumes = sys_conf.volumes();
-
     for (int i = 0; i < volumes.size(); ++i)
     {
         painter.fillRect(rectForVolume(i), current_ >= volumes[i] ? Qt::black : Qt::white);
@@ -119,28 +120,41 @@ void VolumeControlDialog::mousePressEvent(QMouseEvent *me)
     resetTimer();
     me->accept();
 
-    SystemConfig conf;
-    QVector<int>  volumes = conf.volumes();
-    conf.close();
-
-    int value = 0;
-    for(int i = 0; i < volumes.size(); ++i)
+    QRect rc1, rc2;
+    rc1 = rectForVolume(0);
+    int value = -1;
+    for(int i = 1; i < volumes.size(); ++i)
     {
-        QRect rc = rectForVolume(i);
-        if (rc.contains(me->pos()))
+        rc2 = rectForVolume(i);
+        if (rc1.left() < me->pos().x() &&
+            me->pos().x() < rc2.left() &&
+            me->pos().y() > rc2.top())
         {
-            value = volumes[i];
+            value = volumes[i - 1];
             break;
+        }
+        rc1 = rc2;
+    }
+
+    if (value < 0)
+    {
+        rc1 = rectForVolume(0);
+        rc2 = rectForVolume(volumes.size() - 1);
+        if (me->pos().x() < rc1.left())
+        {
+            value = min_;
+        }
+        else if (me->pos().x() >= rc2.left())
+        {
+            value = max_;
         }
     }
 
-    if (value != current_)
-    {
-        sys::SysStatus::instance().setVolume(value);
+    sys::SysStatus::instance().setVolume(value);
 #ifndef BUILD_FOR_ARM
-        setVolume(value, false);
+    setVolume(value, false);
 #endif
-    }
+
 }
 
 void VolumeControlDialog::mouseReleaseEvent(QMouseEvent *me)
@@ -205,10 +219,6 @@ void VolumeControlDialog::onTimeout()
 
 QRect VolumeControlDialog::rectForVolume(int index)
 {
-    SystemConfig sys_conf;
-    QVector<int>  volumes = sys_conf.volumes();
-    conf.close();
-
     int left = 0, right = 0, bottom = 10;
     int spacing = 4 * layout_.spacing();
     layout_.getContentsMargins(&left, 0, &right, 0);
