@@ -237,5 +237,6 @@
     <file>images/lock_page_turning.png</file>
     <file>images/comic_mode.png</file>
 
+    <file>images/system_volume.png</file>
   </qresource>
 </RCC>

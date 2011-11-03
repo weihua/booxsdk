@@ -6,7 +6,7 @@
 namespace ui
 {
 
-static const int TIMEOUT = 2000;
+static const int TIMEOUT = 3000;
 
 // VolumeControlDialog
 VolumeControlDialog::VolumeControlDialog(QWidget *parent)
@@ -30,7 +30,8 @@ VolumeControlDialog::VolumeControlDialog(QWidget *parent)
 
     createLayout();
     setModal(true);
-    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    setFixedSize(300, 300);
+    //setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
     setFocusPolicy(Qt::NoFocus);
 
     timer_.setSingleShot(true);
@@ -46,8 +47,8 @@ void VolumeControlDialog::createLayout()
     // hbox to layout line edit and buttons.
     layout_.setContentsMargins(4, 4, 4, 4);
     layout_.setSpacing(2);
-    layout_.addWidget(&label_);
-    label_.setAlignment(Qt::AlignLeft|Qt::AlignTop);
+    layout_.addWidget(&label_, 0, Qt::AlignHCenter|Qt::AlignTop);
+    label_.setAlignment(Qt::AlignCenter);
 
     QPixmap pixmap=QPixmap::fromImage(image_);
     label_.setPixmap(pixmap);
@@ -94,20 +95,16 @@ void VolumeControlDialog::resizeEvent(QResizeEvent *e)
 
 void VolumeControlDialog::paintEvent(QPaintEvent *e)
 {
-    static const int MY_WIDTH = 15;
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.fillRect(rect(), QBrush(QColor(190, 190, 190)));
 
-    map_.clear();
     SystemConfig sys_conf;
     QVector<int>  volumes = sys_conf.volumes();
-    int x = 10;
-    for (int i = 1 ;i < volumes.size(); ++i)
+
+    for (int i = 0; i < volumes.size(); ++i)
     {
-        painter.fillRect(x,height()-30-i*2, MY_WIDTH , MY_WIDTH + i * 2,current_ >= volumes[i] ? Qt::black : Qt::white);
-        map_.insert(x,volumes[i]);
-        x += MY_WIDTH + 5;
+        painter.fillRect(rectForVolume(i), current_ >= volumes[i] ? Qt::black : Qt::white);
     }
 }
 
@@ -121,27 +118,20 @@ void VolumeControlDialog::mousePressEvent(QMouseEvent *me)
     // Check position.
     resetTimer();
     me->accept();
-    if ( me->y() < height() - 30 || me->y() > height() - 15 )
-    {
-        return;
-    }
 
-    int x = me->x() < 0 ? 0 : me->x();
+    SystemConfig conf;
+    QVector<int>  volumes = conf.volumes();
+    conf.close();
+
     int value = 0;
-    QMap<int, int>::const_iterator i = map_.begin();
-    while (i != map_.end()) 
+    for(int i = 0; i < volumes.size(); ++i)
     {
-        if ( i.key() > x)
+        QRect rc = rectForVolume(i);
+        if (rc.contains(me->pos()))
         {
+            value = volumes[i];
             break;
         }
-        value = i.value();
-        ++i;
-    }
-
-    if (value > max_)
-    {
-        value = max_;
     }
 
     if (value != current_)
@@ -170,12 +160,7 @@ void VolumeControlDialog::onScreenUpdateRequest()
 
 bool VolumeControlDialog::event(QEvent *e)
 {
-    qDebug("process event %d", e->type());
     int ret = QDialog::event(e);
-    if (e->type() == QEvent::UpdateRequest && onyx::screen::instance().isUpdateEnabled())
-    {
-        onyx::screen::watcher().updateScreen();
-    }
     return ret;
 }
 
@@ -216,6 +201,25 @@ void VolumeControlDialog::onTimeout()
 {
     stopTimer();
     accept();
+}
+
+QRect VolumeControlDialog::rectForVolume(int index)
+{
+    SystemConfig sys_conf;
+    QVector<int>  volumes = sys_conf.volumes();
+    conf.close();
+
+    int left = 0, right = 0, bottom = 10;
+    int spacing = 4 * layout_.spacing();
+    layout_.getContentsMargins(&left, 0, &right, 0);
+
+    int x = spacing + left;
+    int delta = 8;
+    int my_width = (width() - left - right) / volumes.size() - spacing;
+
+    x += (my_width + spacing) * index;
+    int h = 30 + index * delta;
+    return QRect(x, height() - h - bottom, my_width, h);
 }
 
 }   // namespace ui
