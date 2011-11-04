@@ -172,7 +172,7 @@ bool ContentThumbnail::storeThumbnail(const QString & file_name,
     }
     else
     {
-        thumbnail.save(&buffer, "PNG");
+        thumbnail.save(&buffer, "bmp");
     }
 
     query.addBindValue(ba);
