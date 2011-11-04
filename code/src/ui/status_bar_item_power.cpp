@@ -7,7 +7,7 @@ namespace ui
 static int index(int value)
 {
     int key = value / 20 + 1;
-    if (key < 0 || value <= 0)
+    if (key < 0 || value <= 10)
     {
         key = 0;
     }
