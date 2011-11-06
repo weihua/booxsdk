@@ -19,12 +19,16 @@ public:
 
     void updateTitle(const QString &message);
 
+public Q_SLOTS:
+    virtual void done(int);
+
 protected:
     void moveEvent(QMoveEvent *e);
     void resizeEvent(QResizeEvent *e);
     void hideEvent(QHideEvent * event);
     void keyPressEvent(QKeyEvent * event);
     void keyReleaseEvent(QKeyEvent * event);
+    void closeEvent(QCloseEvent * event); 
 
     void createDefaultLayout();
     void updateTitleIcon(const QPixmap& pixmap);

@@ -1,4 +1,5 @@
 #include "onyx/ui/onyx_dialog.h"
+#include "onyx/screen/screen_proxy.h"
 
 namespace ui
 {
@@ -139,11 +140,23 @@ QRect OnyxDialog::outbounding(QWidget *parent)
     return rc;
 }
 
+void OnyxDialog::done(int r)
+{
+    onyx::screen::instance().ensureUpdateFinished();
+    return QDialog::done(r);
+}
+
 void OnyxDialog::onCloseClicked()
 {
     shadows_.show(false);
     done(QDialog::Rejected);
 }
+
+void OnyxDialog::closeEvent(QCloseEvent * event)
+{
+    QDialog::closeEvent(event);
+}
+
 
 void OnyxDialog::moveEvent(QMoveEvent *e)
 {
