@@ -743,6 +743,7 @@ void DictWidget::onOpenDictionaryToolClicked(bool)
 
 void DictWidget::onCloseClicked()
 {
+    onyx::screen::instance().ensureUpdateFinished();
     releaseKeyboard();
     hide();
     emit closeClicked();
