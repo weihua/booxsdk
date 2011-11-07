@@ -132,8 +132,8 @@ namespace ui
             sys::SysStatus::instance().setScreenTransformation(degree);
             break;
         case DOWN:
-            degree = (degree+180)%360;
-            sys::SysStatus::instance().setScreenTransformation(0);
+            //degree = (degree+180)%360;
+            //sys::SysStatus::instance().setScreenTransformation(0);
             break;
         case LEFT:
             degree = (degree+270)%360;
