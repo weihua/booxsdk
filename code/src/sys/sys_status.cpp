@@ -392,6 +392,14 @@ void SysStatus::installSlots()
     }
 
     if (!connection_.connect(service, object, iface,
+                             "ledSignal",
+                             this,
+                             SLOT(onLedSignal(const QByteArray &, const QByteArray &))))
+    {
+        qDebug("\nCan not connect the ledSignal signal\n");
+    }
+
+    if (!connection_.connect(service, object, iface,
                              "configKeyboard",
                              this,
                              SLOT(onConfigKeyboard())))
@@ -1811,6 +1819,30 @@ bool SysStatus::enableMultiTouch(bool enable)
     return true;
 }
 
+bool SysStatus::queryLedSignal()
+{
+    if (!sys::isIRTouch())
+    {
+        qWarning("queryLedSignal can only be used on ir touch.\n");
+        return false;
+    }
+
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "queryLedSignal"      // method.
+    );
+
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+        return false;
+    }
+    return true;
+}
+
 void SysStatus::dump()
 {
     int left;
@@ -2002,6 +2034,11 @@ void SysStatus::onMultiTouchPressDetected(int x1, int y1, int width1, int height
 void SysStatus::onMultiTouchReleaseDetected(int x1, int y1, int width1, int height1, int x2, int y2, int width2, int height2)
 {
     emit multiTouchReleaseDetected(QRect(x1, y1, width1, height1), QRect(x2, y2, width2, height2));
+}
+
+void SysStatus::onLedSignal(const QByteArray & x, const QByteArray & y)
+{
+    emit ledSignal(x, y);
 }
 
 void SysStatus::onConfigKeyboard()
