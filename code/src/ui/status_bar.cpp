@@ -54,7 +54,7 @@ void StatusBar::setupConnections()
             SIGNAL(aboutToSuspend()),
             this,
             SLOT(onAboutToSuspend()));
-    connect(&sys_status_,
+    connect(&sys_status,
             SIGNAL(lowBatterySignal()),
             this,
             SLOT(onLowBatterySignal()));
