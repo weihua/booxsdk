@@ -1,9 +1,9 @@
 
 ENABLE_QT()
 
-INCLUDE(FindZLIB)
-INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIRS})
-LINK_DIRECTORIES(${ZLIB_LIBRARY_DIRS})
+#INCLUDE(FindZLIB)
+#INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIRS})
+#LINK_DIRECTORIES(${ZLIB_LIBRARY_DIRS})
 
 
 # qstardict backend.
@@ -19,7 +19,8 @@ SET(SRCS
   ${QSTARDICT_PLUGIN_SRCS}
   dictionary_manager.cpp
   dict_widget.cpp
-  dict_frame.cpp)
+  dict_frame.cpp
+  onyx_dict_frame.cpp)
 
 # moc
 set(MOC_HDRS ${HDRS}  ${QSTARDICT_PLUGIN_HDRS})
@@ -31,7 +32,7 @@ QT4_ADD_RESOURCES(dictionary_ui_res ${resource_srcs})
 
 
 ADD_LIBRARY(dictionary ${SRCS} ${MOC_SRCS} ${dictionary_ui_res})
-TARGET_LINK_LIBRARIES(dictionary onyx_ui)
+TARGET_LINK_LIBRARIES(dictionary onyx_ui ${ADD_LIB})
 
 ########### Unit Tests #####################
 INCLUDE_DIRECTORIES(.)
@@ -39,6 +40,6 @@ ADD_EXECUTABLE(dictionary_test unittests/libdict_test.cpp ${SRCS} ${MOC_SRCS})
 TARGET_LINK_LIBRARIES(dictionary_test onyx_sys onyx_screen
         onyx_ui dictionary tts sound
         ${QT_LIBRARIES}
-        ${ZLIB_LIBRARIES})
+        ${ADD_LIB})
 SET_TARGET_PROPERTIES(dictionary_test PROPERTIES  RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_PATH})
 

@@ -117,6 +117,7 @@ StatusManager::StatusManager()
     handlers_[ID_WAIT_DISPLAY_SEARCH_RES] = &StatusManager::setWaitDispSearchRes;
     handlers_[ID_SKETCHING] = &StatusManager::setSketching;
     handlers_[ID_ERASING] = &StatusManager::setErasing;
+    handlers_[ID_COMIC_MODE] = &StatusManager::setComicMode;
 
     initReadingTools();
     intiZooming();
@@ -143,6 +144,11 @@ void StatusManager::initReadingTools()
     display_hyperlinks_action->setData(ID_DISPLAY_HYPERLINKS);
     reading_tools_group_.addAction(display_hyperlinks_action);
     reading_tools_group_.setStatus(ID_DISPLAY_HYPERLINKS, FUNC_NORMAL);
+
+    // comic mode
+    StatusActionPtr comic_mode_action( new QAction(0) );
+    comic_mode_action->setData(ID_COMIC_MODE);
+    reading_tools_group_.addAction(comic_mode_action);
 }
 
 void StatusManager::intiZooming()
@@ -262,6 +268,19 @@ void StatusManager::setSlideShow(FunctionStatus s)
     if (s == FUNC_SELECTED)
     {
         notify(ID_SLIDE_SHOW);
+    }
+    else
+    {
+        setPan(FUNC_SELECTED);
+    }
+}
+
+void StatusManager::setComicMode(FunctionStatus s)
+{
+    reading_tools_group_.setStatus(ID_COMIC_MODE, s);
+    if (s == FUNC_SELECTED)
+    {
+        notify(ID_COMIC_MODE);
     }
     else
     {

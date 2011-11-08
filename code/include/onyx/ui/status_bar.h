@@ -34,7 +34,8 @@ public:
 
 public Q_SLOTS:
     void showItem(StatusBarItemType item, bool show = true);
-    bool setProgress(const int value, const int total, bool show_message = true);
+    bool setProgress(const int value, const int total,
+            bool show_message = true, const QString &message = "");
     bool setMessage(const QString & message);
     bool setItemState(const StatusBarItemType type, const int state);
 
@@ -82,6 +83,7 @@ private Q_SLOTS:
     void onConnectToPC(bool);
     void onVolumeButtonsPressed();
     void onHideVolumeDialog();
+    void onConfigKeyboard();
 
 private:
     virtual void mouseMoveEvent(QMouseEvent *me);
@@ -115,6 +117,8 @@ private:
     scoped_ptr<LowBatteryDialog> low_battery_dialog_;
     scoped_ptr<ClockDialog> clock_dialog_;
     scoped_ptr<VolumeControlDialog> volume_dialog_;
+
+    scoped_ptr<OnyxLabel> right_margin_;
 };
 
 };  // namespace ui

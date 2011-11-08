@@ -233,6 +233,18 @@ void ReadingToolsActions::generateActions(const vector<ReadingToolsType> & value
                 act->setIcon(QIcon(QPixmap(":/images/clock_tool.png")));
             }
             break;
+        case COMIC_MODE:
+            {
+                act->setText(QCoreApplication::tr("Comic Mode"));
+                act->setIcon(QIcon(QPixmap(":/images/comic_mode.png")));
+            }
+            break;
+        case IMAGE_EMBOLDEN_TOOL:
+            {
+                act->setText(QCoreApplication::tr("Glyph Embolden"));
+                act->setIcon(QIcon(QPixmap(":/images/sketch_shape_5.png")));
+            }
+            break;
         default:
             break;
         }
@@ -274,6 +286,12 @@ void ReadingToolsActions::setActionStatus(const ReadingToolsType type,
         {
             selected ? text = QCoreApplication::tr("Turn Off Slide Show") :
                 text = QCoreApplication::tr("Slide Show");
+        }
+        break;
+    case COMIC_MODE:
+        {
+            selected ? text = QCoreApplication::tr("Exit Comic Mode") :
+                text = QCoreApplication::tr("Comic Mode");
         }
         break;
     case DISPLAY_HYPERLINKS:

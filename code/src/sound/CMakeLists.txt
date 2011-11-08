@@ -1,16 +1,42 @@
 ENABLE_QT()
 
 # Header files.
-FILE(GLOB hrds ${ONYXSDK_DIR}/include/onyx/sound/*.h)
+set(hrds
+    ${ONYXSDK_DIR}/include/onyx/sound/async_player.h
+    ${ONYXSDK_DIR}/include/onyx/sound/sound.h
+    ${ONYXSDK_DIR}/include/onyx/sound/wave.h)
+
+IF (BUILD_WITH_TFT)
+    set(hrds
+        ${ONYXSDK_DIR}/include/onyx/sound/async_player.h
+        ${ONYXSDK_DIR}/include/onyx/sound/sound.h
+        ${ONYXSDK_DIR}/include/onyx/sound/wave.h
+        ${ONYXSDK_DIR}/include/onyx/sound/alsa_sound.h)
+endif (BUILD_WITH_TFT)
 
 # Source files.
 QT4_WRAP_CPP(MOC_SRCS ${hrds})
 
-FILE(GLOB srcs *.cpp)
+
+set(srcs async_player.cpp sound.cpp wave.cpp)
+IF (BUILD_WITH_TFT)
+    set(srcs async_player.cpp sound.cpp wave.cpp alsa_sound.cpp)
+endif (BUILD_WITH_TFT)
+
 SET(srcs ${srcs} ${hrds} ${MOC_SRCS})
+
+IF (BUILD_WITH_TFT)
+    set(ALSALIB asound)
+ELSE (BUILD_WITH_TFT)
+    set(ALSALIB )
+ENDIF (BUILD_WITH_TFT)
 
 # Sound library.
 ADD_LIBRARY(sound ${srcs})
+TARGET_LINK_LIBRARIES(sound
+   ${ALSALIB}
+   ${QT_LIBRARIES}
+)
 
 # Unittest
 add_definitions(-DSAMPLE_ROOT="${CMAKE_SOURCE_DIR}/unittest/data")

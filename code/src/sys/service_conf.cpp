@@ -55,6 +55,12 @@ static Service rss_service("com.onyx.service.feed_reader",
                             OPEN_METHOD,
                             "feed_reader");
 
+static Service newsfeeds_Service("com.onyx.service.rss_reader",
+                            "/com/onyx/object/rss_reader",
+                            "com.onyx.interface.rss_reader",
+                            OPEN_METHOD,
+                            "rss_reader");
+
 static Service sudoku_service("com.onyx.service.sudoku",
                             "/com/onyx/object/sudoku",
                             "com.onyx.interface.sudoku",
@@ -72,6 +78,18 @@ static   Service onyx_reader("com.onyx.service.onyx_reader",
                              "com.onyx.interface.onyx_reader",
                             OPEN_METHOD,
                             "onyx_reader");
+
+static   Service cool_reader("com.onyx.service.cool_reader",
+                             "/com/onyx/object/cool_reader",
+                             "com.onyx.interface.cool_reader",
+                            OPEN_METHOD,
+                            "cr3");
+
+static   Service html_reader("com.onyx.service.htmlreader",
+                            "/com/onyx/object/htmlreader",
+                            "com.onyx.interface.htmlreader",
+                           OPEN_METHOD,
+                           "html_reader");
 
 static   Service office_viewer("com.onyx.service.office_viewer",
                             "/com/onyx/object/office_viewer",
@@ -258,6 +276,22 @@ void ServiceConfig::loadDefaultServices()
         // Seems it can not open tar file.
         DEFAULT_SERVICES.push_back(onyx_reader);
 
+        // cool_reader based service
+        if (!has_office_viewer)
+        {
+            cool_reader.mutable_extensions().push_back("doc");
+        }
+        cool_reader.mutable_extensions().push_back("txt");
+        cool_reader.mutable_extensions().push_back("fb2");
+        cool_reader.mutable_extensions().push_back("html");
+        cool_reader.mutable_extensions().push_back("tcr");
+        cool_reader.mutable_extensions().push_back("rtf");
+        cool_reader.mutable_extensions().push_back("epub");
+
+
+        // Seems it can not open tar file.
+        DEFAULT_SERVICES.push_back(cool_reader);
+
         // Office viewer.
         if (has_office_viewer)
         {
@@ -294,6 +328,7 @@ void ServiceConfig::loadDefaultServices()
         comic_reader.mutable_extensions().push_back("7z");
         comic_reader.mutable_extensions().push_back("cb7");
         comic_reader.mutable_extensions().push_back("cbz");
+        comic_reader.mutable_extensions().push_back("zip");
         DEFAULT_SERVICES.push_back(comic_reader);
     }
 }
@@ -369,16 +404,51 @@ bool ServiceConfig::musicService(QSqlDatabase &database, Service & service)
                                  "/com/onyx/object/music",
                                  "com.onyx.interface.music",
                                  OPEN_METHOD,
+#ifndef BUILD_WITH_TFT
                                  "music_player");
+#else
+                                 "audio_player");
+#endif
 
     if (music_service.extensions().size() <= 0)
     {
         music_service.mutable_extensions().push_back("mp3");
+        music_service.mutable_extensions().push_back("wav");
+#ifndef BUILD_WITH_TFT
         music_service.mutable_extensions().push_back("rm");
         music_service.mutable_extensions().push_back("wma");
-        music_service.mutable_extensions().push_back("wav");
+#endif
     }
     service = music_service;
+    return true;
+}
+
+bool ServiceConfig::mediaService(QSqlDatabase &, Service & service)
+{
+    static Service media_service("com.onyx.service.media",
+                                 "/com/onyx/object/media",
+                                 "com.onyx.interface.media",
+                                 OPEN_METHOD,
+                                 "onyx_media_player");
+
+    if (media_service.extensions().size() <= 0)
+    {
+        media_service.mutable_extensions().push_back("mp3");
+        media_service.mutable_extensions().push_back("rm");
+        media_service.mutable_extensions().push_back("wma");
+        media_service.mutable_extensions().push_back("wav");
+
+        media_service.mutable_extensions().push_back("avi");
+        media_service.mutable_extensions().push_back("akv");
+        media_service.mutable_extensions().push_back("mp4");
+        media_service.mutable_extensions().push_back("flv");
+        media_service.mutable_extensions().push_back("asf");
+        media_service.mutable_extensions().push_back("mkv");
+        media_service.mutable_extensions().push_back("mpg");
+        media_service.mutable_extensions().push_back("rmvb");
+        media_service.mutable_extensions().push_back("3gp");
+    }
+    service = media_service;
     return true;
 }
 
@@ -430,6 +500,12 @@ bool ServiceConfig::rssService(QSqlDatabase&, Service &service)
     return true;
 }
 
+bool ServiceConfig::news_feeds_Service(QSqlDatabase&, Service &service)
+{
+    service = newsfeeds_Service;
+    return true;
+}
+
 bool ServiceConfig::sudokuService(QSqlDatabase&, Service &service)
 {
     service = sudoku_service;
@@ -445,6 +521,18 @@ bool ServiceConfig::nabooReaderService(QSqlDatabase &, Service & service)
 bool ServiceConfig::onyxReaderService(QSqlDatabase &, Service & service)
 {
     service = onyx_reader;
+    return true;
+}
+
+bool ServiceConfig::coolReaderService(QSqlDatabase &, Service & service)
+{
+    service = cool_reader;
+    return true;
+}
+
+bool ServiceConfig::htmlReaderService(QSqlDatabase &, Service & service)
+{
+    service = html_reader;
     return true;
 }
 

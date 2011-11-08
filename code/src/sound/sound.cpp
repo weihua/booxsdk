@@ -27,10 +27,6 @@ static void loadKernelModule()
         qWarning("Could not start modprobe.");
     }
     loader.waitForFinished(TIME);
-
-    // Have to ensure the module has been loaded.
-    loader.start("lsmod");
-    usleep(1000 * 200);
 #endif
 }
 
@@ -67,15 +63,22 @@ bool Sound::open(const char *device_name)
     // Open again.
     if (device_ < 0)
     {
-        device_ = ::open(device_name, O_WRONLY);
-        if (device_ == -1)
+        for(int i = 0; i < 5; ++i)
         {
-            printf("Still can't open audio playback device %s!\n", device_name);
-            return false;
+            device_ = ::open(device_name, O_WRONLY);
+            if (device_ == -1)
+            {
+                printf("Still can't open audio playback device %s. Wait a little bit!\n", device_name);
+                usleep(1000 * 1000);
+            }
+            else
+            {
+                break;
+            }
         }
     }
 #endif
-    return true;
+    return (device_ > 0);
 }
 
 void Sound::close()

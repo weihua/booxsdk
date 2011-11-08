@@ -88,7 +88,47 @@ bool StarDictionaryImpl::translate(const QString &word, QString& result)
         return true;
     }
 
-    return false;
+    if (index == INVALID_INDEX)
+    {
+        return false;
+    }
+
+    // fuzzy match.
+    result = dict_impl_.data(index);
+    return true;
+}
+
+bool StarDictionaryImpl::fuzzyTranslate(const QString &word, QString& result, QString &fuzzy_word)
+{
+    long index = INVALID_INDEX;
+    if (find(word, index))
+    {
+        result = dict_impl_.data(index);
+        return true;
+    }
+
+    QString str;
+    str = cutSorD(word);
+    if (dict_impl_.lookup(str, index))
+    {
+        result = dict_impl_.data(index);
+        fuzzy_word = str;
+        return true;
+    }
+
+    if (index == INVALID_INDEX)
+    {
+        return false;
+    }
+
+    // fuzzy match.
+    result = dict_impl_.data(index);
+
+    // set the fuzzy_word (the exact word for the lookup result)
+    quint32 offset;
+    quint32 size;
+    dict_impl_.keyAndData(index, fuzzy_word, offset, size);
+    return true;
 }
 
 /// Find similar words in this dictionary.

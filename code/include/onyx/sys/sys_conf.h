@@ -33,6 +33,7 @@ public:
     bool calibrationService(Service &);
     bool metService(Service &);
     bool musicService(Service &);
+    bool mediaService(Service &);
     bool noteService(Service &);
     bool networkService(Service &);
     bool webBrowserService(Service &);
@@ -42,10 +43,13 @@ public:
     bool dictionaryService(Service &);
     bool rssService(Service &);
     bool sudokuService(Service &);
+    bool news_feeds_Service(Service &);
     bool officeViewerService(Service & service);
     bool hasOfficeViewer();
     bool onyxReaderService(Service & service);
     bool nabooReaderService(Service &  service);
+    bool coolReaderService(Service & service);
+    bool htmlReaderService(Service & service);
     bool registerService(const Service &, const QString &);
     bool unRegisterService(const Service &);
 
@@ -71,6 +75,9 @@ public:
 
     // Music service
     static bool isMusicPlayerAvailable();
+
+    // Media player.
+    static bool isMediaPlayerAvailable();
 
     // volume.
     int volume();
@@ -113,6 +120,7 @@ public:
     static int direction(const QPoint & old_position, const QPoint & new_position);
     static void setDirection(int);
     static int distance();
+    static int whichArea(const QPoint & old_position, const QPoint & new_position);
 
     // Internet settings.
     QString downloadFolder();

@@ -9,13 +9,12 @@
 #include "onyx/sys/sys_status.h"
 #include "onyx/sys/sys_conf.h"
 #include "onyx/sys/platform.h"
+#include "onyx/sys/service.h"
+
 
 namespace sys
 {
 
-static const QString service = "com.onyx.service.system_manager";
-static const QString object  = "/com/onyx/object/system_manager";
-static const QString iface   = "com.onyx.interface.system_manager";
 
 static const QString MOBILE_DEVICE = "mobile";
 static const QString TETHERED_DEVICE = "tethered";
@@ -92,8 +91,11 @@ static void putDeviceFile()
     path = QDir::home().path();
 #endif
     QDir dir(path);
-    qputenv("ADEPT_DEVICE_FILE", dir.absoluteFilePath(DEVICE_FILE).toAscii());
-    qDebug("ADEPT_DEVICE_FILE : %s", qgetenv("ADEPT_DEVICE_FILE").constData());
+    if (!isImx508())
+    {
+        qputenv("ADEPT_DEVICE_FILE", dir.absoluteFilePath(DEVICE_FILE).toAscii());
+        qDebug("ADEPT_DEVICE_FILE : %s", qgetenv("ADEPT_DEVICE_FILE").constData());
+    }
 
     qputenv("ADEPT_ACTIVATION_FILE", dir.absoluteFilePath(ACTIVATION_FILE).toAscii());
     qDebug("ADEPT_ACTIVATION_FILE : %s", qgetenv("ADEPT_ACTIVATION_FILE").constData());
@@ -139,6 +141,14 @@ void SysStatus::installSlots()
                              SLOT(onMountTreeChanged(bool, const QString &))))
     {
         qDebug("\nCan not connect the mountTreeSignal!\n");
+    }
+
+    if (!connection_.connect(service, object, iface,
+                             "mountTreeSignal2",
+                             this,
+                             SLOT(onMountTreeChanged2(bool, const QString &, const QString &))))
+    {
+        qDebug("\nCan not connect the mountTreeSignal2!\n");
     }
 
     if (!connection_.connect(service, object, iface,
@@ -348,18 +358,64 @@ void SysStatus::installSlots()
     {
         qDebug("\nCan not connect the hardwareTimerTimeout signal\n");
     }
-}
 
-namespace {
-bool checkAndReturnBool(const QList<QVariant> & args)
-{
-    if (args.size() > 0)
+    if (!connection_.connect(service, object, iface,
+                             "lowBatterySignal",
+                             this,
+                             SLOT(onLowBatterySignal())))
     {
-        return args.at(0).toBool();
+        qDebug("\nCan not connect the lowBatterySignal signal\n");
     }
-    return false;
+
+    if (!connection_.connect(service, object, iface,
+                             "mouseLongPress",
+                             this,
+                             SLOT(onMouseLongPress(int, int, int, int))))
+    {
+        qDebug("\nCan not connect the mouseLongPress signal\n");
+    }
+
+    if (!connection_.connect(service, object, iface,
+                             "multiTouchPressDetected",
+                             this,
+                             SLOT(onMultiTouchPressDetected(int, int, int, int, int, int, int, int))))
+    {
+        qDebug("\nCan not connect the multiTouchPressDetected signal\n");
+    }
+
+    if (!connection_.connect(service, object, iface,
+                             "multiTouchReleaseDetected",
+                             this,
+                             SLOT(onMultiTouchReleaseDetected(int, int, int, int, int, int, int, int))))
+    {
+        qDebug("\nCan not connect the multiTouchReleaseDetected signal\n");
+    }
+
+    if (!connection_.connect(service, object, iface,
+                             "ledSignal",
+                             this,
+                             SLOT(onLedSignal(const QByteArray &, const QByteArray &))))
+    {
+        qDebug("\nCan not connect the ledSignal signal\n");
+    }
+
+    if (!connection_.connect(service, object, iface,
+                             "configKeyboard",
+                             this,
+                             SLOT(onConfigKeyboard())))
+    {
+        qDebug("\nCan not connect the configKeyboard signal\n");
+    }
+
+    if (!connection_.connect(service, object, iface,
+                             "userBehaviorSignal",
+                             this,
+                             SLOT(onUserBehaviorSignal(
+                                     const QByteArray &))))
+    {
+        qDebug("\nCan not connect the reportUserBehavior signal\n");
+    }
 }
-}  // namespace
 
 bool SysStatus::batteryStatus(int& current,
                               int& status)
@@ -658,7 +714,7 @@ void SysStatus::rotateScreen()
             setScreenTransformation(0);
         }
     }
-    else if (default_rotation == 90)
+    else if (default_rotation == 90 || default_rotation == 180)
     {
         degree = (degree + 90) % 360;
         setScreenTransformation(degree);
@@ -679,8 +735,22 @@ bool SysStatus::setScreenTransformation(int degree)
     }
     else
     {
-        QString data("export QWS_DISPLAY=Transformed:Rot%1:OnyxScreen:/dev/mem");
-        data = data.arg(degree);
+        QString qws_args=getenv("QWS_DISPLAY");
+        QString data;
+        if (qws_args.isEmpty())
+        {
+            data = QString("export QWS_DISPLAY=Transformed:Rot%1:OnyxScreen:/dev/mem");
+#ifdef BUILD_WITH_TFT
+            data = QString("export QWS_DISPLAY=Transformed:Rot%1:LinuxFb:/dev/fb0:depth=all"); 
+#endif
+            data = data.arg(degree);
+        }
+        else
+        {
+            //replace Rotxx to Rot&degree
+            data = qws_args.replace(QRegExp(":Rot\\d+"),QString(":Rot%1").arg(degree));
+            data.prepend("export QWS_DISPLAY=");
+        }
         file.write(data.toAscii());
         file.flush();
         file.close();
@@ -1198,15 +1268,20 @@ QString SysStatus::currentConnection()
     QList<QNetworkInterface> all = QNetworkInterface::allInterfaces();
     foreach(QNetworkInterface ni, all)
     {
-        if (ni.name().contains("eth", Qt::CaseInsensitive))
+        if (ni.flags().testFlag(QNetworkInterface::IsUp) && !ni.addressEntries().empty())
         {
-            return "wifi";
-        }
-        else if (ni.name().contains("ppp", Qt::CaseInsensitive))
-        {
-            return "3g";
+            if (ni.name().contains("eth", Qt::CaseInsensitive) ||
+                ni.name().contains("wlan", Qt::CaseInsensitive))
+            {
+                return "wifi";
+            }
+            else if (ni.name().contains("ppp", Qt::CaseInsensitive))
+            {
+                return "3g";
+            }
         }
     }
+
     return result;
 }
 
@@ -1233,6 +1308,15 @@ WpaConnection & SysStatus::wpa_proxy(const QString & name)
         wpa_proxy_.reset(new WpaConnection(name));
     }
     return *wpa_proxy_;
+}
+
+WpaConnectionManager & SysStatus::connectionManager()
+{
+    if (!connection_manager_)
+    {
+        connection_manager_.reset(new WpaConnectionManager);
+    }
+    return *connection_manager_;
 }
 
 void SysStatus::setSystemBusy(bool busy,
@@ -1559,6 +1643,206 @@ void SysStatus::setDefaultHardwareTimerInterval()
     }
 }
 
+void SysStatus::configKeyboard(unsigned int keys)
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "configKeyboard"      // method.
+    );
+    message << keys;
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+}
+
+unsigned int SysStatus::keyboardConfiguration()
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "keyboardConfiguration"      // method.
+    );
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        if (reply.arguments().size() > 0)
+        {
+            return reply.arguments().front().toUInt();
+        }
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+    return 0;
+}
+
+
+void SysStatus::setOfnThreshold(const int x,
+                                const int y)
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "setOfnThreshold"      // method.
+    );
+    message << x;
+    message << y;
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+}
+
+bool SysStatus::ofnThreshold(int & x,
+                             int & y)
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "ofnThreshold"      // method.
+    );
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        if (reply.arguments().size() >= 2)
+        {
+            x = reply.arguments().at(0).toInt();
+            y = reply.arguments().at(1).toInt();
+            return true;
+        }
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+    return false;
+}
+
+bool SysStatus::setBrightness(const unsigned char brightness)
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "setBacklightBrightness"      // method.
+    );
+
+    message << brightness;
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        return true;
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+    return false;
+}
+
+unsigned char SysStatus::brightness()
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "backlightBrightness"      // method.
+    );
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        if (reply.arguments().size() > 0)
+        {
+            return reply.arguments().at(0).toInt();
+        }
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+    return 0;
+}
+
+/// Report user behavior. This function is used
+/// by reader apps to notify user behavior to listeners.
+void SysStatus::reportUserBehavior(const onyx::data::UserBehavior &behavior)
+{
+    QByteArray data;
+    onyx::data::serialize(behavior, data);
+
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "reportUserBehavior"      // method.
+    );
+
+    message << data;
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+}
+
+bool SysStatus::enableMultiTouch(bool enable)
+{
+    if (!sys::isIRTouch())
+    {
+        qWarning("enableMultiTouch can only be used on ir touch.\n");
+        return false;
+    }
+
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "enableMultiTouch"      // method.
+    );
+
+    message << enable;
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+        return false;
+    }
+    return true;
+}
+
+bool SysStatus::queryLedSignal()
+{
+    if (!sys::isIRTouch())
+    {
+        qWarning("queryLedSignal can only be used on ir touch.\n");
+        return false;
+    }
+
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "queryLedSignal"      // method.
+    );
+
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+        return false;
+    }
+    return true;
+}
+
 void SysStatus::dump()
 {
     int left;
@@ -1584,6 +1868,24 @@ void SysStatus::onMountTreeChanged(bool inserted, const QString &mount_point)
     }
     emit mountTreeSignal(inserted, mount_point);
 }
+
+void SysStatus::onMountTreeChanged2(bool inserted, const QString &mount_point, const QString &reason)
+{
+    if (mount_point == SDMMC_ROOT)
+    {
+        sd_mounted_ = inserted;
+    }
+    if (mount_point == USB_ROOT)
+    {
+        usb_mounted_ = inserted;
+    }
+    if (mount_point == LIBRARY_ROOT)
+    {
+        flash_mounted_ = inserted;
+    }
+    emit mountTreeSignal2(inserted, mount_point, reason);
+}
+
 
 /// The SD card hardware event handler. It does not mean the mount tree changed.
 void SysStatus::onSdCardChanged(bool insert)
@@ -1712,6 +2014,41 @@ void SysStatus::onReport3GNetwork(const int signal, const int total, const int n
 void SysStatus::onHardwareTimerTimeout()
 {
     emit hardwareTimerTimeout();
+}
+
+void SysStatus::onLowBatterySignal()
+{
+    emit lowBatterySignal();
+}
+
+void SysStatus::onMouseLongPress(int x, int y, int width, int height)
+{
+    emit mouseLongPress(QPoint(x, y), QSize(width, height));
+}
+
+void SysStatus::onMultiTouchPressDetected(int x1, int y1, int width1, int height1, int x2, int y2, int width2, int height2)
+{
+    emit multiTouchPressDetected(QRect(x1, y1, width1, height1), QRect(x2, y2, width2, height2));
+}
+
+void SysStatus::onMultiTouchReleaseDetected(int x1, int y1, int width1, int height1, int x2, int y2, int width2, int height2)
+{
+    emit multiTouchReleaseDetected(QRect(x1, y1, width1, height1), QRect(x2, y2, width2, height2));
+}
+
+void SysStatus::onLedSignal(const QByteArray & x, const QByteArray & y)
+{
+    emit ledSignal(x, y);
+}
+
+void SysStatus::onConfigKeyboard()
+{
+    emit configKeyboard();
+}
+
+void SysStatus::onUserBehaviorSignal(const QByteArray &data)
+{
+    emit userBehaviorSignal(data);
 }
 
 }   // namespace sys

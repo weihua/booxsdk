@@ -249,6 +249,18 @@ void DictFrame::onDetailsClicked(bool)
     list_widget_.hide();
 }
 
+void DictFrame::formatResult(QString &result)
+{
+    if (result.isEmpty())
+    {
+        result = "Not Found In Dictionary.";
+    }
+    if (!result.contains("<html>", Qt::CaseInsensitive))
+    {
+        result.replace("\n", "<br>");
+    }
+}
+
 bool DictFrame::lookup(const QString &word)
 {
     if (word.isEmpty())
@@ -264,6 +276,8 @@ bool DictFrame::lookup(const QString &word)
     // Title
     QString result;
     bool ret = dict_mgr_.translate(word_, result);
+
+    formatResult(result);
 
     // Result
     doc_.setHtml(result);
@@ -439,7 +453,8 @@ void DictFrame::changeInternalState(int state)
 bool DictFrame::event(QEvent *e)
 {
     int ret = QDialog::event(e);
-    if (e->type() == QEvent::UpdateRequest)
+    if (e->type() == QEvent::UpdateRequest
+            && onyx::screen::instance().isUpdateEnabled())
     {
         if (sys::SysStatus::instance().isSystemBusy())
         {
@@ -448,7 +463,17 @@ bool DictFrame::event(QEvent *e)
 
         static int count = 0;
         qDebug("Update request %d", ++count);
-        onyx::screen::instance().updateWidget(this, onyx::screen::ScreenProxy::GU);
+        if (1 == onyx::screen::instance().userData()) {
+            onyx::screen::instance().updateWidget(this,
+                    onyx::screen::ScreenProxy::GC, true,
+                    onyx::screen::ScreenCommand::WAIT_ALL);
+        }
+        else
+        {
+            onyx::screen::instance().updateWidget(this,
+                onyx::screen::ScreenProxy::GU, false, onyx::screen::ScreenCommand::WAIT_NONE);
+        }
+        ++onyx::screen::instance().userData();
         e->accept();
     }
 

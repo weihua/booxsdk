@@ -4,6 +4,7 @@
 #include "onyx/base/base.h"
 #include "onyx/sys/sys.h"
 #include "onyx_dialog.h"
+#include "onyx/ui/catalog_view.h"
 
 namespace ui
 {
@@ -27,35 +28,25 @@ private:
     void keyReleaseEvent(QKeyEvent *);
     bool event(QEvent*);
 
+    void setSuspendInterval();
+    void setShutdownInterval();
+
 private Q_SLOTS:
-    void onStandbyButtonChanged(bool);
-    void onShutdownButtonChanged(bool);
-    void onOkClicked(bool);
+    void onButtonChanged(CatalogView *catalog, ContentView *item, int user_data);
+    void onOkClicked();
 
 private:
-    typedef OnyxCheckBox * CheckBoxPtr;
-    typedef std::vector<CheckBoxPtr> Buttons;
-    typedef std::vector<CheckBoxPtr>::iterator ButtonsIter;
-
     SysStatus & status_;
     QVBoxLayout ver_layout_;
 
-    QVBoxLayout standby_layout_;
-    QHBoxLayout standby_hor_layout_;
-    OnyxLabel standby_image_label_;
-    OnyxLabel standby_text_label_;
-    QButtonGroup standby_group_;
-    Buttons standby_buttons_;
+    OnyxLabel battery_power_;
 
-    QVBoxLayout shutdown_layout_;
-    QHBoxLayout shutdown_hor_layout_;
-    OnyxLabel shutdown_image_label_;
-    OnyxLabel shutdown_text_label_;
-    QButtonGroup shutdown_group_;
-    Buttons shutdown_buttons_;
+    CatalogView buttons_;
+    OData *interval_selected_;
+
 
     QHBoxLayout hor_layout_;
-    OnyxPushButton ok_;
+    CatalogView ok_;
 
     int sys_standby_interval_;
     int standby_interval_;

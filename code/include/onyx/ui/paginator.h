@@ -1,6 +1,9 @@
 
-#ifndef PAGINATOR_H_
-#define PAGINATOR_H_
+#ifndef ONYX_PAGINATOR_H_
+#define ONYX_PAGINATOR_H_
+
+namespace ui
+{
 
 class Paginator
 {
@@ -23,6 +26,12 @@ public:
     int currentPage();
     int pages();
 
+    int cursor() { return cursor_; }
+    bool moveLeft();
+    bool moveRight();
+    bool moveUp();
+    bool moveDown();
+
     int first_visible() { return first_visible_; }
     int last_visible();
 
@@ -31,11 +40,19 @@ public:
     int size() { return size_; }
     int items_per_page() { return items_per_page_; }
 
+    int rows() { return rows_; }
+    int cols() { return cols_; }
+    void setGrid(const int r, const int c) { rows_ = r; cols_ = c; }
+
 private:
-    int first_visible_;
+    int cursor_;            ///< Absolute position in list.
+    int first_visible_;     ///< Absolute position in list.
     int items_per_page_;
     int size_;
-
+    int rows_;
+    int cols_;
 };
 
-#endif
+}
+
+#endif      // ONYX_PAGINATOR_H_

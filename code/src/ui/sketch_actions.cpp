@@ -27,6 +27,13 @@ void SketchActions::onEraseTriggered(bool checked)
     ctx_.active_checked_status = checked;
 }
 
+void SketchActions::onMergeTriggered(bool checked)
+{
+    ctx_.active_type           = SKETCH_MODE;
+    ctx_.cur_sketch_mode       = MODE_MERGING;
+    ctx_.active_checked_status = checked;
+}
+
 void SketchActions::onAddAnnotationTriggered(bool checked)
 {
     ctx_.active_type           = ANNOTATION_MODE;
@@ -167,6 +174,16 @@ void SketchActions::generateSketchMode(const SketchModes & modes,
                         this,
                         SLOT(onEraseTriggered(bool)));
                 act->setIcon(QIcon(QPixmap(":/images/sketch_mode_erase.png")));
+            }
+            break;
+        case MODE_MERGING:
+            {
+                act->setText(QCoreApplication::tr("Merge Sketch"));
+                connect(act.get(),
+                        SIGNAL(toggled(bool)),
+                        this,
+                        SLOT(onMergeTriggered(bool)));
+                act->setIcon(QIcon(QPixmap(":/images/copy.png")));
             }
             break;
         default:

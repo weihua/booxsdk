@@ -1,5 +1,9 @@
 // Authors: John
 
+#ifdef BUILD_FOR_ARM
+#include <QtGui/qscreen_qws.h>
+#endif
+
 /// Public header of the system configuration library.
 #include "onyx/sys/page_turning_conf.h"
 
@@ -7,7 +11,7 @@
 namespace sys
 {
 int PageTurningConfig::direction_ = 1;
-int PageTurningConfig::THRESHOLD = 10;
+int PageTurningConfig::THRESHOLD = -1;
 
 /// Page turning configuration. By default, from right to left or
 /// from bottom to top is interpreted as next.
@@ -61,11 +65,11 @@ int PageTurningConfig::direction(const QPoint & old_position, const QPoint & new
         delta = delta_y;
     }
 
-    if (delta < -THRESHOLD)
+    if (delta < -distance())
     {
         return direction_;
     }
-    else if (delta > THRESHOLD)
+    else if (delta > distance())
     {
         return -direction_;
     }
@@ -87,7 +91,38 @@ void PageTurningConfig::setDirection(int conf)
 /// Return the distance threshold.
 int PageTurningConfig::distance()
 {
+    if (THRESHOLD <= 0)
+    {
+        THRESHOLD = qgetenv("SWIPE_DISTANCE").toInt();
+    }
+    if (THRESHOLD <= 0)
+    {
+        THRESHOLD = 10;
+    }
     return THRESHOLD;
+}
+
+int PageTurningConfig::whichArea(const QPoint & old_position, const QPoint & new_position)
+{
+    QRect screen = QApplication::desktop()->screenGeometry();
+    int degree = 0;
+#ifdef BUILD_FOR_ARM
+    degree = QScreen::instance()->transformOrientation() * 90;
+#endif
+    if (degree == 90 || degree == 270)
+    {
+        screen.setSize(QSize(screen.height(), screen.width()));
+    }
+
+    if (new_position.x() < screen.width() / 3)
+    {
+        return -1;
+    }
+    else if (new_position.x() > screen.width() * 2 / 3)
+    {
+        return 1;
+    }
+    return 0;
 }
 
 }   // namespace sys.

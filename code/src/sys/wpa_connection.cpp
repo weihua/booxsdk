@@ -10,7 +10,7 @@ static const char * const INVALID_BSSID = "00:00:00:00:00:00";
 
 static const QString PATH = "path";
 static const QString NETWORK_PATH = "network_path";
-static const QString IFNAME = "eth0";
+static const QString IFNAME = "wlan0";
 static const QString CTRL_IFACE_DIR = "/var/run/wpa_supplicant";
 static const QString NETWORK_ID = "network id";
 
@@ -251,7 +251,7 @@ bool WpaConnection::update()
 }
 
 /// Retrieve current status.
-bool WpaConnection::status(QVariantMap & info)
+bool WpaConnection::status(QVariantMap & info, bool broadcast)
 {
     QByteArray reply;
     if (ctrlRequest("STATUS", reply) < 0)
@@ -266,7 +266,7 @@ bool WpaConnection::status(QVariantMap & info)
     {
         if (parseItem(tag, value, item))
         {
-            qDebug() << tag << value;
+            // qDebug() << tag << value;
             info[tag] = value;
         }
     }
@@ -274,10 +274,27 @@ bool WpaConnection::status(QVariantMap & info)
     // Check wpa_state.
     if (info.value("wpa_state").toByteArray().contains("COMPLETE"))
     {
-        broadcastState(WpaConnection::STATE_CONNECTED);
+        if (broadcast)
+        {
+            broadcastState(WpaConnection::STATE_CONNECTED);
+        }
     }
 
     return true;
+}
+
+bool WpaConnection::isComplete()
+{
+    QVariantMap info;
+    if (!status(info, true))
+    {
+        return false;
+    }
+    if (info.value("wpa_state").toByteArray().contains("COMPLETE"))
+    {
+        return true;
+    }
+    return false;
 }
 
 /// List all available networks.
@@ -365,7 +382,7 @@ bool WpaConnection::stop()
 }
 
 /// Connect to specified access point.
-bool WpaConnection::connectTo(WifiProfile & ap)
+bool WpaConnection::connectTo(WifiProfile ap)
 {
     if (ap.bssid().contains(INVALID_BSSID) && ap.ssid().isEmpty())
     {
@@ -479,6 +496,11 @@ bool WpaConnection::connectTo(WifiProfile & ap)
     // Just to update status immediately. The status is changed
     // slow on embedded device.
     return update();
+}
+
+WifiProfile WpaConnection::connectingAP()
+{
+    return connecting_ap_;
 }
 
 /// Disconnect from network.

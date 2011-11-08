@@ -17,6 +17,7 @@ const char * const CONFIG_ENCODING      = "encoding";
 const char * const CONFIG_LAST_LOCATION = "last_location";
 const char * const CONFIG_FLASH_TYPE    = "flash_type";
 const char * const CONFIG_VIEW_PORT     = "view_port";
+const char * const CONFIG_PASSWORD      = "password";
 
 const char * const CONFIG_ZOOM_SETTING    = "zoom_setting";
 const char * const CONFIG_PAGE_LAYOUT     = "page_layout";
@@ -46,6 +47,8 @@ const char * const CONFIG_ENV_MATRIX_C      = "env_matrix.c";
 const char * const CONFIG_ENV_MATRIX_D      = "env_matrix.d";
 const char * const CONFIG_ENV_MATRIX_E      = "env_matrix.e";
 const char * const CONFIG_ENV_MATRIX_F      = "env_matrix.f";
+
+const char * const CONFIG_IS_COMIC_MODE_ACTIVATED = "comic_mode_activated";
 
 struct Configuration
 {

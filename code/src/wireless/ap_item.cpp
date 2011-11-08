@@ -1,5 +1,6 @@
 #include "onyx/wireless/ap_item.h"
-#include "onyx/screen/screen_proxy.h"
+#include "onyx/screen/screen_update_watcher.h"
+#include "onyx/data/data_tags.h"
 
 namespace ui
 {
@@ -18,6 +19,10 @@ QLabel                                  \
 const int WifiAPItem::SIGNAL_ICONS;
 #endif
 
+static const int ID_CUSTOMIZE = 0;
+static const int ID_REFRESH = 1;
+
+
 static const int SPACING = 20;
 static const int ICON_SIZE = 44 + SPACING;
 static const QColor TITLE_BK_COLOR = QColor(210, 210, 210);
@@ -29,8 +34,7 @@ WifiTitleItem::WifiTitleItem(QWidget *parent)
 : QWidget(parent)
 , layout_(this)
 , title_label_(tr("Starting Wifi Device..."), 0)
-, customize_button_(QPixmap(":/images/customize.png"), "", 0)
-, refresh_button_(QPixmap(":/images/refresh.png"), "", 0)
+, dash_board_(0, 0)
 {
     setAutoFillBackground(false);
     setFixedHeight(80);
@@ -43,20 +47,40 @@ WifiTitleItem::~WifiTitleItem()
 
 void WifiTitleItem::createLayout()
 {
-    layout_.setContentsMargins(SPACING, SPACING / 10, SPACING, SPACING / 10);
+    layout_.setContentsMargins(SPACING, SPACING / 5, SPACING, SPACING / 5);
     layout_.setSpacing(10);
 
     layout_.addWidget(&title_label_, 0, Qt::AlignVCenter);
     layout_.addStretch(0);
-    layout_.addWidget(&customize_button_);
-    layout_.addWidget(&refresh_button_, 0, Qt::AlignVCenter);
 
-    customize_button_.setFocusPolicy(Qt::NoFocus);
-    refresh_button_.setFocusPolicy(Qt::NoFocus);
 
-    // Retransmit signal.
-    connect(&customize_button_, SIGNAL(clicked(bool)), this, SLOT(onCustomizedClicked(bool)));
-    connect(&refresh_button_, SIGNAL(clicked(bool)), SIGNAL(refreshClicked()));
+    // dash board
+    dash_board_.setFixedWidth(75 * 2);
+    layout_.addWidget(&dash_board_);
+    createDashBoard();
+    connect(&dash_board_,
+            SIGNAL(itemActivated(CatalogView *, ContentView *, int)),
+            this,
+            SLOT(onItemActivated(CatalogView *, ContentView *, int)));
+}
+
+void WifiTitleItem::createDashBoard()
+{
+    ODatas datas;
+    ODataPtr customize (new OData);
+    customize->insert(TAG_COVER, QPixmap(":/images/customize.png"));
+    customize->insert(TAG_ID, ID_CUSTOMIZE);
+    datas.push_back(customize);
+
+    ODataPtr refresh (new OData);
+    refresh->insert(TAG_COVER, QPixmap(":/images/refresh.png"));
+    refresh->insert(TAG_ID, ID_REFRESH);
+
+    datas.push_back(refresh);
+
+    dash_board_.setFixedGrid(1, datas.size());
+    dash_board_.setData(datas);
+    dash_board_.setSubItemBkColor(Qt::transparent);
 }
 
 void WifiTitleItem::setState(const QString & state)
@@ -64,12 +88,23 @@ void WifiTitleItem::setState(const QString & state)
     title_label_.setText(state);
 }
 
-void WifiTitleItem::onCustomizedClicked(bool)
+void WifiTitleItem::onItemActivated(CatalogView *catalog, ContentView *item, int user_data)
 {
-    emit customizedClicked();
+    if (!item || !item->data())
+    {
+        return;
+    }
+
+    int id = item->data()->value(TAG_ID).toInt();
+    if (id == ID_CUSTOMIZE)
+    {
+        emit customizedClicked();
+    }
+    else if (id == ID_REFRESH)
+    {
+        emit refreshClicked();
+    }
 }
-
-
 
 bool WifiTitleItem::event(QEvent *e)
 {
@@ -88,11 +123,13 @@ bool WifiTitleItem::event(QEvent *e)
     return QWidget::event(e);
 }
 
+static QByteArray selected_bssid;
 scoped_ptr<QPixmap> WifiAPItem::selected_pixmap_;
 WifiAPItem *WifiAPItem::selected_item_ = 0;
+static WifiAPItem *previous_selected_item_ = 0;
 
 WifiAPItem::WifiAPItem(QWidget *parent)
-    : QWidget(parent)
+    : ui::ContentView(parent)
     , hor_layout_(this)
     , ssid_label_(0)
     , config_button_(QPixmap(":/images/customize.png"), "", 0)
@@ -106,6 +143,24 @@ WifiAPItem::~WifiAPItem(void)
 {
 }
 
+void WifiAPItem::updateView()
+{
+    // convert OData to profile
+    if (data())
+    {
+        WifiProfile * d = static_cast<WifiProfile *>(data());
+        profile_ = *d;
+    }
+    else
+    {
+        profile_.clear();
+    }
+    updateByProfile(profile_);
+    selected_item_ = 0;
+    previous_selected_item_ = 0;
+    selected_bssid.clear();
+}
+
 void WifiAPItem::setProfile(WifiProfile & profile)
 {
     if (!(profile_ == profile))
@@ -114,6 +169,8 @@ void WifiAPItem::setProfile(WifiProfile & profile)
         updateByProfile(profile_);
     }
     selected_item_ = 0;
+    previous_selected_item_ = 0;
+    selected_bssid.clear();
 }
 
 WifiProfile & WifiAPItem::profile()
@@ -167,28 +224,59 @@ void WifiAPItem::paintEvent(QPaintEvent *e)
         painter.drawPixmap(SPACING, (height() - selected_pixmap_->height()) / 2, *selected_pixmap_);
     }
 
-    painter.setPen(QColor(Qt::black));
-    painter.drawPath(path);
+    QPen pen;
+    pen.setWidth(penWidth());
+
+    if (hasFocus())
+    {
+        pen.setColor(Qt::black);
+        painter.setPen(pen);
+        painter.drawPath(path);
+    }
+    else
+    {
+        pen.setColor(Qt::white);
+        painter.setPen(pen);
+        painter.drawPath(path);
+    }
 }
 
 void WifiAPItem::mousePressEvent(QMouseEvent *e)
 {
+    ContentView::mousePressEvent(e);
+}
+
+void WifiAPItem::activateItem()
+{
     if (!profile_.bssid().isEmpty())
     {
+        previous_selected_item_ = selected_item_;
         selected_item_ = this;
-        onyx::screen::instance().enableUpdate(false);
+        selected_bssid = profile_.bssid();
+        if (previous_selected_item_)
+        {
+            previous_selected_item_->repaint();
+            onyx::screen::watcher().enqueue(previous_selected_item_, onyx::screen::ScreenProxy::GU);
+        }
         repaint();
-        onyx::screen::instance().enableUpdate(true);
-        onyx::screen::instance().updateWidget(this, onyx::screen::ScreenProxy::GU, true);
+        onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
     }
 }
 
 void WifiAPItem::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (!profile_.bssid().isEmpty())
-    {
-        emit clicked(profile_);
-    }
+    activateItem();
+    activate(0);
+}
+
+void WifiAPItem::focusInEvent(QFocusEvent * e)
+{
+    ContentView::focusInEvent(e);
+}
+
+void WifiAPItem::focusOutEvent(QFocusEvent * e)
+{
+    ContentView::focusOutEvent(e);
 }
 
 void WifiAPItem::createLayout()
@@ -263,7 +351,7 @@ void WifiAPItem::updateByProfile(WifiProfile & profile)
 
 bool WifiAPItem::isSelected()
 {
-    return (selected_item_ == this);
+    return (selected_bssid == profile_.bssid() && selected_item_ == this);
 }
 
 void WifiAPItem::onConfigButtonClicked()

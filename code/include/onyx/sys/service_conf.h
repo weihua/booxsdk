@@ -74,6 +74,7 @@ private:
     static bool calibrationService(QSqlDatabase &, Service &);
     static bool metService(QSqlDatabase &, Service &);
     static bool musicService(QSqlDatabase &, Service & service);
+    static bool mediaService(QSqlDatabase &, Service & service);
     static bool noteService(QSqlDatabase &, Service & service);
     static bool networkService(QSqlDatabase &, Service &);
     static bool webBrowserService(QSqlDatabase &, Service &);
@@ -82,11 +83,14 @@ private:
     static bool writePadService(QSqlDatabase &, Service & service);
     static bool dictionaryService(QSqlDatabase &, Service & service);
     static bool rssService(QSqlDatabase&, Service &);
+    static bool news_feeds_Service(QSqlDatabase&, Service &);
     static bool sudokuService(QSqlDatabase&, Service &);
     static bool officeViewerService(QSqlDatabase &, Service & service);
     static bool hasOfficeViewer();
     static bool nabooReaderService(QSqlDatabase &, Service & service);
     static bool onyxReaderService(QSqlDatabase &, Service & service);
+    static bool coolReaderService(QSqlDatabase &, Service & service);
+    static bool htmlReaderService(QSqlDatabase &, Service & service);
     static bool comicReaderService(QSqlDatabase &, Service & service);
 
     static bool checkService(QSqlDatabase &, const Service &);

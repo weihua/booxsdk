@@ -177,12 +177,26 @@ void NumberDialog::onNumberClicked(const int number)
     text = text.arg(number);
     QKeyEvent * key_event = new QKeyEvent(QEvent::KeyPress, Qt::Key_0 + number, Qt::NoModifier, text);
     QApplication::postEvent(&number_edit_, key_event);
+
+    update();
+    onyx::screen::instance().updateWidget(
+        &number_edit_,
+        onyx::screen::ScreenProxy::DW,
+        false,
+        onyx::screen::ScreenCommand::WAIT_ALL);
 }
 
 void NumberDialog::onBackspaceClicked()
 {
     QKeyEvent * key_event = new QKeyEvent(QEvent::KeyPress, Qt::Key_Backspace, Qt::NoModifier, "");
     QApplication::postEvent(&number_edit_, key_event);
+
+    update();
+    onyx::screen::instance().updateWidget(
+        &number_edit_,
+        onyx::screen::ScreenProxy::DW,
+        false,
+        onyx::screen::ScreenCommand::WAIT_ALL);
 }
 
 }   // namespace ui

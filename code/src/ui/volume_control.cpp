@@ -1,12 +1,13 @@
 #include "onyx/ui/volume_control.h"
-#include "onyx/screen/screen_proxy.h"
+#include "onyx/screen/screen_update_watcher.h"
 #include "onyx/sys/sys.h"
 #include "math.h"
 
 namespace ui
 {
 
-static const int TIMEOUT = 2000;
+static const int TIMEOUT = 3000;
+static QVector<int> volumes;
 
 // VolumeControlDialog
 VolumeControlDialog::VolumeControlDialog(QWidget *parent)
@@ -20,9 +21,12 @@ VolumeControlDialog::VolumeControlDialog(QWidget *parent)
     , label_(0)
 {
     SysStatus & sys_status = SysStatus::instance();
-    SystemConfig sys_conf;
-    min_ = sys_conf.minVolume();
-    max_ = sys_conf.maxVolume();
+    SystemConfig conf;
+    min_ = conf.minVolume();
+    max_ = conf.maxVolume();
+    volumes = conf.volumes();
+    conf.close();
+
     current_ = sys_status.volume() - min_;
 
     // connect the signals with sys_state_
@@ -30,7 +34,8 @@ VolumeControlDialog::VolumeControlDialog(QWidget *parent)
 
     createLayout();
     setModal(true);
-    setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    setFixedSize(300, 300);
+    //setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
     setFocusPolicy(Qt::NoFocus);
 
     timer_.setSingleShot(true);
@@ -46,8 +51,8 @@ void VolumeControlDialog::createLayout()
     // hbox to layout line edit and buttons.
     layout_.setContentsMargins(4, 4, 4, 4);
     layout_.setSpacing(2);
-    layout_.addWidget(&label_);
-    label_.setAlignment(Qt::AlignLeft|Qt::AlignTop);
+    layout_.addWidget(&label_, 0, Qt::AlignHCenter|Qt::AlignTop);
+    label_.setAlignment(Qt::AlignCenter);
 
     QPixmap pixmap=QPixmap::fromImage(image_);
     label_.setPixmap(pixmap);
@@ -71,13 +76,13 @@ int VolumeControlDialog::ensureVisible()
     show();
     const QRect screen = QApplication::desktop()->screenGeometry();
     move( screen.center() - this->rect().center() );
-    
-    onyx::screen::instance().flush();
-    onyx::screen::instance().updateWidget(this, onyx::screen::ScreenProxy::GC, false, onyx::screen::ScreenCommand::WAIT_ALL);
-
+   
     resetTimer();
     sys::SysStatus::instance().enableIdle(false);
-    return exec();
+    onyx::screen::watcher().addWatcher(this);
+    int ret = exec();
+    onyx::screen::watcher().removeWatcher(this);
+    return ret;
 }
 
 void VolumeControlDialog::moveEvent(QMoveEvent *e)
@@ -98,15 +103,9 @@ void VolumeControlDialog::paintEvent(QPaintEvent *e)
     painter.setRenderHint(QPainter::Antialiasing);
     painter.fillRect(rect(), QBrush(QColor(190, 190, 190)));
 
-    map_.clear();
-    SystemConfig sys_conf;
-    QVector<int>  volumes = sys_conf.volumes();
-    int x = 10;
-    for (int i = 1 ;i < volumes.size(); ++i)
+    for (int i = 0; i < volumes.size(); ++i)
     {
-        painter.fillRect(x,height()-30,15,15,current_ >= volumes[i] ? Qt::white : Qt::black);
-        map_.insert(x,volumes[i]);
-        x += 20;
+        painter.fillRect(rectForVolume(i), current_ >= volumes[i] ? Qt::black : Qt::white);
     }
 }
 
@@ -120,36 +119,42 @@ void VolumeControlDialog::mousePressEvent(QMouseEvent *me)
     // Check position.
     resetTimer();
     me->accept();
-    if ( me->y() < height() - 30 || me->y() > height() - 15 )
-    {
-        return;
-    }
 
-    int x = me->x() < 0 ? 0 : me->x();
-    int value = 0;
-    QMap<int, int>::const_iterator i = map_.begin();
-    while (i != map_.end()) 
+    QRect rc1, rc2;
+    rc1 = rectForVolume(0);
+    int value = -1;
+    for(int i = 1; i < volumes.size(); ++i)
     {
-        if ( i.key() > x)
+        rc2 = rectForVolume(i);
+        if (rc1.left() < me->pos().x() &&
+            me->pos().x() < rc2.left() &&
+            me->pos().y() > rc2.top())
         {
+            value = volumes[i - 1];
             break;
         }
-        value = i.value();
-        ++i;
+        rc1 = rc2;
     }
 
-    if (value > max_)
+    if (value < 0)
     {
-        value = max_;
+        rc1 = rectForVolume(0);
+        rc2 = rectForVolume(volumes.size() - 1);
+        if (me->pos().x() < rc1.left())
+        {
+            value = min_;
+        }
+        else if (me->pos().x() >= rc2.left())
+        {
+            value = max_;
+        }
     }
 
-    if (value != current_)
-    {
-        sys::SysStatus::instance().setVolume(value);
+    sys::SysStatus::instance().setVolume(value);
 #ifndef BUILD_FOR_ARM
-        setVolume(value, false);
+    setVolume(value, false);
 #endif
-    }
+
 }
 
 void VolumeControlDialog::mouseReleaseEvent(QMouseEvent *me)
@@ -169,12 +174,7 @@ void VolumeControlDialog::onScreenUpdateRequest()
 
 bool VolumeControlDialog::event(QEvent *e)
 {
-    qDebug("process event %d", e->type());
     int ret = QDialog::event(e);
-    if (e->type() == QEvent::UpdateRequest && onyx::screen::instance().isUpdateEnabled())
-    {
-        onyx::screen::instance().updateWidget(this, onyx::screen::ScreenProxy::DW);
-    }
     return ret;
 }
 
@@ -202,21 +202,34 @@ void VolumeControlDialog::stopTimer()
 
 void VolumeControlDialog::setVolume(int volume, bool is_mute)
 {
-    static int count = 0;
     if (current_ == volume)
     {
         return;
     }
     current_ = volume;
     repaint();
-
-    qDebug("timeout %d value %d total %d", ++count, current_, max_);
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::DW, onyx::screen::ScreenCommand::WAIT_NONE);
 }
 
 void VolumeControlDialog::onTimeout()
 {
     stopTimer();
     accept();
+}
+
+QRect VolumeControlDialog::rectForVolume(int index)
+{
+    int left = 0, right = 0, bottom = 10;
+    int spacing = 4 * layout_.spacing();
+    layout_.getContentsMargins(&left, 0, &right, 0);
+
+    int x = spacing + left;
+    int delta = 8;
+    int my_width = (width() - left - right) / volumes.size() - spacing;
+
+    x += (my_width + spacing) * index;
+    int h = 30 + index * delta;
+    return QRect(x, height() - h - bottom, my_width, h);
 }
 
 }   // namespace ui

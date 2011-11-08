@@ -1,40 +1,64 @@
 #include "onyx/dictionary/dict_widget.h"
 #include "onyx/screen/screen_proxy.h"
+#include "onyx/ui/ui_utils.h"
+#include "onyx/sys/sys.h"
 
 namespace ui
 {
 static const int LOOKUP = 0;
-static const int DETAILS = 1;
-static const int WORD_LIST = 2;
+static const int EXPLANATION = 1;
+static const int SIMILAR_WORDS = 2;
 static const int DICTIONARY_LIST = 3;
 static const int RETRIEVING_WORD = 4;
+static const int OPEN_DICTIONARY_TOOL = 5;
+
+static const char* SCOPE = "dict_widget";
+
+/// Define all descriptions
+const DictWidget::FunctionDescription DictWidget::DICT_FUNC_DESCRIPTION[] =
+{
+    { QT_TRANSLATE_NOOP("dict_widget", "Retrieve Words"), RETRIEVING_WORD},
+    { QT_TRANSLATE_NOOP("dict_widget", "Explanation"), EXPLANATION},
+    { QT_TRANSLATE_NOOP("dict_widget", "Similar Words"), SIMILAR_WORDS},
+    { QT_TRANSLATE_NOOP("dict_widget", "Dictionary List"), DICTIONARY_LIST},
+//    {tr("Open Dictionary Tool"), OPEN_DICTIONARY_TOOL},
+};
+const int DictWidget::DESCRIPTION_COUNT = sizeof(DictWidget::DICT_FUNC_DESCRIPTION)/
+        sizeof(DictWidget::DICT_FUNC_DESCRIPTION[0]);
+
 
 DictWidget::DictWidget(QWidget *parent, DictionaryManager & dict, tts::TTS *tts)
-    : OnyxDialog(parent)
+    : OnyxDialog(parent, false)
     , dict_(dict)
     , tts_(tts)
-    , hbox_(&content_widget_)
-    , vbox1_(0)
-    , vbox2_(0)
-    , dict_list_button_(tr("Dictionaries"), 0)
-    , lookup_button_(tr("Lookup"), 0)
-    , retrieve_word_button_(tr("Retrieve Word"), 0)
-    , word_list_button_(tr("Similar Words"), 0)
-    , details_button_(tr("Explanation"), 0)
-    , details_(0)
-    , list_widget_(0, 0)
+    , big_vbox_(&content_widget_)
+    , top_hbox_(0)
+    , content_vbox_(0)
+    , func_description_label_(qApp->translate(SCOPE,
+            DICT_FUNC_DESCRIPTION[1].description), 0)
+    , retrieve_words_button_(QIcon(":/images/retrieve_words.png"), 0)
+    , explanation_button_(QIcon(":/images/explanation.png"), 0)
+    , similar_words_button_(QIcon(":/images/similar_words.png"), 0)
+    , dictionaries_button_(QIcon(":/images/dictionary_list.png"), 0)
+    , close_button_(QIcon(":/images/close.png"), 0)
+//    , open_dictionary_tool_button_(QIcon(":/images/open_dictionary_tool.png"), 0)
+    , button_group_(0)
+    , explanation_text_(0)
+    , similar_words_view_(0, 0)
     , similar_words_offset_(0)
     , timer_(this)
     , internal_state_(-1)
     , update_parent_(false)
 {
+    QPalette pal(parent->palette());
+    pal.setColor(QPalette::Background, Qt::darkGray);
+    setPalette(pal);
+
     createLayout();
     initBrowser();
     initDictionaries();
 
     connect(&timer_, SIGNAL(timeout()), this, SLOT(onTimeout()));
-
-    setModal(false);
 }
 
 DictWidget::~DictWidget()
@@ -47,7 +71,6 @@ bool DictWidget::ensureVisible(const QRectF & rect,
                                bool update_parent)
 {
     bool changed = false;
-    shadows_.show(true);
     if (!isVisible())
     {
         changed = true;
@@ -60,7 +83,7 @@ bool DictWidget::ensureVisible(const QRectF & rect,
     {
         border = Shadows::PIXELS;
     }
-    int width = parent_rect.width() - border * 2;
+    int width = parent_rect.width();
     if (size().width() != width)
     {
         changed = true;
@@ -68,10 +91,10 @@ bool DictWidget::ensureVisible(const QRectF & rect,
     }
 
     // Check position.
-    QPoint new_pos(border, border);
+    QPoint new_pos(0, 0);
     if (rect.bottom() < parent_rect.height() / 2)
     {
-        new_pos.ry() = parent_rect.height() - height() - border * 2;
+        new_pos.ry() = parent_rect.height() - height();
     }
 
     if (pos() != new_pos)
@@ -88,9 +111,33 @@ bool DictWidget::ensureVisible(const QRectF & rect,
     return changed;
 }
 
+void DictWidget::formatResult(QString &result, QString &fuzzy_word)
+{
+    if (result.isEmpty())
+    {
+        result = tr("Not Found In Dictionary.");
+    }
+    if (!result.contains("<html>", Qt::CaseInsensitive))
+    {
+        result.replace("\n", "<br>");
+    }
+
+    // prepend the look up word
+    QString prepend("%1<br><br>");
+    if (!fuzzy_word.isEmpty())
+    {
+        prepend = prepend.arg(fuzzy_word);
+    }
+    else
+    {
+        prepend = prepend.arg(word_);
+    }
+    result.prepend(prepend);
+}
+
 bool DictWidget::lookup(const QString &word)
 {
-    if (word.isEmpty())
+    if (word.isEmpty() || word_ == word.trimmed())
     {
         return false;
     }
@@ -102,8 +149,10 @@ bool DictWidget::lookup(const QString &word)
 
     // Title
     QString result;
-    bool ret = dict_.translate(word_, result);
-    OnyxDialog::updateTitle(dict_.selected());
+    QString fuzzy_word("");
+    bool ret = dict_.fuzzyTranslate(word_, result, fuzzy_word);
+
+    formatResult(result, fuzzy_word);
 
     // Result
     doc_.setHtml(result);
@@ -114,6 +163,83 @@ bool DictWidget::lookup(const QString &word)
     updateVisibleWidgets();
     onDetailsClicked(true);
     return ret;
+}
+
+int DictWidget::getPreviousFocusButtonId(const int current_checked)
+{
+    int array_index = 0;
+    for (int i = 0; i < DESCRIPTION_COUNT; i++)
+    {
+        if (current_checked == DICT_FUNC_DESCRIPTION[i].index)
+        {
+            array_index = i;
+            break;
+        }
+    }
+    array_index--;
+    if (array_index < 0)
+    {
+        array_index = DESCRIPTION_COUNT-1;
+    }
+    return DICT_FUNC_DESCRIPTION[array_index].index;
+}
+
+int DictWidget::getNextFocusButtonId(const int current_checked)
+{
+    int array_index = 0;
+    for (int i=0; i < DESCRIPTION_COUNT; i++)
+    {
+        if (current_checked == DICT_FUNC_DESCRIPTION[i].index)
+        {
+            array_index = i;
+            break;
+        }
+    }
+    array_index++;
+    if (array_index == DESCRIPTION_COUNT)
+    {
+        array_index = 0;
+    }
+    return DICT_FUNC_DESCRIPTION[array_index].index;
+}
+
+bool DictWidget::handleLeftRightKey(const int checked_id, const int key)
+{
+
+    QAbstractButton *button = button_group_.button(checked_id);
+    if (button)
+    {
+        int target_focus_id = getNextFocusButtonId(checked_id);
+        if (Qt::Key_Left == key)
+        {
+            target_focus_id = getPreviousFocusButtonId(checked_id);
+        }
+        QAbstractButton *next = button_group_.button(target_focus_id);
+        if (next)
+        {
+            next->setFocus();
+            changeDescription(target_focus_id);
+        }
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void DictWidget::changeDescription(const int button_id)
+{
+    QString description(qApp->translate(SCOPE, DICT_FUNC_DESCRIPTION[1].description));
+    for (int i = 0; i < DESCRIPTION_COUNT; i++)
+    {
+        if (button_id == DICT_FUNC_DESCRIPTION[i].index)
+        {
+            description = qApp->translate(SCOPE, DICT_FUNC_DESCRIPTION[i].description);
+            break;
+        }
+    }
+    func_description_label_.setText(description);
 }
 
 void DictWidget::keyReleaseEvent(QKeyEvent *ke)
@@ -136,9 +262,36 @@ void DictWidget::keyReleaseEvent(QKeyEvent *ke)
 
     switch (ke->key())
     {
-    case Qt::Key_Up:
     case Qt::Key_Left:
     case Qt::Key_Right:
+        if (internalState() != RETRIEVING_WORD)
+        {
+            wnd = content_widget_.focusWidget();
+            btn = qobject_cast<QPushButton*>(wnd);
+            const int button_id = button_group_.id(btn);
+            if (-1 == button_id)
+            {
+                int checked_id = button_group_.checkedId();
+                handleLeftRightKey(checked_id, key);
+            }
+            else
+            {
+                wnd = ui::moveFocus(this, key);
+                if (wnd)
+                {
+                    wnd->setFocus();
+                    QPushButton *tmpButton = qobject_cast<QPushButton*>(wnd);
+                    const int focus_id = button_group_.id(tmpButton);
+                    changeDescription(focus_id);
+                }
+            }
+            ke->accept();
+        } else
+        {
+            emit keyReleaseSignal(ke->key());
+        }
+        return;
+    case Qt::Key_Up:
     case Qt::Key_Down:
         if (internalState() != RETRIEVING_WORD)
         {
@@ -156,17 +309,7 @@ void DictWidget::keyReleaseEvent(QKeyEvent *ke)
         return;
     case Qt::Key_Enter:
     case Qt::Key_Return:
-        if (internalState() != RETRIEVING_WORD)
-        {
-            wnd = content_widget_.focusWidget();
-            btn = qobject_cast<QPushButton*>(wnd);
-            if (btn != 0)
-            {
-                 btn->click();
-            }
-            ke->accept();
-        }
-        else
+        if (internalState() == RETRIEVING_WORD)
         {
             emit keyReleaseSignal(ke->key());
         }
@@ -204,18 +347,6 @@ void DictWidget::keyPressEvent(QKeyEvent * ke)
         }
     }
     ke->ignore();
-    /*
-    // Must use flush on qws platform.
-    QKeyEvent * key_event = new QKeyEvent(ke->type(), ke->key(), ke->modifiers(), ke->text());
-    screen::ScreenManager::instance().enableUpdate(false);
-    QApplication::postEvent(&text_edit_, key_event);
-    QApplication::processEvents();
-    screen::ScreenManager::instance().enableUpdate(true);
-
-    screen::ScreenManager::instance().enableFastestUpdate(true);
-    screen::ScreenManager::instance().fastUpdateWidget(&text_edit_, false);
-    screen::ScreenManager::instance().enableFastestUpdate(false);
-    */
 
     // Launch timer to make sure screen will be updated
     // launchTimer(true);
@@ -260,13 +391,13 @@ void DictWidget::updateSimilarWordsModel(int count)
 
 void DictWidget::updateSimilarWords()
 {
-    list_widget_.clear();
-    list_widget_.setFocus();
-    list_widget_.show();
-    updateSimilarWordsModel(list_widget_.itemsPerPage());
+    similar_words_view_.clear();
+    similar_words_view_.setFocus();
+    similar_words_view_.show();
+    updateSimilarWordsModel(similar_words_view_.itemsPerPage());
 
     // Update the list.
-    list_widget_.setModel(&similar_words_model_);
+    similar_words_view_.setModel(&similar_words_model_);
 }
 
 void DictWidget::updateDictionaryListModel()
@@ -288,20 +419,20 @@ void DictWidget::updateDictionaryList()
 {
     resetSimilarWordsOffset();
     updateDictionaryListModel();
-    list_widget_.clear();
-    list_widget_.setModel(&dict_list_model_);
-    list_widget_.show();
-    list_widget_.select(dict_.selected());
-    list_widget_.setFocus();
+    similar_words_view_.clear();
+    similar_words_view_.setModel(&dict_list_model_);
+    similar_words_view_.show();
+    similar_words_view_.select(dict_.selected());
+    similar_words_view_.setFocus();
 }
 
 void DictWidget::updateVisibleWidgets()
 {
-    if (word_list_button_.isChecked())
+    if (similar_words_button_.isChecked())
     {
         updateSimilarWords();
     }
-    else if (dict_list_button_.isChecked())
+    else if (dictionaries_button_.isChecked())
     {
         updateDictionaryList();
     }
@@ -309,10 +440,20 @@ void DictWidget::updateVisibleWidgets()
 
 bool DictWidget::eventFilter(QObject *obj, QEvent *event)
 {
-    bool ret = OnyxDialog::eventFilter(obj, event);
+    bool ret = QDialog::eventFilter(obj, event);
     if (event->type() == QEvent::KeyPress)
     {
-
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        if (keyEvent->key() == Qt::Key_Up
+                || keyEvent->key() == Qt::Key_Down)
+        {
+            if (internalState() != RETRIEVING_WORD)
+            {
+                // do not filter this event because of the design of
+                // OnyxTextBrowser (keyPressEvent and keyReleaseEvent)
+                return false;
+            }
+        }
         event->ignore();
         return true;
     }
@@ -321,15 +462,19 @@ bool DictWidget::eventFilter(QObject *obj, QEvent *event)
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         if (keyEvent->key() == Qt::Key_Escape)
         {
-            keyEvent->accept();
-            changeInternalState(DETAILS);
-            lookup_button_.setFocus();
+            keyEvent->ignore();
             return true;
         }
         else if (keyEvent->key() == Qt::Key_PageDown ||
                  keyEvent->key() == Qt::Key_PageUp)
         {
-            if (internalState() == LOOKUP)
+            keyEvent->ignore();
+            return true;
+        }
+        else if (keyEvent->key() == Qt::Key_Left
+                || keyEvent->key() == Qt::Key_Right)
+        {
+            if (internalState() != RETRIEVING_WORD)
             {
                 keyEvent->ignore();
                 return true;
@@ -342,15 +487,14 @@ bool DictWidget::eventFilter(QObject *obj, QEvent *event)
 void DictWidget::changeInternalState(int state)
 {
     internal_state_ = state;
+    changeDescription(internal_state_);
 }
 
 bool DictWidget::event(QEvent *e)
 {
     int ret = QDialog::event(e);
-    if (e->type() == QEvent::UpdateRequest)
+    if (e->type() == QEvent::UpdateRequest || e->type() == QEvent::Hide)
     {
-        onyx::screen::instance().sync(&shadows_.hor_shadow());
-        onyx::screen::instance().sync(&shadows_.ver_shadow());
         if (update_parent_)
         {
             onyx::screen::instance().updateWidget(0, onyx::screen::ScreenProxy::GC, true);
@@ -358,7 +502,7 @@ bool DictWidget::event(QEvent *e)
         }
         else
         {
-            onyx::screen::instance().updateWidget(this, onyx::screen::ScreenProxy::GU);
+            onyx::screen::instance().updateWidget(this, onyx::screen::ScreenProxy::GU, false, onyx::screen::ScreenCommand::WAIT_NONE);
         }
         launchTimer(false);
         e->accept();
@@ -369,104 +513,113 @@ bool DictWidget::event(QEvent *e)
 
 void DictWidget::moveEvent(QMoveEvent *e)
 {
-    shadows_.onWidgetMoved(this);
     update_parent_ = true;
 }
 
 void DictWidget::resizeEvent(QResizeEvent *e)
 {
-    OnyxDialog::resizeEvent(e);
     update_parent_ = true;
 }
 
 void DictWidget::hideEvent(QHideEvent * event)
 {
     QDialog::hideEvent(event);
-    shadows_.show(false);
 }
 
 void DictWidget::createLayout()
 {
-    title_icon_label_.setPixmap(QPixmap(":/images/dictionary_title.png"));
-    if (dict_.selected().isEmpty())
-    {
-        OnyxDialog::updateTitle(tr("Dictionary Lookup"));
-    }
-    else
-    {
-        OnyxDialog::updateTitle(dict_.selected());
-    }
+    // remove the title bar from the OnyxDialog
+    this->vbox_.removeWidget(&this->title_widget_);
 
-    // top_vbox_
-    hbox_.setContentsMargins(SPACING, SPACING, SPACING, SPACING);
-    hbox_.setSpacing(SPACING);
-    hbox_.addLayout(&vbox1_);
-    hbox_.addLayout(&vbox2_);
+    big_vbox_.setContentsMargins(SPACING, SPACING, SPACING, SPACING);
+    big_vbox_.setSpacing(SPACING);
+    big_vbox_.addLayout(&top_hbox_);
+    big_vbox_.addLayout(&content_vbox_);
 
-    // vbox 1
-    const int V_SPACING = 20;
-    vbox1_.setContentsMargins(0, SPACING, 0, SPACING);
-    vbox1_.setSpacing(V_SPACING);
-    vbox1_.addWidget(&lookup_button_);
-    //vbox1_.addWidget(&retrieve_word_button_);
-    vbox1_.addWidget(&details_button_);
-    vbox1_.addWidget(&word_list_button_);
-    vbox1_.addWidget(&dict_list_button_);
+    func_description_label_.setAlignment(Qt::AlignVCenter);
+    func_description_label_.setFixedHeight(defaultItemHeight()-SPACING*2);
+    func_description_label_.setFixedHeight(defaultItemHeight()-SPACING*2);
 
-    dict_list_button_.useDefaultHeight();
-    lookup_button_.useDefaultHeight();
-    word_list_button_.useDefaultHeight();
-    details_button_.useDefaultHeight();
+    top_hbox_.setContentsMargins(0, 0, SPACING*2, 0);
+    top_hbox_.setSpacing(SPACING*2);
+    top_hbox_.addWidget(&retrieve_words_button_);
+    top_hbox_.addWidget(&explanation_button_);
+    top_hbox_.addWidget(&similar_words_button_);
+    top_hbox_.addWidget(&dictionaries_button_);
+//    top_hbox_.addWidget(&open_dictionary_tool_button_);
 
-    // vbox 2
-    vbox2_.setContentsMargins(SPACING, SPACING, SPACING, SPACING);
-    vbox2_.setSpacing(SPACING);
-    vbox2_.addWidget(&details_);
-    vbox2_.addWidget(&list_widget_);
-    list_widget_.showHeader(false);
-    list_widget_.hide();
+    top_hbox_.addWidget(&func_description_label_, 0, Qt::AlignRight);
+
+
+    retrieve_words_button_.useDefaultHeight();
+    explanation_button_.useDefaultHeight();
+    similar_words_button_.useDefaultHeight();
+    dictionaries_button_.useDefaultHeight();
+//    open_dictionary_tool_button_.useDefaultHeight();
+    button_group_.setExclusive(true);
+    button_group_.addButton(&retrieve_words_button_, RETRIEVING_WORD);
+    button_group_.addButton(&explanation_button_, EXPLANATION);
+    button_group_.addButton(&similar_words_button_, SIMILAR_WORDS);
+    button_group_.addButton(&dictionaries_button_, DICTIONARY_LIST);
+//    button_group_.addButton(&open_dictionary_tool_button_, OPEN_DICTIONARY_TOOL);
+
+    content_vbox_.setContentsMargins(SPACING, SPACING, SPACING, SPACING);
+    content_vbox_.setSpacing(SPACING);
+    content_vbox_.addWidget(&explanation_text_);
+    content_vbox_.addWidget(&similar_words_view_);
+    similar_words_view_.showHeader(false);
+    similar_words_view_.hide();
 
     // Setup connection.
-    connect(&details_button_, SIGNAL(clicked(bool)), this,
-        SLOT(onDetailsClicked(bool)), Qt::QueuedConnection);
-
-    connect(&lookup_button_, SIGNAL(clicked(bool)), this,
-            SLOT(onLookupClicked(bool)), Qt::QueuedConnection);
-
-    connect(&word_list_button_, SIGNAL(clicked(bool)), this,
-            SLOT(onWordListClicked(bool)), Qt::QueuedConnection);
-
-    connect(&dict_list_button_, SIGNAL(clicked(bool)), this,
-            SLOT(onDictListClicked(bool)), Qt::QueuedConnection);
-
-    connect(&retrieve_word_button_, SIGNAL(clicked(bool)), this,
+    connect(&retrieve_words_button_, SIGNAL(clicked(bool)), this,
             SLOT(onRetrieveWordClicked(bool)), Qt::QueuedConnection);
 
-    connect(&list_widget_, SIGNAL(activated(const QModelIndex &)),
-            this, SLOT(onItemClicked(const QModelIndex &)));
+    connect(&explanation_button_, SIGNAL(clicked(bool)), this,
+        SLOT(onDetailsClicked(bool)), Qt::QueuedConnection);
 
-    connect(&list_widget_, SIGNAL(exceed(bool)),
+    connect(&similar_words_button_, SIGNAL(clicked(bool)), this,
+            SLOT(onWordListClicked(bool)), Qt::QueuedConnection);
+
+    connect(&dictionaries_button_, SIGNAL(clicked(bool)), this,
+            SLOT(onDictListClicked(bool)), Qt::QueuedConnection);
+
+//    connect(&open_dictionary_tool_button_, SIGNAL(clicked(bool)), this,
+//                SLOT(onOpenDictionaryToolClicked(bool)), Qt::QueuedConnection);
+
+    connect(&similar_words_view_, SIGNAL(activated(const QModelIndex &)),
+            this, SLOT(onItemClicked(const QModelIndex &)));
+    connect(&similar_words_view_, SIGNAL(exceed(bool)),
             this, SLOT(moreSimilarWords(bool)));
 
     // Change buttons attributes.
-    details_button_.setFocusPolicy(Qt::StrongFocus);
-    lookup_button_.setFocusPolicy(Qt::StrongFocus);
-    word_list_button_.setFocusPolicy(Qt::StrongFocus);
-    dict_list_button_.setFocusPolicy(Qt::StrongFocus);
+    retrieve_words_button_.setFocusPolicy(Qt::StrongFocus);
+    explanation_button_.setFocusPolicy(Qt::StrongFocus);
+    similar_words_button_.setFocusPolicy(Qt::StrongFocus);
+    dictionaries_button_.setFocusPolicy(Qt::StrongFocus);
+//    open_dictionary_tool_button_.setFocusPolicy(Qt::StrongFocus);
 
-    details_.setFocusPolicy(Qt::StrongFocus);
-    list_widget_.setFocusPolicy(Qt::StrongFocus);
+    explanation_text_.setFocusPolicy(Qt::StrongFocus);
+    similar_words_view_.setFocusPolicy(Qt::StrongFocus);
 
-    details_button_.setCheckable(true);
-    lookup_button_.setCheckable(true);
-    word_list_button_.setCheckable(true);
-    dict_list_button_.setCheckable(true);
+    retrieve_words_button_.setCheckable(true);
+    explanation_button_.setCheckable(true);
+    similar_words_button_.setCheckable(true);
+    dictionaries_button_.setCheckable(true);
+//    open_dictionary_tool_button_.setCheckable(true);
 
-    details_button_.setChecked(true);
+    top_hbox_.addWidget(&close_button_);
+    connect(&close_button_, SIGNAL(clicked(bool)), this,
+            SLOT(onCloseClicked()), Qt::QueuedConnection);
+    close_button_.setFocusPolicy(Qt::NoFocus);
+    close_button_.setCheckable(false);
+
+    // Focus on explanation button on dictionary startup.
+    explanation_button_.setChecked(true);
+    explanation_text_.setFocus();
 
     // Install event filter.
-    details_.installEventFilter(this);
-    list_widget_.installEventFilter(this);
+    explanation_text_.installEventFilter(this);
+    similar_words_view_.installEventFilter(this);
 }
 
 void DictWidget::initBrowser()
@@ -474,7 +627,7 @@ void DictWidget::initBrowser()
     QFont font(QApplication::font());
     font.setPointSize(20);
     doc_.setDefaultFont(font);
-    details_.setDocument(&doc_);
+    explanation_text_.setDocument(&doc_);
 }
 
 void DictWidget::initDictionaries()
@@ -495,49 +648,57 @@ void DictWidget::onTimeout()
 
 void DictWidget::onItemClicked(const QModelIndex & index)
 {
-    if (word_list_button_.isChecked())
+    if (similar_words_button_.isChecked())
     {
         QString text = similar_words_model_.itemFromIndex(index)->data().toString();
         lookup(text);
-        details_button_.click();
+        explanation_button_.click();
     }
-    else if (dict_list_button_.isChecked())
+    else if (dictionaries_button_.isChecked())
     {
         dict_.select(dict_list_model_.itemFromIndex(index)->text());
         lookup(word_);
-        details_button_.click();
+        explanation_button_.click();
     }
 }
 
 
 void DictWidget::moreSimilarWords(bool begin)
 {
-    if (!word_list_button_.isChecked())
+    if (!similar_words_button_.isChecked())
     {
         return;
     }
 
     if (begin)
     {
-        similar_words_offset_ -= list_widget_.itemsPerPage();
+        similar_words_offset_ -= similar_words_view_.itemsPerPage();
     }
     else
     {
-        similar_words_offset_ += list_widget_.itemsPerPage();
+        similar_words_offset_ += similar_words_view_.itemsPerPage();
     }
     updateSimilarWords();
 }
 
+void DictWidget::checkSelectedButton(bool clear_focus)
+{
+    QAbstractButton *buttonPtr = button_group_.button(internalState());
+    buttonPtr->setChecked(true);
+    if (clear_focus)
+    {
+        buttonPtr->clearFocus();
+    }
+}
+
 void DictWidget::onDetailsClicked(bool)
 {
-    changeInternalState(DETAILS);
-    details_button_.setChecked(true);
-    lookup_button_.setChecked(false);
-    dict_list_button_.setChecked(false);
-    word_list_button_.setChecked(false);
-    details_.show();
-    details_.setFocus();
-    list_widget_.hide();
+    changeInternalState(EXPLANATION);
+    checkSelectedButton();
+
+    explanation_text_.show();
+    explanation_text_.setFocus();
+    similar_words_view_.hide();
     if (!update_parent_)
     {
         onyx::screen::instance().flush(this, onyx::screen::ScreenProxy::GC, false);
@@ -548,23 +709,12 @@ void DictWidget::onDetailsClicked(bool)
     }
 }
 
-void DictWidget::onLookupClicked(bool)
-{
-    changeInternalState(LOOKUP);
-    lookup_button_.setChecked(true);
-    dict_list_button_.setChecked(false);
-    word_list_button_.setChecked(false);
-    details_button_.setChecked(false);
-}
-
 void DictWidget::onWordListClicked(bool)
 {
-    changeInternalState(WORD_LIST);
-    lookup_button_.setChecked(false);
-    dict_list_button_.setChecked(false);
-    details_button_.setChecked(false);
-    word_list_button_.setChecked(true);
-    details_.hide();
+    changeInternalState(SIMILAR_WORDS);
+    checkSelectedButton();
+
+    explanation_text_.hide();
     updateSimilarWords();
     onyx::screen::instance().flush(this, onyx::screen::ScreenProxy::GC, false);
 }
@@ -572,11 +722,9 @@ void DictWidget::onWordListClicked(bool)
 void DictWidget::onDictListClicked(bool)
 {
     changeInternalState(DICTIONARY_LIST);
-    lookup_button_.setChecked(false);
-    word_list_button_.setChecked(false);
-    details_button_.setChecked(false);
-    dict_list_button_.setChecked(true);
-    details_.hide();
+    checkSelectedButton();
+
+    explanation_text_.hide();
     updateDictionaryList();
     onyx::screen::instance().flush(this, onyx::screen::ScreenProxy::GC, false);
 }
@@ -584,19 +732,26 @@ void DictWidget::onDictListClicked(bool)
 void DictWidget::onRetrieveWordClicked(bool)
 {
     changeInternalState(RETRIEVING_WORD);
-    lookup_button_.setChecked(false);
-    word_list_button_.setChecked(false);
-    details_button_.setChecked(false);
-    dict_list_button_.setChecked(false);
-    retrieve_word_button_.setChecked(true);
+    checkSelectedButton();
+}
+
+void DictWidget::onOpenDictionaryToolClicked(bool)
+{
+    changeInternalState(OPEN_DICTIONARY_TOOL);
+    checkSelectedButton();
 }
 
 void DictWidget::onCloseClicked()
 {
+    onyx::screen::instance().ensureUpdateFinished();
     releaseKeyboard();
-    shadows_.show(false);
     hide();
     emit closeClicked();
+}
+
+bool DictWidget::isInRetrieveWordsMode()
+{
+    return this->internal_state_ == RETRIEVING_WORD;
 }
 
 }   // namespace ui

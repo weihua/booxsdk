@@ -3,7 +3,7 @@
 #include "onyx/screen/screen_proxy.h"
 
 #include <QtGui/QtGui>
-#ifdef ENABLE_EINK_SCREEN
+#ifdef BUILD_FOR_ARM
 #include <QtGui/qscreen_qws.h>
 #endif
 
@@ -202,6 +202,7 @@ void ScreenProxy::updateWidget(const QWidget *widget,
                                bool update_whole,
                                ScreenCommand::WaitMode wait)
 {
+#ifndef BUILD_FOR_FB
     if (!isUpdateEnabled() && waveform != onyx::screen::ScreenProxy::DW)
     {
         return;
@@ -229,6 +230,7 @@ void ScreenProxy::updateWidget(const QWidget *widget,
         command_.update_flags = ScreenCommand::PARTIAL_UPDATE;
     }
     sendCommand(command_, wait);
+#endif
 }
 
 /// Update the specified region of the widget.
@@ -360,9 +362,13 @@ void ScreenProxy::updateWidgetWithGCInterval(const QWidget *widget,
         bool update_whole,
         ScreenCommand::WaitMode wait)
 {
-    if (INVALID == waveform || GU == waveform)
+    if (waveform == INVALID)
     {
-        waveform = GU;
+        waveform = waveform_;
+    }
+
+    if (GU == waveform || GC4 == waveform)
+    {
         increaseGUCount();
         if (0 != gc_interval_ && gu_count_ >= gc_interval_)
         {

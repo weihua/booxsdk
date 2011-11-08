@@ -16,9 +16,19 @@ bool isIMX31L();
 
 bool is166E();
 
+bool isImx508();
+
+bool isAk98();
+
+bool isIRTouch();
+
 QString soundModule();
 
 int defaultRotation();
+
+bool collectUserBehavior();
+
+int batteryPercentageThreshold();
 
 }
 

@@ -1,11 +1,12 @@
 // Author: John
 
+#include "onyx/cms/cms_utils.h"
 #include "onyx/cms/content_node.h"
 
 namespace cms
 {
 // TODO: Move to global header file.
-const QString DATE_FORMAT  = "yyyy-MM-dd hh:mm:ss";
+
 
 ContentNode::ContentNode(void)
 : id_(CMS_INVALID_ID)
@@ -73,7 +74,7 @@ ContentNode::~ContentNode(void)
 /// Use current time as the the last access time.
 const QString & ContentNode::updateLastAccess()
 {
-    mutable_last_access() = QDateTime::currentDateTime().toString(DATE_FORMAT);
+    mutable_last_access() = QDateTime::currentDateTime().toString(dateFormat());
     return last_access();
 }
 
@@ -379,6 +380,116 @@ bool ContentNode::getContentNode(QSqlDatabase & database,
         return true;
     }
     return false;
+}
+
+bool ContentNode::getContentNodeByUrl(QSqlDatabase& database,
+                                      const QString & url,
+                                      ContentNode & node)
+{
+    QSqlQuery query(database);
+    query.prepare( "select id, name, location, title, authors, description, "
+                   "last_access, publisher,  "
+                   "rating, read_time, read_count, progress, attributes "
+                   "from content where md5 = :md5" );
+    query.bindValue(":md5", url);
+
+    if (query.exec() && query.next())
+    {
+        int index = 0;
+        node.id_ = query.value(index++).toInt();
+        node.name_ = query.value(index++).toString();
+        node.location_ = query.value(index++).toString();
+        node.title_ = query.value(index++).toString();
+        node.mutable_authors() = query.value(index++).toString();
+        node.mutable_description() = query.value(index++).toString();
+        node.mutable_last_access() = query.value(index++).toString();
+        node.mutable_publisher() = query.value(index++).toString();
+        node.mutable_md5() = url;
+        node.mutable_rating() = query.value(index++).toInt();
+        node.mutable_read_time() = query.value(index++).toInt();
+        node.mutable_read_count() = query.value(index++).toInt();
+        node.mutable_progress() = query.value(index++).toString();
+        node.mutable_attributes() = query.value(index++).toByteArray();
+        return true;
+    }
+    return false;
+}
+
+/// Update content by url.
+bool ContentNode::updateContentNodeByUrl(QSqlDatabase& database,
+                                         const ContentNode & node,
+                                         const QString & url)
+{
+    // Check at first.
+    ContentNode tmp;
+    bool found = getContentNodeByUrl(database, url, tmp);
+
+    if (!found)
+    {
+        QSqlQuery query(database);
+        query.prepare ("INSERT into content  "
+            " (name, location, title, authors, "
+            " description, last_access, publisher, md5, "
+            " size, rating, read_time, read_count, "
+            " progress, attributes) values "
+            " (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ");
+
+        query.addBindValue(node.name());
+        query.addBindValue(node.location());
+        query.addBindValue(node.title());
+        query.addBindValue(node.authors());
+        query.addBindValue(node.description());
+        query.addBindValue(node.last_access());
+        query.addBindValue(node.publisher());
+        query.addBindValue(url);
+        query.addBindValue(node.size());
+        query.addBindValue(node.rating());
+        query.addBindValue(node.read_time());
+        query.addBindValue(node.read_count());
+        query.addBindValue(node.progress());
+        query.addBindValue(node.attributes());
+
+        if (!query.exec())
+        {
+            qDebug() << query.lastError();
+            return false;
+        }
+    }
+    else
+    {
+        QSqlQuery query(database);
+        query.prepare ("update content set "
+                        " name = ?, location = ?, title = ?, authors = ?, "
+                        " description = ?, last_access = ?, publisher = ?,  "
+                        " size = ?, rating = ?, read_time = ?, read_count = ?, "
+                        " progress = ?, attributes = ? "
+                        " where md5 = ?");
+
+        query.addBindValue(node.name());
+        query.addBindValue(node.location());
+        query.addBindValue(node.title());
+        query.addBindValue(node.authors());
+        query.addBindValue(node.description());
+        query.addBindValue(node.last_access());
+        query.addBindValue(node.publisher());
+
+        query.addBindValue(node.size());
+        query.addBindValue(node.rating());
+        query.addBindValue(node.read_time());
+        query.addBindValue(node.read_count());
+
+        query.addBindValue(node.progress());
+        query.addBindValue(node.attributes());
+
+        query.addBindValue(url);
+
+        if (!query.exec())
+        {
+            qDebug() << query.lastError();
+            return false;
+        }
+    }
+    return true;
 }
 
 bool ContentNode::createContentNode(QSqlDatabase& database,

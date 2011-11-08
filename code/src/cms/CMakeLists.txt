@@ -12,7 +12,9 @@ set(SRCS
   notes_manager.cpp
   cms_utils.cpp
   user_db.cpp
-  download_db.cpp)
+  download_db.cpp
+  media_db.cpp
+  media_info_manager.cpp)
 
 add_library(onyx_cms ${SRCS})
 strict_warning(onyx_cms)

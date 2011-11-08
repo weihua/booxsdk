@@ -2,6 +2,7 @@
 
 #include "onyx/data/sketch_io.h"
 #include "onyx/data/sketch_proxy.h"
+#include "onyx/sys/platform.h"
 
 namespace sketch
 {
@@ -9,7 +10,9 @@ namespace sketch
 static const ZoomFactor ZOOM_ERROR = 0.001f;
 static const int FAST_DRAWING_BUF_SIZE = 1;
 static const int ERASE_UPDATE_INTERVAL = 300;
+#ifdef ENABLE_EINK_SCREEN
 static const int DRIVER_DRAW_INTERVAL = 50;
+#endif
 static const int POINTS_NUM = 1;
 
 // Transform the coordinate of sketch point by current orientation.
@@ -102,6 +105,7 @@ SketchProxy::SketchProxy()
     , need_update_once_(false)
     , mode_(MODE_SKETCHING)
     , status_(SKETCH_READY)
+    , pressure_of_last_point_(0)
 {
     resetLastPosition();
 
@@ -116,11 +120,13 @@ SketchProxy::SketchProxy()
     // update erased area
     erase_update_timer_.setSingleShot( true );
     erase_update_timer_.setInterval( ERASE_UPDATE_INTERVAL );
-    connect( &erase_update_timer_,
-             SIGNAL( timeout() ),
-             this,
-             SLOT( onUpdateScreenTimeout() ) );
+    connect(&erase_update_timer_, SIGNAL(timeout()), this, SLOT(onUpdateScreenTimeout()));
 
+    // raw touch event handler
+    connect(&raw_event_listener_, SIGNAL(touchData(TouchData &)), this, SLOT(onReceivedTouchData(TouchData &)));
+
+
+#ifdef ENABLE_EINK_SCREEN
     // driver draw line
     driver_draw_timer_.setSingleShot( true );
     driver_draw_timer_.setInterval( DRIVER_DRAW_INTERVAL );
@@ -128,6 +134,7 @@ SketchProxy::SketchProxy()
              SIGNAL( timeout() ),
              this,
              SLOT( onForceDriverDrawLines() ) );
+#endif
 }
 
 SketchProxy::~SketchProxy()
@@ -438,41 +445,105 @@ bool SketchProxy::eventFilter(QObject *obj, QEvent *event)
          event->type() == QEvent::MouseMove ||
          event->type() == QEvent::MouseButtonRelease))
     {
-        QMouseEvent *mouse_event = down_cast<QMouseEvent *>(event);
-
-        // check the drawing area
-        if (!attached_widget_->rect().contains(mouse_event->pos()))
+        // Ignore mouse events in imx508 platform
+        if (!sys::isImx508())
         {
-            // the document or the page is invalid, end the last stroke and return
-            if (stroke_ != 0 && last_page_ != 0)
+            QMouseEvent *mouse_event = down_cast<QMouseEvent *>(event);
+
+            // check the drawing area
+            if (!attached_widget_->rect().contains(mouse_event->pos()))
             {
-                endStroke(last_page_, last_pos_);
+                // the document or the page is invalid, end the last stroke and return
+                if (stroke_ != 0 && last_page_ != 0)
+                {
+                    endStroke(last_page_, last_pos_);
+                }
+                return true;
             }
-            return true;
-        }
 
-        switch (event->type())
-        {
-        case QEvent::MouseButtonPress:
-            sketchPenDown(mouse_event);
-            break;
-        case QEvent::MouseMove:
-            sketchPenMove(mouse_event);
-            break;
-        case QEvent::MouseButtonRelease:
-            sketchPenUp(mouse_event);
-            break;
-        default:
-            break;
+            switch (event->type())
+            {
+            case QEvent::MouseButtonPress:
+                sketchPenDown(mouse_event);
+                break;
+            case QEvent::MouseMove:
+                sketchPenMove(mouse_event);
+                break;
+            case QEvent::MouseButtonRelease:
+                sketchPenUp(mouse_event);
+                break;
+            default:
+                break;
+            }
         }
         return true;
     }
     return QObject::eventFilter(obj, event);
 }
 
+
+void SketchProxy::onReceivedTouchData(TouchData & data)
+{
+    if (attached_widget_ == 0)
+    {
+        qDebug("Not attached to any widget");
+        return;
+    }
+
+    // get widget pos
+    OnyxTouchPoint & touch_point = data.points[0];
+    QPoint global_pos(touch_point.x, touch_point.y);
+    QPoint widget_pos = attached_widget_->mapFromGlobal(global_pos);
+
+    // check whether the point is in widget
+    if (widget_pos.x() < 0 ||
+        widget_pos.y() < 0 ||
+        widget_pos.x() > attached_widget_->width() ||
+        widget_pos.y() > attached_widget_->height())
+    {
+        // qDebug("Out of boundary");
+        return;
+    }
+
+    // construct a mouse event
+    QEvent::Type type = QEvent::MouseMove;
+    if (pressure_of_last_point_ == 0 && touch_point.pressure > 0)
+    {
+        type = QEvent::MouseButtonPress;
+    }
+    if (pressure_of_last_point_ > 0 && touch_point.pressure <= 0)
+    {
+        type = QEvent::MouseButtonRelease;
+    }
+
+    QMouseEvent me(type, widget_pos, global_pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    switch (type)
+    {
+    case QEvent::MouseButtonPress:
+        sketchPenDown(&me);
+        break;
+    case QEvent::MouseMove:
+        sketchPenMove(&me);
+        break;
+    case QEvent::MouseButtonRelease:
+        sketchPenUp(&me);
+        break;
+    default:
+        break;
+    }
+    pressure_of_last_point_ = touch_point.pressure;
+}
+
 void SketchProxy::attachWidget(QWidget * w)
 {
     w->installEventFilter(this);
+    if (sys::isImx508())
+    {
+        if (w->isVisible())
+        {
+            raw_event_listener_.addWatcherWidget(w);
+        }
+    }
     attached_widget_ = w;
     setDrawingArea(w);
 }
@@ -480,6 +551,10 @@ void SketchProxy::attachWidget(QWidget * w)
 void SketchProxy::deattachWidget(QWidget * w)
 {
     w->removeEventFilter(this);
+    if (sys::isImx508())
+    {
+        raw_event_listener_.removeWatcherWidget(w);
+    }
     attached_widget_ = 0;
 }
 
@@ -796,15 +871,27 @@ void SketchProxy::addPoint(SketchPagePtr page, const SketchPosition & pos, bool 
     // draw the new point by driver
     if (isLastPositionValid())
     {
-        driverDrawLine(last_pos_.global_pos,
+        driverDrawLine(
+#ifdef ENABLE_EINK_SCREEN
+                       last_pos_.global_pos,
                        pos.global_pos,
+#else
+                       last_pos_.widget_pos,
+                       pos.widget_pos,
+#endif
                        ctx,
                        is_last_point);
     }
     else
     {
-        driverDrawLine(pos.global_pos,
+        driverDrawLine(
+#ifdef ENABLE_EINK_SCREEN
                        pos.global_pos,
+                       pos.global_pos,
+#else
+                       pos.widget_pos,
+                       pos.widget_pos,
+#endif
                        ctx,
                        is_last_point);
     }
@@ -963,7 +1050,9 @@ void SketchProxy::driverDrawLines(StrokeLines &lines,
 {
     if (lines.empty() || (!is_last_point && lines.size() < POINTS_NUM))
     {
+#ifdef ENABLE_EINK_SCREEN
         driver_draw_timer_.start();
+#endif
         return;
     }
 
@@ -977,7 +1066,10 @@ void SketchProxy::driverDrawLines(StrokeLines &lines,
     }
 
     gc_.fastDrawLines(points, ctx);
-    onyx::screen::instance().updateScreen(onyx::screen::ScreenProxy::DW, onyx::screen::ScreenCommand::WAIT_NONE);
+    if (!sys::is166E() && !sys::isImx508())
+    {
+        onyx::screen::instance().updateScreen(onyx::screen::ScreenProxy::DW, onyx::screen::ScreenCommand::WAIT_NONE);
+    }
     lines.clear();
 }
 
@@ -1000,7 +1092,9 @@ void SketchProxy::driverDrawLine(const QPoint & p1,
     transformCoordinate(screen_area, p1, gc_.widgetOrient(), real_p1);
     transformCoordinate(screen_area, p2, gc_.widgetOrient(), real_p2);
 
+#ifdef ENABLE_EINK_SCREEN
     driver_draw_timer_.stop();
+#endif
     stroke_lines_.push_back(StrokeLine(real_p1, real_p2));
     driverDrawLines(stroke_lines_, ctx, is_last_point);
 }

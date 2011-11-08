@@ -1,4 +1,5 @@
 #include "onyx/ui/onyx_dialog.h"
+#include "onyx/screen/screen_proxy.h"
 
 namespace ui
 {
@@ -71,10 +72,10 @@ void OnyxDialog::createDefaultLayout()
     title_vbox_.setContentsMargins(SPACING, 0, SPACING, 0);
 
     // title hbox.
-    title_icon_label_.setPixmap(QPixmap(":/images/dictionary_search.png"));
+    title_icon_label_.setPixmap(QPixmap(":/images/dialog.png"));
     title_text_label_.setAlignment(Qt::AlignLeft|Qt::AlignVCenter);
-    title_icon_label_.setFixedHeight(WIDGET_HEIGHT);
-    title_text_label_.setFixedHeight(WIDGET_HEIGHT);
+    title_icon_label_.setFixedHeight(defaultItemHeight());
+    title_text_label_.setFixedHeight(defaultItemHeight());
     title_text_label_.useTitleBarStyle();
 
     close_button_.setStyleSheet(BUTTON_STYLE);
@@ -103,7 +104,7 @@ void OnyxDialog::createDefaultLayout()
     title_widget_.setAutoFillBackground(true);
     title_widget_.setBackgroundRole(QPalette::Dark);
     title_widget_.setContentsMargins(0, 0, 0, 0);
-    title_widget_.setFixedHeight(WIDGET_HEIGHT + SPACING * 2);
+    title_widget_.setFixedHeight(defaultItemHeight() + SPACING * 2);
     vbox_.addWidget(&title_widget_);
 
     // content widget.
@@ -139,11 +140,23 @@ QRect OnyxDialog::outbounding(QWidget *parent)
     return rc;
 }
 
+void OnyxDialog::done(int r)
+{
+    onyx::screen::instance().ensureUpdateFinished();
+    return QDialog::done(r);
+}
+
 void OnyxDialog::onCloseClicked()
 {
     shadows_.show(false);
     done(QDialog::Rejected);
 }
+
+void OnyxDialog::closeEvent(QCloseEvent * event)
+{
+    QDialog::closeEvent(event);
+}
+
 
 void OnyxDialog::moveEvent(QMoveEvent *e)
 {
@@ -186,6 +199,16 @@ void OnyxDialog::keyReleaseEvent(QKeyEvent * ke)
     {
         reject();
     }
+}
+
+int OnyxDialog::spacing()
+{
+    return SPACING;
+}
+
+int OnyxDialog::defaultItemHeight()
+{
+    return 36;
 }
 
 }   // namespace ui

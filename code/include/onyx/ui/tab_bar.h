@@ -2,12 +2,13 @@
 #define UI_LIB_TAB_BAR_H_
 
 #include <vector>
+#include "catalog_view.h"
 #include "tab_button.h"
 
 namespace ui
 {
 
-class TabBar : public QWidget
+class TabBar : public CatalogView
 {
     Q_OBJECT
 public:
@@ -15,38 +16,28 @@ public:
     ~TabBar(void);
 
 public:
-    bool AddButton(const int id, const QString & title, const QIcon & icon);
-    bool RemoveButton(const int id);
-    bool ClickButton(const int id);
-    int  GetSelectedButton();
-    bool SetButtonText(const int id, const QString & title);
+    bool addButton(const int id, const QString & title, const QPixmap & pixmap);
+    bool removeButton(const int id);
+    bool clickButton(const int id);
+    int  selectedButton();
+    bool setButtonText(const int id, const QString & title);
 
-    bool SetOrientation(const Qt::Orientation orientation);
-    Qt::Orientation Orientation() const { return orientation_; }
+    bool setOrientation(const Qt::Orientation orientation);
+    Qt::Orientation orientation() const { return orientation_; }
 
 Q_SIGNALS:
-    void ButtonClicked(const int id);
-
-protected:
-    virtual void mouseDoubleClickEvent(QMouseEvent *);
-    virtual void keyPressEvent(QKeyEvent *);
-    virtual void keyReleaseEvent(QKeyEvent *);
+    void buttonClicked(int id);
 
 private Q_SLOTS:
-    void OnClicked(const int id, bool check);
+    virtual void onItemActivated(ContentView *item, int);
+    void selectButton(const int id);
+    void activateButton(const int id);
 
 private:
-    void InitLayout();
-    void Clear();
-    void SetFocusNextPrevChild(bool next);
-    void ClickSelectedChild();
+    void clickSelectedChild();
 
 private:
-    QBoxLayout layout_;
     Qt::Orientation orientation_;
-    typedef std::vector<TabButton *> Buttons;
-    typedef Buttons::iterator ButtonIter;
-    Buttons buttons_;
 };
 
 };

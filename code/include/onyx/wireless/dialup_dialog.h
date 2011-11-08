@@ -7,6 +7,7 @@
 #include <QtGui/QtGui>
 #include <QHostInfo>
 #include "ap_item.h"
+#include "onyx/ui/catalog_view.h"
 
 using namespace sys;
 
@@ -43,17 +44,22 @@ private Q_SLOTS:
     void onPppConnectionChanged(const QString &, int);
     void showDNSResult(QHostInfo);
 
-    void onApnClicked(bool);
-    void onDisconnectClicked(bool);
+    void onDisconnectClicked(void);
+
+    void onItemActivated(CatalogView*, ContentView*, int);
 
     void onReport3GNetwork(const int signal, const int total, const int network);
     void showOffMessage();
 
+    void onDialogAccept();
+
 private:
     void createLayout();
     void clear();
+    void createAPNsButtons();
+    void createDisconnectButton();
+    void updateStatus(QString status);
 
-    void myShow(bool max = true);
     bool isConnecting() { return connecting_; }
     void setConnecting(bool c) { connecting_ = c; }
 
@@ -76,13 +82,15 @@ private:
     // OnyxLabel number_label_;
     // OnyxLineEdit number_edit_;
 
-    QVector<OnyxPushButton *> buttons_;
-    OnyxPushButton disconnect_button_;
-
     QFrame top_label_;
     OnyxLabel title_icon_label_;
     OnyxLabel title_text_label_;
     OnyxPushButton close_button_;
+   
+    ui::CatalogView APNS_buttons_;
+    ui::CatalogView disconnect_button_;
+    ODatas apns_buttons_datas_;
+    OData* selected_;
 
     SysStatus & sys_;
     QTimer timer_;

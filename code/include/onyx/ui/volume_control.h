@@ -46,6 +46,7 @@ Q_SIGNALS:
 private Q_SLOTS:
     void stopTimer();
     void onTimeout();
+    QRect rectForVolume(int index);
 
 public:
     QHBoxLayout        layout_;
@@ -56,7 +57,6 @@ public:
     int max_;
     int pressing_value_;
     QTimer timer_;
-    QMap<int, int>     map_;
 
     QLabel label_;
 };

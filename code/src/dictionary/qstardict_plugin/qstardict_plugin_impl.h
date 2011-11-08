@@ -25,6 +25,7 @@ public:
 
     virtual bool translate(const QString &word, QString& result);
     virtual bool similarWords(const QString &word, QStringList & result, const int offset, const int count);
+    virtual bool fuzzyTranslate(const QString &word, QString& result, QString &fuzzy_word);
 
 private:
     bool find(const QString & word, long & index);

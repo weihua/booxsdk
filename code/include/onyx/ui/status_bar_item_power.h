@@ -29,6 +29,8 @@ private:
     QImage & image();
     QString resourcePath();
 
+    static QString imagesPrefix();
+
 private:
     Images images_;
     int value_;

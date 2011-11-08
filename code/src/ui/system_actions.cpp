@@ -5,6 +5,7 @@
 #include "onyx/ui/system_actions.h"
 #include "onyx/screen/screen_proxy.h"
 #include "onyx/sys/sys_conf.h"
+#include "onyx/sys/platform.h"
 
 namespace ui
 {
@@ -30,6 +31,14 @@ void SystemActions::generateActions(const std::vector<int> & actions)
         all.push_back(ROTATE_SCREEN);
         all.push_back(SCREEN_UPDATE_TYPE);
         all.push_back(MUSIC);
+
+#ifdef BUILD_WITH_TFT
+        all.push_back(BACKLIGHT_BRIGHTNESS);
+#endif
+        if (sys::isIRTouch())
+        {
+            all.push_back(SYSTEM_VOLUME);
+        }
         all.push_back(RETURN_TO_LIBRARY);
     }
 
@@ -101,6 +110,17 @@ void SystemActions::generateActions(const std::vector<int> & actions)
                 }
                 break;
             }
+        case SYSTEM_VOLUME:
+            {
+                // system volume.
+                shared_ptr<QAction> volume(new QAction(exclusiveGroup()));
+                volume->setCheckable(true);
+                volume->setText(QCoreApplication::tr("Volume"));
+                volume->setIcon(QIcon(QPixmap(":/images/music.png")));
+                volume->setData(SYSTEM_VOLUME);
+                actions_.push_back(volume);
+                break;
+            }
         case RETURN_TO_LIBRARY:
             {
                 // Close document.
@@ -110,6 +130,16 @@ void SystemActions::generateActions(const std::vector<int> & actions)
                 close->setIcon(QIcon(QPixmap(":/images/return_to_library.png")));
                 close->setData(RETURN_TO_LIBRARY);
                 actions_.push_back(close);
+                break;
+            }
+        case BACKLIGHT_BRIGHTNESS:
+            {
+                shared_ptr<QAction> br(new QAction(exclusiveGroup()));
+                br->setCheckable(true);
+                br->setText(QCoreApplication::tr("Brightness"));
+                br->setIcon(QIcon(QPixmap(":/images/return_to_library.png")));
+                br->setData(BACKLIGHT_BRIGHTNESS);
+                actions_.push_back(br);
                 break;
             }
         }

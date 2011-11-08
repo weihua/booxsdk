@@ -14,6 +14,7 @@ namespace ui
 class DictWidget : public OnyxDialog
 {
     Q_OBJECT
+
 public:
     DictWidget(QWidget *parent, DictionaryManager & dict, tts::TTS *tts = 0);
     ~DictWidget();
@@ -22,6 +23,8 @@ public:
     bool ensureVisible(const QRectF & rect, bool update_parent = false);
     bool lookup(const QString &word);
 
+    bool isInRetrieveWordsMode();
+
 protected:
     virtual void keyReleaseEvent(QKeyEvent *);
     virtual void keyPressEvent(QKeyEvent *);
@@ -29,6 +32,13 @@ protected:
     void moveEvent(QMoveEvent *e);
     void resizeEvent(QResizeEvent *e);
     void hideEvent(QHideEvent * event);
+
+public:
+    struct FunctionDescription
+    {
+        const char * description;
+        int index;
+    };
 
 Q_SIGNALS:
     void keyReleaseSignal(int);
@@ -53,14 +63,25 @@ private:
     void changeInternalState(int);
     int  internalState() { return internal_state_; }
 
+    int getPreviousFocusButtonId(const int current_checked);
+    int getNextFocusButtonId(const int current_checked);
+    bool handleLeftRightKey(const int checked_id, const int key);
+    void changeDescription(const int button_id);
+    bool handleUpDownKey(QKeyEvent * ke);
+
+    void checkSelectedButton(bool clear_focus = true);
+
+    // for the result of dictionary look up
+    void formatResult(QString &result, QString &fuzzy_word);
+
 private Q_SLOTS:
     void onTimeout();
     void onItemClicked(const QModelIndex & index);
     void onDetailsClicked(bool);
-    void onLookupClicked(bool);
     void onWordListClicked(bool);
     void onDictListClicked(bool);
     void onRetrieveWordClicked(bool);
+    void onOpenDictionaryToolClicked(bool);
     void onCloseClicked();
     void moreSimilarWords(bool);
 
@@ -68,20 +89,23 @@ private:
     DictionaryManager&      dict_;
     tts::TTS *tts_;
 
-    QHBoxLayout   hbox_;
-    QVBoxLayout   vbox1_;
-    QVBoxLayout   vbox2_;
+    QVBoxLayout   big_vbox_;
+    QHBoxLayout   top_hbox_;
+    QVBoxLayout   content_vbox_;
 
-    OnyxPushButton dict_list_button_;
-    OnyxPushButton lookup_button_;
-    OnyxPushButton retrieve_word_button_;
-    OnyxPushButton word_list_button_;
-    OnyxPushButton details_button_;
-
-    OnyxTextBrowser  details_; ///< The lookup result.
-    OnyxTreeView list_widget_;
-
+    OnyxPushButton retrieve_words_button_;
+    OnyxPushButton explanation_button_;
+    OnyxPushButton similar_words_button_;
+    OnyxPushButton dictionaries_button_;
+    OnyxPushButton close_button_;
+//    OnyxPushButton open_dictionary_tool_button_;
     QButtonGroup    button_group_;
+
+    OnyxLabel func_description_label_;
+
+    OnyxTextBrowser  explanation_text_; ///< The lookup result.
+    OnyxTreeView similar_words_view_;
+
     QTextDocument   doc_;
     QString         word_;                  ///< Word currently queried.
     QStringList     similar_words_;
@@ -93,6 +117,11 @@ private:
 
     int internal_state_;
     bool update_parent_;
+
+private:
+    static const FunctionDescription DICT_FUNC_DESCRIPTION[];
+    static const int DESCRIPTION_COUNT;
+
 };
 
 };  // namespace ui

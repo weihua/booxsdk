@@ -9,7 +9,9 @@
 #endif
 #include "onyx/base/dbus.h"
 #include "onyx/base/device.h"
+#include "onyx/data/user_behavior.h"
 #include "wpa_connection.h"
+#include "wpa_connection_manager.h"
 
 namespace sys
 {
@@ -97,7 +99,9 @@ class SysStatus : public QObject
     bool isWpaSupplicantRunning();
     bool startWpaSupplicant(const QString & conf_file_path);
     bool stopWpaSupplicant();
-    WpaConnection & wpa_proxy(const QString & if_name = "eth0");
+
+    WpaConnection & wpa_proxy(const QString & if_name = "wlan0");
+    WpaConnectionManager & connectionManager();
 
     bool connect3g(const QString & chat_file, const QString & username, const QString & password);
     void disconnect3g();
@@ -133,10 +137,25 @@ class SysStatus : public QObject
     void startSingleShotHardwareTimer(const int seconds);
     void setDefaultHardwareTimerInterval();
 
+    void configKeyboard(unsigned int keys);
+    unsigned int keyboardConfiguration();
+
+    void setOfnThreshold(const int x, const int y);
+    bool ofnThreshold(int & x, int & y);
+
+    bool setBrightness(const unsigned char brightness);
+    unsigned char brightness();
+
+    void reportUserBehavior(const onyx::data::UserBehavior &behaviour);
+
+    bool enableMultiTouch(bool enable = true);
+    bool queryLedSignal();
+
     // The following signals must be the same with system manager.
     // Need a better way to sync them.
   signals:
     void mountTreeSignal(bool inserted, const QString &mount_point);
+    void mountTreeSignal2(bool inserted, const QString &mount_point, const QString & reason);
     void sdCardChangedSignal(bool insert);
     void sdioChangedSignal(bool on);
     void batterySignal(int value, int status);
@@ -179,10 +198,21 @@ class SysStatus : public QObject
     void report3GNetwork(const int signal, const int total, const int network);
 
     void hardwareTimerTimeout();
+    void lowBatterySignal();
+
+    void mouseLongPress(QPoint, QSize);
+    void multiTouchPressDetected(QRect, QRect);
+    void multiTouchReleaseDetected(QRect, QRect);
+    void ledSignal(const QByteArray & x, const QByteArray & y);
+
+    void configKeyboard();
+
+    void userBehaviorSignal(const QByteArray &data);
 
   private slots:
     void onBatteryChanged(int, int);
     void onMountTreeChanged(bool mounted, const QString &mount_point);
+    void onMountTreeChanged2(bool mounted, const QString &mount_point, const QString & reason);
     void onSdCardChanged(bool insert);
     void onSdioChanged(bool on);
     void onSystemIdle();
@@ -214,6 +244,16 @@ class SysStatus : public QObject
     void onReport3GNetwork(const int signal, const int total, const int network);
 
     void onHardwareTimerTimeout();
+    void onLowBatterySignal();
+
+    void onMouseLongPress(int, int, int, int);    
+    void onMultiTouchPressDetected(int, int, int, int, int, int, int, int);
+    void onMultiTouchReleaseDetected(int, int, int, int, int, int, int, int);
+    void onLedSignal(const QByteArray & x, const QByteArray & y);
+
+    void onConfigKeyboard();
+
+    void onUserBehaviorSignal(const QByteArray &data);
 
   private:
     SysStatus();
@@ -226,6 +266,7 @@ class SysStatus : public QObject
     bool flash_mounted_;
     bool system_busy_;
     scoped_ptr<WpaConnection> wpa_proxy_;
+    scoped_ptr<WpaConnectionManager> connection_manager_;
 };
 
 };  // namespace sys

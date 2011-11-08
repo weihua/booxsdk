@@ -1,12 +1,14 @@
 #include "onyx/screen/screen_proxy.h"
 #include "onyx/wireless/ap_conf_dialog.h"
-
+#include "onyx/screen/screen_update_watcher.h"
+#include "onyx/ui/keyboard_data.h"
+#include "onyx/ui/catalog_view.h"
 
 namespace ui
 {
 
 ApConfigDialog::ApConfigDialog(QWidget *parent, WifiProfile & profile)
-    : OnyxDialog(parent)
+    : OnyxDialog(parent, false)
     , form_layout_(0)
     , auth_hbox_(0)
     , enc_hbox_(0)
@@ -37,19 +39,25 @@ ApConfigDialog::ApConfigDialog(QWidget *parent, WifiProfile & profile)
     setFocusPolicy(Qt::NoFocus);
 
     updateTitle(tr("Wifi Configuration"));
+    initFocus();
 }
 
 ApConfigDialog::~ApConfigDialog(void)
 {
 }
 
+void ApConfigDialog::initFocus()
+{
+    keyboard_.initFocus();
+}
+
 void ApConfigDialog::createLayout()
 {
     // Title
-    title_icon_label_.setPixmap(QPixmap(":/images/dictionary_search.png"));
+    title_icon_label_.setPixmap(QPixmap(":/images/network_connection.png"));
     content_widget_.hide();
-    vbox_.setContentsMargins(SPACING * 4, SPACING * 4, SPACING * 4, SPACING * 4);
-    vbox_.setSpacing(SPACING * 4);
+    vbox_.setContentsMargins(0, 0, 0, 0);
+    vbox_.setSpacing(SPACING * 2);
     vbox_.addLayout(&form_layout_);
 
     Qt::Alignment align = static_cast<Qt::Alignment>(Qt::AlignHCenter | Qt::AlignVCenter);
@@ -81,11 +89,11 @@ void ApConfigDialog::createLayout()
     psk_hbox_.addWidget(&psk_edit_, 0, 0);
     psk_hbox_.addWidget(&clear_button_, 0, 1);
     psk_hbox_.addWidget(&ok_button_, 0, 2);
-    psk_edit_.setFixedHeight(WIDGET_HEIGHT);
+    psk_edit_.setFixedHeight(defaultItemHeight());
 
     // Buttons.
     ok_button_.useDefaultHeight();
-    show_plain_text_.setFixedHeight(WIDGET_HEIGHT);
+    show_plain_text_.setFixedHeight(defaultItemHeight());
     show_plain_text_.selectOnClicked(false);
     clear_button_.useDefaultHeight();
 
@@ -100,7 +108,7 @@ void ApConfigDialog::createLayout()
     connect(&ssid_edit_, SIGNAL(getFocus(OnyxLineEdit *)), this, SLOT(onSsidGetFocus(OnyxLineEdit *)));
     connect(&psk_edit_, SIGNAL(getFocus(OnyxLineEdit *)), this, SLOT(onPskGetFocus(OnyxLineEdit *)));
 
-    keyboard_.attachReceiver(this);
+    keyboard_.top()->setNeighbor(keyboard_.menu(), CatalogView::RECYCLE_DOWN);
     vbox_.addWidget(&keyboard_);
 
     // Setup connections.
@@ -158,6 +166,9 @@ void ApConfigDialog::onShowPlainTextClicked()
     {
         psk_edit_.setEchoMode(QLineEdit::Normal);
     }
+
+    update();
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC);
 }
 
 void ApConfigDialog::setPlainProfile(WifiProfile & profile,
@@ -264,13 +275,11 @@ void ApConfigDialog::onOKClicked()
     }
 
     // Update profile.
-    shadows_.show(false);
     done(QDialog::Accepted);
 }
 
 void ApConfigDialog::onCloseClicked()
 {
-    shadows_.show(false);
     done(QDialog::Rejected);
 }
 
@@ -286,6 +295,9 @@ void ApConfigDialog::onPlainButtonClicked()
     enc_ccmp_button_.setEnabled(false);
     psk_edit_.setText("");
     psk_edit_.setEnabled(false);
+
+    update();
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
 }
 
 void ApConfigDialog::onWepButtonClicked()
@@ -293,6 +305,9 @@ void ApConfigDialog::onWepButtonClicked()
     enc_tkip_button_.setEnabled(false);
     enc_ccmp_button_.setEnabled(false);
     psk_edit_.setEnabled(true);
+
+    update();
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
 }
 
 void ApConfigDialog::onWpaButtonClicked()
@@ -308,6 +323,9 @@ void ApConfigDialog::onWpaButtonClicked()
     {
         enc_ccmp_button_.setChecked(true);
     }
+
+    update();
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
 }
 
 void ApConfigDialog::onWpa2ButtonClicked()
@@ -323,16 +341,25 @@ void ApConfigDialog::onWpa2ButtonClicked()
     {
         enc_ccmp_button_.setChecked(true);
     }
+
+    update();
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
 }
 
 void ApConfigDialog::onSsidGetFocus(OnyxLineEdit *edit)
 {
-    keyboard_.attachReceiver(edit);
+    /*
+     * Jim: do not use keyboard_.attachReceiver(), since we need the event
+     * posted from keyboard directly received by this class.
+     * And the keyPressEvent() method of this class has specific code for
+     * screen update.
+     */
+    setReceiver(edit);
 }
 
 void ApConfigDialog::onPskGetFocus(OnyxLineEdit *edit)
 {
-    keyboard_.attachReceiver(edit);
+    setReceiver(edit);
 }
 
 /// This function is called by parent widget to display
@@ -344,11 +371,12 @@ int ApConfigDialog::popup()
     // By default, set the password edit as receiver.
     setReceiver(&psk_edit_);
 
-    shadows_.show(true);
     if (isHidden())
     {
         show();
     }
+    onyx::screen::watcher().addWatcher(this);
+
     if (profile_.isWpa() || profile_.isWpa2())
     {
         psk_edit_.setText(profile_.psk());
@@ -358,25 +386,22 @@ int ApConfigDialog::popup()
         psk_edit_.setText(profile_.wepKey1());
     }
 
-    QWidget *p = parentWidget();
-    if (p == 0)
-    {
-        p = QApplication::desktop();
-    }
+    QWidget *p = ui::safeParentWidget(parentWidget());
     QRect parent_rect = p->rect();
-    int border = Shadows::PIXELS;
-    int width = parent_rect.width() - border * 2;
+    int width = parent_rect.width();
     if (size().width() != width)
     {
         resize(width, height());
     }
 
-    int x = Shadows::PIXELS;
-    int y = p->height() - height() - 2 * Shadows::PIXELS;
+    int x = 0;
+    int y = p->height() - height();
     move(x, y);
 
-    onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC, false);
-    return exec();
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
+    bool ret = exec();
+    onyx::screen::watcher().removeWatcher(this);
+    return ret;
 }
 
 void ApConfigDialog::mouseMoveEvent(QMouseEvent *me)
@@ -407,37 +432,24 @@ void ApConfigDialog::keyReleaseEvent(QKeyEvent *ke)
 /// The keyPressEvent could be sent from virtual keyboard.
 void ApConfigDialog::keyPressEvent(QKeyEvent * ke)
 {
-    ke->accept();
-    if (ke->key() == Qt::Key_Enter)
+    int key = ke->key();
+    if (Qt::Key_Up != key
+            && Qt::Key_Down != key
+            && Qt::Key_Left != key
+            && Qt::Key_Right != key
+            && Qt::Key_Return != key
+            && Qt::Key_F23 != key)
     {
-        return;
-    }
-    else if (ke->key() == Qt::Key_Shift || ke->key() == Qt::Key_CapsLock)
-    {
-        return;
-    }
+        if (Qt::Key_Enter == key && KeyboardData::ENTER_TEXT != ke->text())
+        {
+            return;
+        }
 
-    // Disable the parent widget to update screen.
-    QKeyEvent * key_event = new QKeyEvent(ke->type(), ke->key(), ke->modifiers(), ke->text());
-    QApplication::postEvent(receiver(), key_event);
-
-    // Can not use flush here, could be caused by the keyboard event.
-    onyx::screen::instance().enableUpdate(false);
-    QApplication::processEvents();
-    onyx::screen::instance().enableUpdate(true);
-    onyx::screen::instance().updateWidget(this, onyx::screen::ScreenProxy::DW);
-}
-
-bool ApConfigDialog::event(QEvent * event)
-{
-    bool ret = OnyxDialog::event(event);
-    if (event->type() == QEvent::UpdateRequest && onyx::screen::instance().isUpdateEnabled())
-    {
-        onyx::screen::instance().sync(&shadows_.hor_shadow());
-        onyx::screen::instance().sync(&shadows_.ver_shadow());
-        onyx::screen::instance().updateWidget(this, onyx::screen::ScreenProxy::GU);
+        QApplication::sendEvent(receiver(), ke);
+        update();
+        onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::DW,
+                onyx::screen::ScreenCommand::WAIT_NONE);
     }
-    return ret;
 }
 
 void ApConfigDialog::moveEvent(QMoveEvent *e)
@@ -452,7 +464,7 @@ void ApConfigDialog::resizeEvent(QResizeEvent *e)
 
 void ApConfigDialog::onTimeout()
 {
-    onyx::screen::instance().updateScreen(onyx::screen::ScreenProxy::GU);
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU);
 }
 
 }   // namespace ui

@@ -67,6 +67,7 @@ public:
 private Q_SLOTS:
     void onSketchTriggered(bool checked);
     void onEraseTriggered(bool checked);
+    void onMergeTriggered(bool checked);
     void onAddAnnotationTriggered(bool checked);
     void onDeleteAnnotationTriggered(bool checked);
     void onDisplayAnnotationsTriggered(bool checked);

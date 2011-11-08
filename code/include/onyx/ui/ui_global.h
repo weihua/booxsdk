@@ -87,7 +87,9 @@ enum ReadingToolsType
     CLEAR_COOKIES,
     AUTO_LOAD_IMAGE,
     CLOCK_TOOL,
-    UNDEFINED_TOOL
+    COMIC_MODE,
+    IMAGE_EMBOLDEN_TOOL,
+    UNDEFINED_TOOL,
 };
 
 enum NetworkType
@@ -124,6 +126,7 @@ enum SketchMode
 {
     MODE_SKETCHING = 10,
     MODE_ERASING,
+    MODE_MERGING,
     MODE_UNKNOWN
 };
 
@@ -167,6 +170,8 @@ enum SystemAction
     ABOUT_INFO,
     FULL_SCREEN,
     EXIT_FULL_SCREEN,
+    BACKLIGHT_BRIGHTNESS,
+    SYSTEM_VOLUME,
 };
 
 enum AnnotationMode
@@ -218,6 +223,7 @@ enum FunctionID
     ID_WAIT_DISPLAY_SEARCH_RES, // Not Used
     ID_SKETCHING,
     ID_ERASING,
+    ID_COMIC_MODE,
     ID_UNKNOWN
 };
 

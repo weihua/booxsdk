@@ -1,6 +1,7 @@
 
 #include "onyx/ui/clock_dialog.h"
 #include "onyx/screen/screen_proxy.h"
+#include <QTimer>
 
 namespace ui
 {
@@ -130,6 +131,11 @@ FullScreenClock::FullScreenClock(QWidget *parent)
     setModal(true);
     connect(&sys::SysStatus::instance(), SIGNAL(hardwareTimerTimeout()), this, SLOT(updateFSClock()));
     sys::SysStatus::instance().startSingleShotHardwareTimer(60 - QTime::currentTime().second());
+
+    //update clock per minute in connecting USB
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateFSClock()));
+    timer->start(60000);
 }
 
 FullScreenClock::~FullScreenClock(void)
@@ -192,7 +198,6 @@ void FullScreenClock::keyPressEvent(QKeyEvent *ke)
     ke->accept();
 }
 
-
 void FullScreenClock::keyReleaseEvent(QKeyEvent *ke)
 {
     // Check the current selected type.
@@ -210,10 +215,21 @@ void FullScreenClock::keyReleaseEvent(QKeyEvent *ke)
             onReturn();
             break;
         case Qt::Key_Escape:
+        case Qt::Key_Home:
             onCloseClicked();
             break;
     }
 }
+
+void FullScreenClock::mousePressEvent(QMouseEvent *event)
+{
+}
+
+void FullScreenClock::mouseReleaseEvent(QMouseEvent *event)
+{
+    onCloseClicked();
+}
+
 
 bool FullScreenClock::event(QEvent *e)
 {

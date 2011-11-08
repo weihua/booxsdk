@@ -286,6 +286,7 @@ void Calendar::keyReleaseEvent(QKeyEvent *ke)
             onReturn();
             break;
         case Qt::Key_Escape:
+        case Qt::Key_Home:
             reject();
             break;
     }

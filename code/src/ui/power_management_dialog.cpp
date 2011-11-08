@@ -2,55 +2,65 @@
 #include "onyx/screen/screen_proxy.h"
 #include "onyx/ui/power_management_dialog.h"
 #include "onyx/ui/keyboard_navigator.h"
+#include "onyx/data/data_tags.h"
+#include "onyx/screen/screen_update_watcher.h"
+#include "onyx/sys/sys_status.h"
 
 namespace ui
 {
 
 static const char* SCOPE = "pm";
-struct Interval
+static const int ITEM_HEIGHT = 80;
+static const QString TITLE_INDEX = "title_index";
+
+struct ItemStruct
 {
     const char * title;
-    int seconds;
+    int standby_seconds;
+    int shutdown_seconds;
 };
 
-/// Define all standby items.
-static const Interval STANDBY_ITEMS[] =
+/// Define all display items.
+static const ItemStruct DISPLAY_ITEMS[] =
 {
-    {QT_TRANSLATE_NOOP("pm","3 Minutes"), 180 * 1000},
-    {QT_TRANSLATE_NOOP("pm","15 Minutes"), 900 * 1000},
-    {QT_TRANSLATE_NOOP("pm","30 Minutes"), 1800 * 1000},
-    {QT_TRANSLATE_NOOP("pm","Never"), 0},
+    {QT_TRANSLATE_NOOP("pm","Never"), 0, 0},
+    {QT_TRANSLATE_NOOP("pm","3 minutes to standby"), 180 * 1000, 0},
+    {QT_TRANSLATE_NOOP("pm","5 minutes to shutdown"), 0, 300 * 1000},
+    {QT_TRANSLATE_NOOP("pm","10 minutes to shutdown"), 0, 600 * 1000},
+    {QT_TRANSLATE_NOOP("pm","3 minutes to standby\n5 minutes to shutdown"), 180 * 1000, 300 * 1000},
+    {QT_TRANSLATE_NOOP("pm","10 minutes to standby\n15 minutes to shutdown"), 600 * 1000, 900 * 1000},
 };
-static const int STANDBY_COUNT = sizeof(STANDBY_ITEMS) / sizeof(STANDBY_ITEMS[0]);
 
-/// Define all shutdown items.
-static const Interval SHUTDOWN_ITEMS[] =
+static const int DISPLAY_COUNT = sizeof(DISPLAY_ITEMS) / sizeof(DISPLAY_ITEMS[0]);
+
+static bool isPmExclusive()
 {
-    {QT_TRANSLATE_NOOP("pm","5 Minutes"), 300 * 1000},
-    {QT_TRANSLATE_NOOP("pm","15 Minutes"), 900 * 1000},
-    {QT_TRANSLATE_NOOP("pm","30 Minutes"), 1800 * 1000},
-    {QT_TRANSLATE_NOOP("pm","Never"), 0},
-};
-static const int SHUTDOWN_COUNT = sizeof(SHUTDOWN_ITEMS) / sizeof(SHUTDOWN_ITEMS[0]);
+    return (qgetenv("PM_INCLUSIVE").toInt() <= 0);
+}
 
 PowerManagementDialog::PowerManagementDialog(QWidget *parent, SysStatus & ref)
     : OnyxDialog(parent)
     , status_(ref)
     , ver_layout_(&content_widget_)
-    , standby_layout_(0)
-    , standby_group_(0)
-    , shutdown_layout_(0)
-    , shutdown_group_(0)
+    , battery_power_(0)
     , hor_layout_(0)
-    , ok_(QApplication::tr("OK"), 0)
     , sys_standby_interval_(0)
     , standby_interval_(0)
     , sys_shutdown_interval_(0)
     , shutdown_interval_(0)
 {
     setModal(true);
-    resize(400, 540);
+    if(isPmExclusive())
+    {
+        resize(400, 360);
+    }
+    else
+    {
+        resize(400, 500);
+    }
+    interval_selected_ = NULL;
     createLayout();
+    onyx::screen::watcher().addWatcher(this);
 }
 
 PowerManagementDialog::~PowerManagementDialog(void)
@@ -61,6 +71,16 @@ int PowerManagementDialog::exec()
 {
     shadows_.show(true);
     show();
+    if(interval_selected_)
+    {
+        buttons_.setFocus();
+        buttons_.setFocusTo(0, interval_selected_->value(TITLE_INDEX).toInt());
+    }
+    else
+    {
+        ok_.setFocus();
+        ok_.setFocusTo(0, 0);
+    }
     onyx::screen::instance().flush();
     onyx::screen::instance().updateWidgetRegion(
         0,
@@ -78,7 +98,6 @@ void PowerManagementDialog::keyPressEvent(QKeyEvent *ke)
 
 void PowerManagementDialog::keyReleaseEvent(QKeyEvent *ke)
 {
-    QWidget *wnd = 0;
     ke->accept();
     switch (ke->key())
     {
@@ -88,16 +107,12 @@ void PowerManagementDialog::keyReleaseEvent(QKeyEvent *ke)
     case Qt::Key_Down:
     case Qt::Key_PageDown:
     case Qt::Key_PageUp:
-        wnd = ui::moveFocus(&content_widget_, ke->key());
-        if (wnd)
-        {
-            wnd->setFocus();
-        }
         break;
     case Qt::Key_Return:
         break;
     case Qt::Key_Escape:
         reject();
+        onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC);
         break;
     }
 }
@@ -120,119 +135,92 @@ void PowerManagementDialog::createLayout()
     ver_layout_.setContentsMargins(SPACING, 0, SPACING, 0);
     ver_layout_.addSpacing(10);
 
-    // Standby layout
-    // Label.
-    standby_image_label_.setPixmap(QPixmap(":/images/standby.png"));
-    standby_text_label_.setText(QApplication::tr("Time to standby"));
-    standby_hor_layout_.setContentsMargins(10, 0, 0, 0);
-    standby_hor_layout_.addWidget(&standby_image_label_);
-    standby_hor_layout_.addWidget(&standby_text_label_);
-    standby_hor_layout_.addStretch(0);
-    standby_layout_.addLayout(&standby_hor_layout_);
-    standby_layout_.addStretch(0);
+    QString t(tr("Battery remaining %1%"));
+    int left = 100, status = 0;
+    status_.batteryStatus(left, status);
+    t = t.arg(left);
+    battery_power_.setText(t);
+    ver_layout_.addWidget(&battery_power_);
 
-    OnyxCheckBox * btn = 0;
-    int index = 0;
-    bool set_intial_focus = true;
-    for(int row = 0; row < STANDBY_COUNT; ++row, ++index)
+    // Create display items
+    buttons_.setSubItemType(CheckBoxView::type());
+    buttons_.setMargin(2, 2, 2, 2);
+    buttons_.setPreferItemSize(QSize(0, ITEM_HEIGHT));
+    ODatas d;
+
+    const int display_cout = isPmExclusive() ? 4: DISPLAY_COUNT;
+    for (int row = 0; row < display_cout; ++row)
     {
-        btn = new OnyxCheckBox(qApp->translate(SCOPE, STANDBY_ITEMS[index].title), 0);
-        standby_group_.addButton(btn);
-        standby_buttons_.push_back(btn);
-        if (sys_standby_interval_ == STANDBY_ITEMS[index].seconds)
+        OData * item = new OData;
+        item->insert(TAG_TITLE, qApp->translate(SCOPE, DISPLAY_ITEMS[row].title));
+        item->insert(TITLE_INDEX, row);
+        if ( (sys_standby_interval_ == DISPLAY_ITEMS[row].standby_seconds) &&
+             (sys_shutdown_interval_ == DISPLAY_ITEMS[row].shutdown_seconds)
+           )
         {
-            btn->setFocus();
-            btn->setChecked(true);
-            set_intial_focus = false;
+            interval_selected_ = item;
+            item->insert(TAG_CHECKED, true);
         }
-        connect(btn, SIGNAL(clicked(bool)), this, SLOT(onStandbyButtonChanged(bool)), Qt::QueuedConnection);
-        standby_layout_.addWidget(btn);
+        d.push_back(item);
     }
 
-    if (set_intial_focus)
-    {
-        standby_buttons_[0]->setFocus();
-    }
+    buttons_.setData(d, true);
+    buttons_.setMinimumHeight( (ITEM_HEIGHT+2)*d.size());
+    buttons_.setFixedGrid(d.size(), 1);
+    buttons_.setSpacing(3);
+    QObject::connect(&buttons_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)),
+                     this, SLOT(onButtonChanged(CatalogView *, ContentView *, int)), Qt::QueuedConnection);
 
-    ver_layout_.addLayout(&standby_layout_);
+    ver_layout_.addWidget(&buttons_);
 
-    // Shutdown
-
-    // Label
-    shutdown_image_label_.setPixmap(QPixmap(":/images/shutdown.png"));
-    shutdown_text_label_.setText(QApplication::tr("Time to shutdown"));
-    shutdown_hor_layout_.setContentsMargins(10, 0, 0, 0);
-    shutdown_hor_layout_.addWidget(&shutdown_image_label_);
-    shutdown_hor_layout_.addWidget(&shutdown_text_label_);
-    shutdown_hor_layout_.addStretch(0);
-    shutdown_layout_.addLayout(&shutdown_hor_layout_);
-    shutdown_layout_.addStretch(0);
-
-    index = 0;
-    for(int row = 0; row < SHUTDOWN_COUNT; ++row, ++index)
-    {
-        btn = new OnyxCheckBox(qApp->translate(SCOPE, SHUTDOWN_ITEMS[index].title), 0);
-        shutdown_group_.addButton(btn);
-        shutdown_buttons_.push_back(btn);
-        if (sys_shutdown_interval_ == SHUTDOWN_ITEMS[index].seconds)
-        {
-            btn->setFocus();
-            btn->setChecked(true);
-        }
-        connect(btn, SIGNAL(clicked(bool)), this, SLOT(onShutdownButtonChanged(bool)), Qt::QueuedConnection);
-        shutdown_layout_.addWidget(btn);
-    }
-    ver_layout_.addLayout(&shutdown_layout_);
 
     // OK cancel buttons.
-    connect(&ok_, SIGNAL(clicked(bool)), this, SLOT(onOkClicked(bool)));
+    ok_.setSubItemType(ui::CoverView::type());
+    ok_.setPreferItemSize(QSize(100, 60));
+    ODatas d2;
 
-    ok_.useDefaultHeight();
-    ok_.setCheckable(false);
+    OData * item = new OData;
+    item->insert(TAG_TITLE, tr("OK"));
+    item->insert(TITLE_INDEX, 1);
+    d2.push_back(item);
+
+
+    ok_.setData(d2, true);
+    ok_.setMinimumHeight( 60 );
+    ok_.setMinimumWidth(100);
     ok_.setFocusPolicy(Qt::TabFocus);
+    ok_.setNeighbor(&buttons_, CatalogView::UP);
+    connect(&ok_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)), this, SLOT(onOkClicked()));
+
     hor_layout_.addStretch(0);
     hor_layout_.addWidget(&ok_);
 
+
     ver_layout_.addStretch(0);
     ver_layout_.addLayout(&hor_layout_);
+    ver_layout_.addSpacing(8);
 }
 
-void PowerManagementDialog::onStandbyButtonChanged(bool state)
+void PowerManagementDialog::onButtonChanged(CatalogView *catalog, ContentView *item, int user_data)
 {
-    int count = static_cast<int>(standby_buttons_.size());
-    int i = 0;
-    for(; i < count; ++i)
+    if (!item || !item->data())
     {
-        if (standby_buttons_[i]->isChecked())
-        {
-            standby_interval_ = STANDBY_ITEMS[i].seconds;
-            break;
-        }
+        return;
     }
 
-    // Never shutdown.
-    int j = shutdown_buttons_.size() - 1;
-    shutdown_buttons_[j]->setChecked(true);
-    shutdown_interval_ = SHUTDOWN_ITEMS[j].seconds;
-}
-
-void PowerManagementDialog::onShutdownButtonChanged(bool state)
-{
-    int count = static_cast<int>(shutdown_buttons_.size());
-    int i = 0;
-    for(; i < count; ++i)
+    OData *selected = item->data();
+    if(interval_selected_)
     {
-        if (shutdown_buttons_[i]->isChecked())
-        {
-            shutdown_interval_ = SHUTDOWN_ITEMS[i].seconds;
-            break;
-        }
+        interval_selected_->insert(TAG_CHECKED, false);
     }
+    selected->insert(TAG_CHECKED, true);
+    interval_selected_ = selected;
 
-    // Never deep sleep.
-    int j = standby_buttons_.size() - 1;
-    standby_buttons_[j]->setChecked(true);
-    standby_interval_ = STANDBY_ITEMS[j].seconds;
+    catalog->update();
+    onyx::screen::watcher().enqueue(catalog, onyx::screen::ScreenProxy::GU);
+    int i = interval_selected_->value(TITLE_INDEX).toInt();
+    standby_interval_ = DISPLAY_ITEMS[i].standby_seconds;
+    shutdown_interval_ = DISPLAY_ITEMS[i].shutdown_seconds;
 }
 
 bool PowerManagementDialog::event(QEvent* qe)
@@ -241,26 +229,48 @@ bool PowerManagementDialog::event(QEvent* qe)
     if (qe->type() == QEvent::UpdateRequest
             && onyx::screen::instance().isUpdateEnabled())
     {
-        // onyx::screen::instance().sync(&shadows_.hor_shadow());
-        // onyx::screen::instance().sync(&shadows_.ver_shadow());
-        onyx::screen::instance().updateWidget(this, onyx::screen::ScreenProxy::DW);
+         onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::DW);
     }
     return ret;
 }
 
-void PowerManagementDialog::onOkClicked(bool)
+void PowerManagementDialog::setSuspendInterval()
 {
-    if (standby_interval_ != sys_standby_interval_)
+    if (sys_standby_interval_ != standby_interval_)
     {
         status_.setSuspendInterval(standby_interval_);
     }
+}
 
-    if (shutdown_interval_ != sys_shutdown_interval_ )
+void PowerManagementDialog::setShutdownInterval()
+{
+    if (sys_shutdown_interval_ != shutdown_interval_)
     {
         status_.setShutdownInterval(shutdown_interval_);
     }
+}
+
+void PowerManagementDialog::onOkClicked()
+{
+    bool set_standby_first = true;
+    if (0 != standby_interval_)
+    {
+        set_standby_first = false;
+    }
+
+    if (set_standby_first)
+    {
+        setSuspendInterval();
+        setShutdownInterval();
+    }
+    else
+    {
+        setShutdownInterval();
+        setSuspendInterval();
+    }
 
     accept();
+    onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC);
 }
 
 }   // namespace ui

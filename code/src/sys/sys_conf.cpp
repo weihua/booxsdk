@@ -61,6 +61,11 @@ bool SystemConfig::musicService(Service & service)
     return ServiceConfig::musicService(*database_, service);
 }
 
+bool SystemConfig::mediaService(Service &service)
+{
+    return ServiceConfig::mediaService(*database_, service);
+}
+
 bool SystemConfig::noteService(Service &service)
 {
     return ServiceConfig::noteService(*database_, service);
@@ -101,6 +106,11 @@ bool SystemConfig::rssService(Service &service)
     return ServiceConfig::rssService(*database_, service);
 }
 
+bool SystemConfig::news_feeds_Service(Service &service)
+{
+    return ServiceConfig::news_feeds_Service(*database_, service);
+}
+
 bool SystemConfig::sudokuService(Service &service)
 {
     return ServiceConfig::sudokuService(*database_, service);
@@ -119,6 +129,16 @@ bool SystemConfig::hasOfficeViewer()
 bool SystemConfig::onyxReaderService(Service & service)
 {
     return ServiceConfig::onyxReaderService(*database_, service);
+}
+
+bool SystemConfig::coolReaderService(Service & service)
+{
+    return ServiceConfig::coolReaderService(*database_, service);
+}
+
+bool SystemConfig::htmlReaderService(Service & service)
+{
+    return ServiceConfig::htmlReaderService(*database_, service);
 }
 
 bool SystemConfig::nabooReaderService(Service & service)
@@ -254,6 +274,11 @@ void SystemConfig::setDate(int year, int month, int day,
 bool SystemConfig::isMusicPlayerAvailable()
 {
     return system("which music_player") == 0;
+}
+
+bool SystemConfig::isMediaPlayerAvailable()
+{
+    return system("which onyx_media_player") == 0;
 }
 
 bool SystemConfig::isUpdateSplashEnabled()
@@ -543,6 +568,11 @@ void SystemConfig::setDirection(int conf)
 int SystemConfig::distance()
 {
     return PageTurningConfig::distance();
+}
+
+int SystemConfig::whichArea(const QPoint & old_position, const QPoint & new_position)
+{
+    return PageTurningConfig::whichArea(old_position, new_position);
 }
 
 /// Return the default download folder. Ensure the folder exist.

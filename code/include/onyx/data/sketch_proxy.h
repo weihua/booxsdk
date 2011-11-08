@@ -5,6 +5,8 @@
 #include "onyx/data/sketch_graphic_context.h"
 #include "onyx/data/sketch_document.h"
 
+#include "onyx/touch/touch_listener.h"
+
 namespace sketch
 {
 
@@ -82,6 +84,7 @@ public Q_SLOTS:
 private Q_SLOTS:
     void onUpdateScreenTimeout();
     void onForceDriverDrawLines();
+    void onReceivedTouchData(TouchData & data);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -142,6 +145,8 @@ private:
     Documents       activated_docs_;     // activated documents
     QWidget         *attached_widget_;   // attached widget
 
+    TouchEventListener raw_event_listener_; // raw touch event listener
+
     SketchHandlers  sketch_handlers_;    // sketch/erase handlers
     SketchStrokePtr stroke_;             // current stroke
     SketchDocPtr    last_doc_;           // last document
@@ -157,6 +162,7 @@ private:
     bool            need_update_once_;   // need update the screen of viewer at once
     SketchMode      mode_;               // current sketch mode
     SketchStatus    status_;             // current sketch status
+    int             pressure_of_last_point_; // pressure data of last touch point
 };
 
 };

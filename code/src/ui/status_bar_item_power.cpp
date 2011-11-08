@@ -7,7 +7,7 @@ namespace ui
 static int index(int value)
 {
     int key = value / 20 + 1;
-    if (key < 0 || value <= 0)
+    if (key < 0 || value <= 10)
     {
         key = 0;
     }
@@ -99,19 +99,30 @@ QImage & StatusBarItemBattery::image()
 
 QString StatusBarItemBattery::resourcePath()
 {
+    QString image_path = imagesPrefix();
+
     if (status_ & BATTERY_STATUS_CHARGING)
     {
-        QString str(":/images/battery_charge_%1.png");
-        str = str.arg(index(value_));
-        return str;
+        image_path.append("battery_charge_%1.png");
+        image_path = image_path.arg(index(value_));
+        return image_path;
     }
     else
     {
-        QString str(":/images/battery_%1.png");
-        str = str.arg(index(value_));
-        return str;
+        image_path.append("battery_%1.png");
+        image_path = image_path.arg(index(value_));
+        return image_path;
     }
     return QString();
+}
+
+QString StatusBarItemBattery::imagesPrefix()
+{
+    if (qgetenv("ENABLE_EXTERNAL_UI_IMAGES").toInt() > 0)
+    {
+        return "/usr/share/ui/images/";
+    }
+    return ":/images/";
 }
 
 }

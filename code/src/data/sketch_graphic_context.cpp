@@ -1,3 +1,10 @@
+#ifdef BUILD_FOR_ARM
+#include <QtGui/qscreen_qws.h>
+#include <QtGui/qwsdisplay_qws.h>
+#include <QtGui/qwsdisplay_qws.h>
+#include <qwindowsystem_qws.h>
+#endif
+
 #include <algorithm>
 #include <math.h>
 
@@ -5,8 +12,6 @@
 
 namespace sketch
 {
-
-using namespace std;
 
 int getPenColor(const SketchColor c)
 {
@@ -70,13 +75,21 @@ int getPointSize(const SketchShape s, const ZoomFactor z)
 GraphicContext::GraphicContext(QWidget *w,
                                RotateDegree co,
                                RotateDegree wo)
-    : drawing_area_(w)
-    , content_orient_(co)
-    , widget_orient_(wo)
-    , color_(SKETCH_COLOR_BLACK)
-    , shape_(SKETCH_SHAPE_3)
-    , img_(0)
+: drawing_area_(w)
+, content_orient_(co)
+, widget_orient_(wo)
+, color_(SKETCH_COLOR_BLACK)
+, shape_(SKETCH_SHAPE_3)
+, img_(0)
 {
+
+#ifndef ENABLE_EINK_SCREEN
+#ifdef  BUILD_FOR_ARM
+    direct_painter_= new QDirectPainter(0, QDirectPainter::Reserved);
+    screen_image_ = new QImage(direct_painter_->frameBuffer(), direct_painter_->screenWidth(), direct_painter_->screenHeight(), direct_painter_->linestep(), QScreen::instance()->pixelFormat());
+#endif
+#endif
+
 }
 
 GraphicContext::~GraphicContext()
@@ -85,6 +98,12 @@ GraphicContext::~GraphicContext()
     {
         delete [] img_;
     }
+}
+
+QRect getDrawingArea(const QPoint & p1, const QPoint & p2, int point_size)
+{
+    int rad = (point_size / 2) + 2;
+    return QRect(p1, p2).normalized().adjusted(-rad, -rad, +rad, +rad);
 }
 
 void GraphicContext::fastDrawLine(const QPoint & p1,
@@ -97,13 +116,50 @@ void GraphicContext::fastDrawLine(const QPoint & p1,
     // Fast draw line
     onyx::screen::instance().drawLine(p1.x(), p1.y(), p2.x(), p2.y(), pen_color, point_size);
 #ifndef ENABLE_EINK_SCREEN
-    QPainter painter(drawing_area_);
-    drawLine(p1, p2, ctx, painter);
+#ifdef  BUILD_FOR_ARM
+    direct_painter_->startPainting();
+    QPainter painter(screen_image_);
+    painter.drawLine(p1.x(), p1.y(), p2.x(), p2.y());
+    direct_painter_->endPainting();
+#else
+    drawing_area_->update(getDrawingArea(p1, p2, point_size));
 #endif
+#endif
+}
+
+QRect getDrawingArea(QVector<QPoint> & points, int point_size)
+{
+    QRect area;
+    if (points.empty())
+    {
+        return area;
+    }
+
+    QPoint p1 = points.first();
+    QPoint p2 = p1;
+    area = QRect(p1, p2);
+    if (points.size() > 1)
+    {
+        QVector<QPoint>::iterator iter = points.begin();
+        iter++;
+        for (; iter != points.end(); ++iter)
+        {
+            p2 = *iter;
+            area = area.united(QRect(p1, p2).normalized());
+            p1 = p2;
+        }
+    }
+    int rad = (point_size / 2) + 2;
+    return area.adjusted(-rad, -rad, +rad, +rad);
 }
 
 void GraphicContext::fastDrawLines(QVector<QPoint> & points, const SketchContext & ctx)
 {
+    if (points.empty())
+    {
+        return;
+    }
+
     int pen_color  = getPenColor(ctx.color_);
     int point_size = getPointSize(ctx.shape_, ctx.zoom_);
 
@@ -111,15 +167,30 @@ void GraphicContext::fastDrawLines(QVector<QPoint> & points, const SketchContext
     onyx::screen::instance().drawLines(points.data(), points.size(), pen_color, point_size);
 
 #ifndef ENABLE_EINK_SCREEN
-    QPainter painter(drawing_area_);
-    QPoint p1, p2;
-    for (int i = 0; i < points.size() - 1; ++i)
-    {
-        p1 = points[i];
-        p2 = points[i + 1];
-        drawLine(p1, p2, ctx, painter);
-    }
+#ifdef  BUILD_FOR_ARM
+    direct_painter_->startPainting();
 
+    // draw lines
+    QPainter painter(screen_image_);
+    QPoint pos1, pos2;
+    int idx = 0;
+    pos1 = points[0];
+    idx++;
+    while (idx < points.size())
+    {
+        pos2 = points[idx];
+        drawLine(pos1, pos2, ctx, painter);
+        idx++;
+        pos1 = pos2;
+    }
+    if (points.size() <= 1)
+    {
+        drawLine(pos1, pos1, ctx, painter);
+    }
+    direct_painter_->endPainting();
+#else
+    drawing_area_->update(getDrawingArea(points, point_size));
+#endif
 #endif
 }
 
@@ -148,8 +219,8 @@ void GraphicContext::drawLine(const QPoint & p1,
     bool is_steep = abs(py2 - py1) > abs(px2 - px1);
     if (is_steep)
     {
-        swap(px1, py1);
-        swap(px2, py2);
+        std::swap(px1, py1);
+        std::swap(px2, py2);
     }
 
     // setup line draw
@@ -201,12 +272,6 @@ void GraphicContext::drawLine(const QPoint & p1,
             painter.fillRect(x, y, point_size, point_size, brush);
         }
     }
-
-#ifndef ENABLE_EINK_SCREEN
-    assert(drawing_area_ != 0);
-    drawing_area_->update(QRect(p1, p2).normalized()
-                                       .adjusted(-rad, -rad, +rad, +rad));
-#endif
 }
 
 void GraphicContext::updateWidget(const QRect & area)

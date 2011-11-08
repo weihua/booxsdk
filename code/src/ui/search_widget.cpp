@@ -3,55 +3,14 @@
 #include "onyx/ui/keyboard_navigator.h"
 #include "onyx/ui/search_widget.h"
 #include "onyx/ui/keyboard_key.h"
+#include "onyx/ui/ui_utils.h"
 
-BaseSearchContext::BaseSearchContext(void)
-    : pattern_()
-    , forward_(true)
-    , case_sensitive_(false)
-    , match_whole_word_(false)
-    , stop_(false)
-    , user_data_(0)
-{
-}
-
-BaseSearchContext::~BaseSearchContext(void)
-{
-}
-
-void BaseSearchContext::reset()
-{
-    pattern_.clear();
-    forward_ = true;
-    case_sensitive_ = false;
-    match_whole_word_ = false;
-    stop_ = false;
-}
-
-void BaseSearchContext::setPattern(const QString &pattern)
-{
-    pattern_ = pattern;
-}
-
-void BaseSearchContext::setForward(bool forward)
-{
-    forward_ = forward;
-}
-
-void BaseSearchContext::setCaseSensitive(bool sensitive)
-{
-    case_sensitive_ = sensitive;
-}
-
-void BaseSearchContext::setMatchWholeWord(bool whole)
-{
-    match_whole_word_ = whole;
-}
 
 namespace ui
 {
 
 SearchWidget::SearchWidget(QWidget *parent, BaseSearchContext & ctx)
-    : OnyxDialog(parent)
+    : OnyxDialog(parent, false)
     , hbox_(&content_widget_)
     , text_edit_("", this)
     , search_button_(tr("Search"), this)
@@ -86,19 +45,19 @@ void SearchWidget::createLayout()
 {
     title_icon_label_.setPixmap(QPixmap(":/images/search.png"));
 
-    content_widget_.setFixedHeight(WIDGET_HEIGHT + 4 * SPACING);
+    content_widget_.setFixedHeight(defaultItemHeight() + 4 * SPACING);
 
     // hbox to layout line edit and buttons.
     hbox_.setContentsMargins(SPACING, SPACING, SPACING, SPACING);
     hbox_.setSpacing(SPACING * 4);
 
     // Line edit.
-    text_edit_.setFixedHeight(WIDGET_HEIGHT);
+    text_edit_.setFixedHeight(defaultItemHeight());
     hbox_.addWidget(&text_edit_, 400);
 
     // Buttons.
-    search_button_.setFixedHeight(WIDGET_HEIGHT);
-    clear_button_.setFixedHeight(WIDGET_HEIGHT);
+    search_button_.setFixedHeight(defaultItemHeight());
+    clear_button_.setFixedHeight(defaultItemHeight());
 
     search_next_.setIcon(QIcon(":/images/next.png"));
     search_next_.useDefaultHeight();
@@ -222,7 +181,7 @@ void SearchWidget::onTextChanged(const QString& text)
 /// This function is called by parent widget to display the search widget.
 void SearchWidget::ensureVisible()
 {
-    shadows_.show(true);
+    // shadows_.show(true);
     if (isHidden())
     {
         show();
@@ -233,7 +192,7 @@ void SearchWidget::ensureVisible()
     if (full_mode_)
     {
         QRect parent_rect = parentWidget()->rect();
-        int border = Shadows::PIXELS;
+        int border = 0;
         int width = parent_rect.width() - border * 2;
         if (size().width() != width)
         {
@@ -386,9 +345,7 @@ bool SearchWidget::eventFilter(QObject *obj, QEvent *event)
         else if (obj == &keyboard_)
         {
             if (key_event->key() == Qt::Key_Down ||
-                key_event->key() == Qt::Key_Up ||
-                key_event->key() == Qt::Key_Left ||
-                key_event->key() == Qt::Key_Right)
+                key_event->key() == Qt::Key_Up)
             {
                 wnd = moveFocus(this, key_event->key());
                 if (wnd)
@@ -397,11 +354,22 @@ bool SearchWidget::eventFilter(QObject *obj, QEvent *event)
                 }
                 return true;
             }
+            else if (key_event->key() == Qt::Key_Left ||
+                     key_event->key() == Qt::Key_Right)
+            {
+                wnd = moveFocus(&keyboard_, key_event->key());
+                if (wnd)
+                {
+                    wnd->setFocus();
+                }
+                return true;
+            }
         }
-
         if (key_event->key() == Qt::Key_Escape)
         {
             onCloseClicked();
+            event->accept();
+            return true;
         }
     }
     // standard event processing
@@ -474,12 +442,12 @@ void SearchWidget::updateTitle(const QString &message)
 
 void SearchWidget::adjustPosition()
 {
-    int x = Shadows::PIXELS;
+    int x = 0;
     if (!keyboard_.isVisible())
     {
-        x = parentWidget()->width() - width() - Shadows::PIXELS;
+        x = parentWidget()->width() - width();
     }
-    int y = parentWidget()->height() - height() - Shadows::PIXELS;
+    int y = parentWidget()->height() - height() - ui::statusBarHeight();
     move(x, y);
 }
 
@@ -488,8 +456,8 @@ bool SearchWidget::event(QEvent * event)
     bool ret = OnyxDialog::event(event);
     if (event->type() == QEvent::UpdateRequest && onyx::screen::instance().isUpdateEnabled())
     {
-        onyx::screen::instance().sync(&shadows_.hor_shadow());
-        onyx::screen::instance().sync(&shadows_.ver_shadow());
+        // onyx::screen::instance().sync(&shadows_.hor_shadow());
+        // onyx::screen::instance().sync(&shadows_.ver_shadow());
         if (update_parent_)
         {
             onyx::screen::instance().updateWidget(parentWidget(), onyx::screen::ScreenProxy::GC);
@@ -497,7 +465,7 @@ bool SearchWidget::event(QEvent * event)
         }
         else
         {
-            onyx::screen::instance().updateWidget(this, onyx::screen::ScreenProxy::GU);
+            onyx::screen::instance().updateWidget(this, onyx::screen::ScreenProxy::DW, false, onyx::screen::ScreenCommand::WAIT_NONE);
         }
         event->accept();
     }

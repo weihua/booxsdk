@@ -18,7 +18,12 @@
 #include "onyx/ui/status_bar_item_music_player.h"
 #include "onyx/ui/number_dialog.h"
 #include "onyx/ui/power_management_dialog.h"
+#include "onyx/ui/legacy_power_management_dialog.h"
 #include "onyx/ui/clock_dialog.h"
+#include "onyx/ui/ui_utils.h"
+#include "onyx/data/keys.h"
+#include "onyx/ui/keyboard_config_dialog.h"
+#include "onyx/sys/platform.h"
 
 namespace ui
 {
@@ -90,6 +95,12 @@ void StatusBar::setupConnections()
             SIGNAL(pppConnectionChanged(const QString &, int)),
             this,
             SLOT(onPppConnectionChanged(const QString &, int)));
+
+    // connect configure keyboard signal
+    connect(&sys_status,
+            SIGNAL(configKeyboard()),
+            this,
+            SLOT(onConfigKeyboard()));
 }
 
 /// Update some status when it's created.
@@ -160,7 +171,8 @@ void StatusBar::showItem(StatusBarItemType id, bool show)
 
 bool StatusBar::setProgress(const int value,
                             const int total,
-                            bool show_message)
+                            bool show_message,
+                            const QString &message)
 {
     if (total <= 0)
     {
@@ -171,13 +183,19 @@ bool StatusBar::setProgress(const int value,
     if (ptr)
     {
         StatusBarItemProgress *wnd = static_cast<StatusBarItemProgress*>(ptr);
-        wnd->setProgress(value, total);
+        wnd->setProgress(value, total, show_message, message);
     }
 
     if (show_message && (ptr = item(MESSAGE, false)))
     {
         StatusBarItemMessage *wnd = static_cast<StatusBarItemMessage*>(ptr);
         wnd->setMessage(value, total);
+    }
+
+    ptr = item(CLOCK, false);
+    if (ptr)
+    {
+        ptr->update();
     }
     return true;
 }
@@ -326,8 +344,18 @@ void StatusBar::onMessageAreaClicked()
 
 void StatusBar::onBatteryClicked()
 {
-    PowerManagementDialog dialog(0, sys::SysStatus::instance());
-    dialog.exec();
+    if (sys::isIMX31L())
+    {
+        LegacyPowerManagementDialog dialog(0, sys::SysStatus::instance());
+        dialog.exec();
+    }
+    else
+    {
+        PowerManagementDialog dialog(0, sys::SysStatus::instance());
+        dialog.exec();
+    }
+
+    onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU);
 }
 
 void StatusBar::onMusicPlayerClicked()
@@ -373,6 +401,52 @@ void StatusBar::onVolumeButtonsPressed()
 
 void StatusBar::onHideVolumeDialog()
 {
+}
+
+void StatusBar::onConfigKeyboard()
+{
+    if (!isActiveWindow())
+    {
+        // do not popup keyboard configure dialog when inactive.
+        return;
+    }
+
+    SysStatus & sys_status = SysStatus::instance();
+    unsigned int origin_config = sys_status.keyboardConfiguration();
+    qDebug() << "origin value: " << origin_config;
+
+    bool home_and_back_locked = (onyx::data::ENABLE_MENU_ESC & origin_config) == 0;
+    bool page_turning_locked = (onyx::data::ENABLE_PAGE_UP_DOWN & origin_config) == 0;
+
+    KeyboardConfigDialog config(home_and_back_locked,
+            page_turning_locked, 0);
+    int ret = config.popup();
+    if (QDialog::Accepted == ret)
+    {
+        unsigned int new_value = 0;
+        if (config.homeAndBackLocked())
+        {
+            new_value &= onyx::data::DISABLE_MENU_ESC;
+        }
+        else
+        {
+            new_value |= onyx::data::ENABLE_MENU_ESC;
+        }
+
+        if (config.pageTurningLocked())
+        {
+            new_value &= onyx::data::DISABLE_PAGE_UP_DOWN;
+        }
+        else
+        {
+            new_value |= onyx::data::ENABLE_PAGE_UP_DOWN;
+        }
+        qDebug() << "new value: " << new_value;
+        sys_status.configKeyboard(new_value);
+    }
+    onyx::screen::instance().updateWidget(0, onyx::screen::ScreenProxy::GC,
+            false, onyx::screen::ScreenCommand::WAIT_COMMAND_FINISH);
+
 }
 
 void StatusBar::onVolumeClicked()
@@ -518,7 +592,7 @@ void StatusBar::onStylusChanged(bool inserted)
 void StatusBar::onConnectToPC(bool connected)
 {
     // Popup dialog.
-    if (connected && isActiveWindow())
+    if (connected && isActiveWindow() && ui::safeParentWidget(parentWidget())->isActiveWindow())
     {
         int ret = usbConnectionDialog(true)->exec();
         closeUSBDialog();
@@ -634,7 +708,7 @@ VolumeControlDialog *StatusBar::volumeDialog(bool create)
 
 void StatusBar::createLayout()
 {
-    setFixedHeight(35);
+    setFixedHeight(ui::statusBarHeight());
     layout()->setSpacing(4);
     layout()->setContentsMargins(1, 2, 1, 0);
     setSizeGripEnabled(false);
@@ -663,10 +737,6 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
     case MENU:
         item = new StatusBarItemMenu(this);
         connect(item, SIGNAL(clicked()), this, SLOT(onMenuClicked()));
-        break;
-    case MESSAGE:
-        item = new StatusBarItemMessage(this);
-        connect(item, SIGNAL(clicked()), this, SLOT(onMessageAreaClicked()));
         break;
     case BATTERY:
         item = new StatusBarItemBattery(this);
@@ -728,6 +798,17 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
     if (type == PROGRESS)
     {
         addWidget(ptr.get(), 1);
+    }
+    else if (type != MENU && type != MESSAGE)
+    {
+        addPermanentWidget(ptr.get());
+        int right_margin_width = qgetenv("STATUS_BAR_RIGHT_MARGIN").toInt();
+        if (type == BATTERY && right_margin_width > 0)
+        {
+            right_margin_.reset(new OnyxLabel());
+            right_margin_->setFixedWidth(right_margin_width);
+            addPermanentWidget(right_margin_.get());
+        }
     }
     else
     {

@@ -1,8 +1,14 @@
 #ifndef AP_CONFIG_DIALOG_H_
 #define AP_CONFIG_DIALOG_H_
 
-#include "onyx/ui/ui.h"
+#include "onyx/ui/ui_global.h"
+#include "onyx/ui/ui_utils.h"
 #include "onyx/sys/sys.h"
+#include "onyx/ui/label.h"
+#include "onyx/ui/line_edit.h"
+#include "onyx/ui/buttons.h"
+#include "onyx/ui/onyx_dialog.h"
+#include "onyx/ui/onyx_keyboard.h"
 
 namespace ui
 {
@@ -25,7 +31,6 @@ protected:
     void mouseReleaseEvent(QMouseEvent *me);
     void keyReleaseEvent(QKeyEvent *);
     void keyPressEvent(QKeyEvent * ke);
-    bool event(QEvent * event);
     void moveEvent(QMoveEvent *e);
     void resizeEvent(QResizeEvent *e);
 
@@ -53,6 +58,8 @@ private:
     void setWepProfile(WifiProfile & profile, const QString &id, const QString & key);
     void setWpaProfile(WifiProfile & profile, const QString &id, const QString & key);
     void setWpa2Profile(WifiProfile & profile, const QString &id, const QString & key);
+
+    void initFocus();
 
 private:
     QFormLayout form_layout_;
@@ -82,7 +89,7 @@ private:
     OnyxPushButton clear_button_;
     OnyxCheckBox   show_plain_text_;   ///< Show plain text or star.
 
-    KeyBoard      keyboard_;     ///< Keyboard.
+    OnyxKeyboard      keyboard_;     ///< Keyboard.
     QTimer        timer_;        ///< Timer to update the screen.
 
     QWidget *keyboard_receiver_;

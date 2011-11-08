@@ -1,14 +1,22 @@
 
+#include <QtNetwork/QtNetwork>
+
+#include "onyx/sys/service.h"
 #include "onyx/sys/wpa_connection_manager.h"
 
 static WifiProfile dummy;
 
 WpaConnectionManager::WpaConnectionManager()
-: sys_(sys::SysStatus::instance())
-, proxy_(sys::SysStatus::instance().wpa_proxy(""))
+#ifndef _WINDOWS
+: connection_(QDBusConnection::systemBus())
+#else
+: connection_(QDBusConnection::sessionBus())
+#endif
 , scan_count_(0)
+, connect_retry_(0)
 , internal_state_(WpaConnection::STATE_UNKNOWN)
 , auto_connect_(true)
+, auto_reconnect_(true)
 , wifi_enabled_(true)
 {
     setupConnections();
@@ -32,7 +40,7 @@ bool WpaConnectionManager::start()
 
 bool WpaConnectionManager::stop()
 {
-    sys_.enableSdio(false);
+    wifi_enabled_ = false;
     return true;
 }
 
@@ -73,10 +81,15 @@ void WpaConnectionManager::onScanReturned(WifiProfiles & list)
         return;
     }
 
-    emit connectionChanged(dummy, WpaConnection::STATE_SCANNED);
-
     scan_results_ = list;
     scan_timer_.stop();
+    setState(dummy, WpaConnection::STATE_SCANNED);
+
+    if (proxy().isComplete())
+    {
+        qDebug("Complete, don't connect again.");
+        return;
+    }
     connectToBestAP();
 }
 
@@ -85,19 +98,32 @@ void WpaConnectionManager::scanResults(WifiProfiles &ret)
     ret = scan_results_;
 }
 
+bool WpaConnectionManager::connectTo(WifiProfile profile)
+{
+    resetConnectRetry();
+    setState(profile, WpaConnection::STATE_CONNECTING);
+    setConnecting(true);
+    return proxy().connectTo(profile);
+}
+
+WifiProfile WpaConnectionManager::connectingAP()
+{
+    return proxy().connectingAP();
+}
+
 void WpaConnectionManager::onNeedPassword(WifiProfile profile)
 {
-    // ic is incorrect
+    // check if it is correct
     if (checkAuthentication(profile))
     {
-        proxy_.connectTo(profile);
+        proxy().connectTo(profile);
         return;
     }
 
     emit passwordRequired(profile);
 }
 
-void WpaConnectionManager::onConnectionChanged(WifiProfile &profile,
+void WpaConnectionManager::onConnectionChanged(WifiProfile profile,
                                                WpaConnection::ConnectionState state)
 {
     qDebug("state changed %d", state);
@@ -124,43 +150,46 @@ void WpaConnectionManager::onConnectionChanged(WifiProfile &profile,
         break;
     case WpaConnection::STATE_ACQUIRING_ADDRESS_ERROR:
         {
-            resetProfile(profile);
+            // resetProfile(profile);
             emit connectionChanged(profile, WpaConnection::STATE_ACQUIRING_ADDRESS_ERROR);
         }
         break;
 
     case WpaConnection::STATE_AUTHENTICATION_FAILED:
         {
-            // Could be ignored now.
-            if (!checkAuthentication(profile))
-            {
-                onNeedPassword(profile);
-            }
+            onNeedPassword(profile);
         }
         break;
     default:
         break;
     }
+}
 
+bool WpaConnectionManager::canRetryConnect()
+{
+    qDebug("connect retry %d", connect_retry_);
+    return (connect_retry_ < 1);
 }
 
 void WpaConnectionManager::onConnectionTimeout()
 {
+    qWarning("Connection timeout, maybe need to reconnect.");
 }
 
 void WpaConnectionManager::onComplete()
 {
+    setState(proxy().connectingAP(), WpaConnection::STATE_SCANNED);
 }
 
 bool WpaConnectionManager::checkWifiDevice()
 {
     // Always enable sdio.
-    sys_.enableSdio(true);
+    enableSdio(true);
 
     // Check state again.
-    wifi_enabled_ = sys_.sdioState();
-    if (!wifi_enabled_)
+    if (!sdioState())
     {
+        setState(dummy, WpaConnection::STATE_DISABLED);
         return false;
     }
     return true;
@@ -169,22 +198,27 @@ bool WpaConnectionManager::checkWifiDevice()
 bool WpaConnectionManager::checkWpaSupplicant()
 {
     // Check wpa supplicant is running or not.
-    if (!SysStatus::instance().isWpaSupplicantRunning())
+    if (!isWpaSupplicantRunning())
     {
-        if (!SysStatus::instance().startWpaSupplicant(""))
+        if (!startWpaSupplicant(""))
         {
             qWarning("Seems we can not start wpa supplicant.");
+            setState(dummy, WpaConnection::STATE_HARDWARE_ERROR);
             emit wpaStateChanged(false);
             return false;
         }
     }
 
-    if (proxy_.openCtrlConnection() >= 0)
+    if (proxy().openCtrlConnection() >= 0)
     {
+        qDebug() << "Wpa is running now ctrl connection has been opened in manager.";
         emit wpaStateChanged(true);
         return true;
     }
-    emit wpaStateChanged(false);
+
+    qDebug("wpa_supplicant has been launched, wait a little bit to setup connection.");
+    // setState(dummy, WpaConnection::STATE_HARDWARE_ERROR);
+    // emit wpaStateChanged(false);
     return false;
 }
 
@@ -192,27 +226,34 @@ void WpaConnectionManager::setupConnections()
 {
     QObject::connect(&scan_timer_, SIGNAL(timeout()), this, SLOT(onScanTimeout()));
 
-    SysStatus & sys = sys::SysStatus::instance();
-    QObject::connect(&sys, SIGNAL(sdioChangedSignal(bool)), this, SLOT(onSdioChanged(bool)));
+    if (!connection_.connect(service, object, iface,
+                             "sdioChangedSignal",
+                             this,
+                             SLOT(onSdioChanged(bool))))
+    {
+        qDebug("\nCan not connect the sdioChangedSignal!\n");
+    }
 
-    QObject::connect(&proxy_, SIGNAL(scanResultsReady(WifiProfiles &)),
+    QObject::connect(&proxy(), SIGNAL(scanResultsReady(WifiProfiles &)),
             this, SLOT(onScanReturned(WifiProfiles &)));
-    QObject::connect(&proxy_, SIGNAL(stateChanged(WifiProfile &,WpaConnection::ConnectionState)),
-        this, SLOT(onConnectionChanged(WifiProfile &, WpaConnection::ConnectionState)));
-    QObject::connect(&proxy_, SIGNAL(needPassword(WifiProfile )),
+    QObject::connect(&proxy(), SIGNAL(stateChanged(WifiProfile,WpaConnection::ConnectionState)),
+        this, SLOT(onConnectionChanged(WifiProfile, WpaConnection::ConnectionState)));
+    QObject::connect(&proxy(), SIGNAL(needPassword(WifiProfile )),
             this, SLOT(onNeedPassword(WifiProfile )));
-
 }
 
 void WpaConnectionManager::triggerScan()
 {
+    wifi_enabled_ = true;
     setConnecting(false);
     resetScanRetry();
+    resetConnectRetry();
     scan();
 }
 
 void WpaConnectionManager::scan()
 {
+    // Always check wifi device.
     if (!checkWifiDevice())
     {
         return;
@@ -220,12 +261,19 @@ void WpaConnectionManager::scan()
 
     increaseScanRetry();
     bool wpa_ok = checkWpaSupplicant();
-    if (wpa_ok && canScanRetry())
+    if (wpa_ok)
     {
-        proxy_.scan();
+        if (canScanRetry())
+        {
+            // Stop timer.
+            scan_timer_.stop();
+            setState(dummy, WpaConnection::STATE_SCANNING);
+            proxy().scan();
+        }
     }
     else
     {
+        // Wait a little bit to rescan.
         scan_timer_.stop();
         if (canScanRetry())
         {
@@ -236,7 +284,7 @@ void WpaConnectionManager::scan()
             // Wifi device is detected, but wpa_supplicant can not be launched
             // Hardware issue, but user can try to turn off and turn on the
             // wifi switcher again.
-
+            setState(dummy, WpaConnection::STATE_HARDWARE_ERROR);
         }
     }
 }
@@ -273,13 +321,13 @@ bool WpaConnectionManager::checkAuthentication(WifiProfile & profile)
         // Use bssid instead of ssid.
         if (profile.bssid() == record.bssid())
         {
-            if (profile.retry() <= 2)
+            if (canRetryConnect())
             {
+                increaseConnectRetry();
                 if (syncAuthentication(record, profile))
                 {
                     profile.setCount(record.count());
-                    profile.setRetry(profile.retry() + 1);
-                    return (profile.retry() <= 2);
+                    return true;
                 }
             }
         }
@@ -333,8 +381,21 @@ void WpaConnectionManager::saveAp(WifiProfile & profile)
 
 bool WpaConnectionManager::connectToBestAP()
 {
+    if (!isWifiEnabled())
+    {
+        qDebug("Wifi is disabled by app.");
+        return false;
+    }
+
     if (!allowAutoConnect())
     {
+        qDebug("Auto connect is disabled.");
+        return false;
+    }
+
+    if (scan_results_.size() <= 0)
+    {
+        qDebug("Don't connect as there is no access points available.");
         return false;
     }
 
@@ -349,46 +410,59 @@ bool WpaConnectionManager::connectToBestAP()
     conf.close();
     sortByCount(all);
 
+    bool found = false;
     foreach(WifiProfile record, all)
     {
         for(int i = 0; i < scan_results_.size(); ++i)
         {
             if (scan_results_[i].bssid() == record.bssid())
             {
+                found = true;
                 syncAuthentication(record, scan_results_[i]);
                 scan_results_[i].setCount(record.count());
             }
         }
     }
 
+    if (!found)
+    {
+        qDebug("No matched access point found, should ask user to choose one.");
+        emit noMatchedAP();
+        return false;
+    }
+
     sortByCount(scan_results_);
-
+    proxy().connectTo(scan_results_.front());
     setConnecting(true);
-    proxy_.connectTo(scan_results_.front());
-
     return true;
 }
 
 bool WpaConnectionManager::isConnecting()
 {
-    return (internal_state_ == WpaConnection::STATE_CONNECTING);
+    return (state() == WpaConnection::STATE_CONNECTING);
 }
 
 void WpaConnectionManager::setConnecting(bool c)
 {
     if (c)
     {
-        internal_state_ = WpaConnection::STATE_CONNECTING;
+        setState(proxy().connectingAP(), WpaConnection::STATE_CONNECTING);
     }
     else
     {
-        internal_state_ = WpaConnection::STATE_UNKNOWN;
+        setState(dummy, WpaConnection::STATE_UNKNOWN);
     }
 }
 
 void WpaConnectionManager::stopAllTimers()
 {
     scan_timer_.stop();
+}
+
+void WpaConnectionManager::setState(WifiProfile profile, WpaConnection::ConnectionState s)
+{
+    internal_state_ = s;
+    emit connectionChanged(profile, s);
 }
 
 WifiProfiles & WpaConnectionManager::records(sys::SystemConfig& conf)
@@ -399,4 +473,206 @@ WifiProfiles & WpaConnectionManager::records(sys::SystemConfig& conf)
         conf.loadWifiProfiles(*records_);
     }
     return *records_;
+}
+
+WpaConnection & WpaConnectionManager::proxy()
+{
+    if (!proxy_)
+    {
+        proxy_.reset(new WpaConnection(networkInterface()));
+    }
+    return *proxy_;
+}
+
+
+bool WpaConnectionManager::enableSdio(bool enable) const
+{
+#ifdef WIN32
+    return true;
+#endif
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "enableSdio"      // method.
+    );
+
+    message << enable;
+    QDBusMessage reply = connection_.call(message);
+
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        return checkAndReturnBool(reply.arguments());
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+    return false;
+}
+
+bool WpaConnectionManager::sdioState() const
+{
+#ifdef WIN32
+    return true;
+#endif
+
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "sdioState"      // method.
+    );
+
+    QDBusMessage reply = connection_.call(message);
+
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        return checkAndReturnBool(reply.arguments());
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+    return false;
+}
+
+bool WpaConnectionManager::enableSdio(bool enable)
+{
+#ifdef WIN32
+    return true;
+#endif
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "enableSdio"      // method.
+    );
+
+    message << enable;
+    QDBusMessage reply = connection_.call(message);
+
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        return checkAndReturnBool(reply.arguments());
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+    return false;
+}
+
+bool WpaConnectionManager::isWpaSupplicantRunning()
+{
+#ifdef WIN32
+    return true;
+#endif
+
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "isWpaSupplicantRunning"      // method.
+    );
+
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        return checkAndReturnBool(reply.arguments());
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+    return false;
+}
+
+bool WpaConnectionManager::startWpaSupplicant(const QString & conf_file_path)
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "startWpaSupplicant"      // method.
+    );
+    message << conf_file_path;
+
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        return checkAndReturnBool(reply.arguments());
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+    return false;
+}
+
+bool WpaConnectionManager::stopWpaSupplicant()
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "stopWpaSupplicant"      // method.
+    );
+
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        return checkAndReturnBool(reply.arguments());;
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+    return false;
+}
+
+QString WpaConnectionManager::networkInterface()
+{
+    return sys::defaultInterface();
+}
+
+QString WpaConnectionManager::address()
+{
+    QString result;
+    QList<QNetworkInterface> all = QNetworkInterface::allInterfaces();
+    foreach(QNetworkInterface ni, all)
+    {
+        qDebug("interface name %s", qPrintable(ni.name()));
+        QList<QNetworkAddressEntry> addrs = ni.addressEntries();
+        foreach(QNetworkAddressEntry entry, addrs)
+        {
+            if (ni.name().compare(networkInterface(), Qt::CaseInsensitive) == 0)
+            {
+                result = entry.ip().toString();
+            }
+            qDebug("ip address %s", qPrintable(entry.ip().toString()));
+        }
+    }
+    return result;
+}
+
+QString WpaConnectionManager::hardwareAddress()
+{
+    QString result;
+    QList<QNetworkInterface> all = QNetworkInterface::allInterfaces();
+    foreach(QNetworkInterface ni, all)
+    {
+        qDebug("interface name %s", qPrintable(ni.name()));
+        if (ni.name().compare(networkInterface(), Qt::CaseInsensitive) == 0)
+        {
+            return ni.hardwareAddress();
+        }
+    }
+    return result;
+}
+
+void WpaConnectionManager::queryStatus()
+{
+    QVariantMap info;
+    proxy().status(info);
 }

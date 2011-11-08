@@ -17,7 +17,7 @@ class WifiDialog : public QDialog
     Q_OBJECT
 
 public:
-    WifiDialog(QWidget *parent, SysStatus & sys, const QString& name = QString());
+    WifiDialog(QWidget *parent, SysStatus & sys);
     ~WifiDialog();
 
 public:
@@ -43,53 +43,39 @@ private Q_SLOTS:
     void scan();
     void onAPItemClicked(WifiProfile & profile);
     void onRefreshClicked();
-    void onPrevClicked();
-    void onNextClicked();
     void onCustomizedClicked();
     void onCloseClicked();
 
     void onSdioChanged(bool on);
     void enableChildren(bool enable);
 
-    void onScanReturned(WifiProfiles & list);
-    void onConnectionChanged(WifiProfile &, WpaConnection::ConnectionState state);
+    void onScanReturned();
+    void onConnectionChanged(WifiProfile , WpaConnection::ConnectionState state);
     void onNeedPassword(WifiProfile profile);
+    void onNoMatchedAP();
 
     void onComplete();
     void onAPConfig(WifiProfile &);
 
-Q_SIGNALS:
-    void connectionChanged(WifiProfile & profile, WpaConnection::ConnectionState state);
+    void onItemActivated(CatalogView *catalog, ContentView *item, int user_data);
+    void onPositionChanged(const int, const int);
 
 private:
     void createLayout();
     void arrangeAPItems(WifiProfiles & list);
     void setupConnections();
-    int  itemsPerPage();
     void clear();
 
-    void resetProfile(WifiProfile & profile);
     void setPassword(WifiProfile & profile, const QString & password);
-    bool checkAuthentication(WifiProfile & profile);
-    bool syncAuthentication(WifiProfile & source, WifiProfile & target);
     void storeAp(WifiProfile & profile);
 
-    bool checkWpaSupplicant();
-    bool checkWifiDevice(bool show_error_dialog = true);
-    void increaseRetry() { ++count_; }
-    void resetRetry() { count_ = 0; }
-    bool canRetry() { return count_ <= 5; }
     void updateStateLable(WpaConnection::ConnectionState state);
-
-    bool isConnecting();
-    void setConnecting(bool c);
-    void stopAllTimers();
 
     void enableAutoConnect(bool e) { auto_connect_to_best_ap_ = e; }
     bool allowAutoConnect() { return auto_connect_to_best_ap_; }
 
     void scanResults(WifiProfiles &);
-    WifiProfiles & records(sys::SystemConfig& conf);
+    WifiProfiles records(sys::SystemConfig& conf);
 
     void updateHardwareAddress();
     void showPaginationButtons(bool show_prev = false, bool show_next = false);
@@ -109,22 +95,17 @@ private:
     WifiTitleItem state_widget_;
     OnyxPushButton prev_button_;
     OnyxPushButton next_button_;
-    WifiAPItems ap_items_;
+    ui::CatalogView ap_view_;
     OnyxLabel hardware_address_;
 
     const SysStatus & sys_;
-    WpaConnection& proxy_;
-    QTimer scan_timer_;
-    int count_;     ///< Scan retry.
-    WpaConnection::ConnectionState internal_state_;
+    WpaConnectionManager& proxy_;
     bool auto_connect_to_best_ap_;      ///< Access points used successfully before.
     bool auto_connect_to_default_ap_;    ///< If we have pre-installed access point.
     bool ap_dialog_visible_;
-    bool wifi_enabled_;
 
     WifiProfiles scan_results_;
-    scoped_ptr<WifiProfiles> records_;  ///< All profiles that stored in database.
-    Paginator paginator_;
+    ODatas datas_;
 };
 
 }
