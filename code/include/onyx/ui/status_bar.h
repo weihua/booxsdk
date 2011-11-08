@@ -46,6 +46,8 @@ public Q_SLOTS:
     void closeChildrenDialogs();
     void closeUSBDialog();
     void closeVolumeDialog();
+    void closeLowBatteryDialog();
+
     void onMessageAreaClicked();
     void onBatteryClicked();
     void onClockClicked();
@@ -69,6 +71,7 @@ private Q_SLOTS:
 
     // handle the events from system status manager
     void onBatterySignal(int value, int status);
+    void onLowBatterySignal();
     void onAboutToSuspend();
     void onWakeup();
     void onAboutToShutdown();
@@ -95,6 +98,7 @@ private:
     void changeStylus(const int stylus);
 
     USBConnectionDialog * usbConnectionDialog(bool create);
+    LowBatteryDialog  * lowBatteryDialog(bool create);
     ClockDialog * clockDialog(bool create, const QDateTime & start);
     VolumeControlDialog *volumeDialog(bool create);
 
@@ -108,6 +112,7 @@ private:
     StatusBarItems     widgets_;
     bool               enable_jump_to_page_;
     scoped_ptr<USBConnectionDialog> usb_connection_dialog_;
+    scoped_ptr<LowBatteryDialog> low_battery_dialog_;
     scoped_ptr<ClockDialog> clock_dialog_;
     scoped_ptr<VolumeControlDialog> volume_dialog_;
 };

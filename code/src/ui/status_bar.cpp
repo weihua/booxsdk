@@ -49,6 +49,10 @@ void StatusBar::setupConnections()
             SIGNAL(aboutToSuspend()),
             this,
             SLOT(onAboutToSuspend()));
+    connect(&sys_status_,
+            SIGNAL(lowBatterySignal()),
+            this,
+            SLOT(onLowBatterySignal()));
     connect(&sys_status,
             SIGNAL(wakeup()),
             this,
@@ -199,6 +203,7 @@ void StatusBar::closeChildrenDialogs()
 {
     closeUSBDialog();
     closeVolumeDialog();
+    closeLowBatteryDialog();
 }
 
 void StatusBar::closeUSBDialog()
@@ -208,6 +213,17 @@ void StatusBar::closeUSBDialog()
     {
         dialog->reject();
         usb_connection_dialog_.reset(0);
+        onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU);
+    }
+}
+
+void StatusBar::closeLowBatteryDialog()
+{
+    LowBatteryDialog * dialog = lowBatteryDialog(false);
+    if (dialog)
+    {
+        dialog->reject();
+        low_battery_dialog_.reset(0);
         onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU);
     }
 }
@@ -404,6 +420,14 @@ void StatusBar::onBatterySignal(int value, int status)
     changeBatteryStatus(value, status, true);
 }
 
+void StatusBar::onLowBatterySignal()
+{
+    if (isActiveWindow() && ui::safeParentWidget(parentWidget())->isActiveWindow())
+    {
+        lowBatteryDialog(true)->exec();
+    }
+}
+
 void StatusBar::onAboutToSuspend()
 {
     qDebug("Status Bar handles about to suspend signal");
@@ -579,6 +603,15 @@ USBConnectionDialog * StatusBar::usbConnectionDialog(bool create)
         usb_connection_dialog_.reset(new USBConnectionDialog(0));
     }
     return usb_connection_dialog_.get();
+}
+
+LowBatteryDialog  * StatusBar::lowBatteryDialog(bool create)
+{
+    if (!low_battery_dialog_ && create)
+    {
+        low_battery_dialog_.reset(new LowBatteryDialog(0));
+    }
+    return low_battery_dialog_.get();
 }
 
 ClockDialog * StatusBar::clockDialog(bool create, const QDateTime & start)
