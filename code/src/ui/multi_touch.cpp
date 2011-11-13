@@ -16,8 +16,7 @@ void MultiTouch::onMultiTouchHoldDetected(QWidget *wnd, QRect r1, QRect r2, int 
     // Just touched.
     if (prev == 0)
     {
-        pixmap_.reset(new QPixmap(wnd->size()));
-        wnd->render(pixmap_.get());
+        pixmap_.reset(new QPixmap(QPixmap::grabWidget(wnd, wnd->rect())));
         rc_touched_.setCoords(r1.center().x(), r1.center().y(), r2.center().x(), r2.center().y());
         zoom_ = 1.0;
     }
