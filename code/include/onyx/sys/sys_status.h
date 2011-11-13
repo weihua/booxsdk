@@ -203,6 +203,7 @@ class SysStatus : public QObject
     void mouseLongPress(QPoint, QSize);
     void multiTouchPressDetected(QRect, QRect);
     void multiTouchReleaseDetected(QRect, QRect);
+    void multiTouchHoldDetected(QRect, QRect, int, int);
     void ledSignal(const QByteArray & x, const QByteArray & y);
 
     void configKeyboard();
@@ -249,6 +250,7 @@ class SysStatus : public QObject
     void onMouseLongPress(int, int, int, int);    
     void onMultiTouchPressDetected(int, int, int, int, int, int, int, int);
     void onMultiTouchReleaseDetected(int, int, int, int, int, int, int, int);
+    void onMultiTouchHoldDetected(int, int, int, int, int, int, int, int, int, int);
     void onLedSignal(const QByteArray & x, const QByteArray & y);
 
     void onConfigKeyboard();

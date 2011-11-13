@@ -392,6 +392,14 @@ void SysStatus::installSlots()
     }
 
     if (!connection_.connect(service, object, iface,
+                             "multiTouchHoldDetected",
+                             this,
+                             SLOT(onMultiTouchHoldDetected(int, int, int, int, int, int, int, int, int, int))))
+    {
+        qDebug("\nCan not connect the multiTouchHoldDetected signal\n");
+    }
+
+    if (!connection_.connect(service, object, iface,
                              "ledSignal",
                              this,
                              SLOT(onLedSignal(const QByteArray &, const QByteArray &))))
@@ -2034,6 +2042,11 @@ void SysStatus::onMultiTouchPressDetected(int x1, int y1, int width1, int height
 void SysStatus::onMultiTouchReleaseDetected(int x1, int y1, int width1, int height1, int x2, int y2, int width2, int height2)
 {
     emit multiTouchReleaseDetected(QRect(x1, y1, width1, height1), QRect(x2, y2, width2, height2));
+}
+
+void SysStatus::onMultiTouchHoldDetected(int x1, int y1, int width1, int height1, int x2, int y2, int width2, int height2, int prev, int now)
+{
+    emit multiTouchHoldDetected(QRect(x1, y1, width1, height1), QRect(x2, y2, width2, height2), prev, now);
 }
 
 void SysStatus::onLedSignal(const QByteArray & x, const QByteArray & y)
