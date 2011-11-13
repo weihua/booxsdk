@@ -26,8 +26,7 @@ void MultiTouch::onMultiTouchHoldDetected(QWidget *wnd, QRect r1, QRect r2, int 
         QRect ra;
         ra.setCoords(r1.center().x(), r1.center().y(), r2.center().x(), r2.center().y());
         zoom_ = sqrt(static_cast<qreal>(diagonal(ra)) / static_cast<qreal>(diagonal(rc_touched_)));
-        *pixmap_ = pixmap_->scaled(pixmap_->width() * zoom_, pixmap_->height() * zoom_);
-        rc_touched_ = ra;
+        result_ = pixmap_->scaled(pixmap_->width() * zoom_, pixmap_->height() * zoom_);
     }
     sys::SysStatus::instance().requestMultiTouch();
 }
@@ -45,7 +44,11 @@ void MultiTouch::onMultiTouchReleaseDetected(QRect r1, QRect r2)
 
 QPixmap * MultiTouch::pixmap()
 {
-    return pixmap_.get();
+    if (pixmap_)
+    {
+        return &result_;
+    }
+    return 0;
 }
 
 

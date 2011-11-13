@@ -25,6 +25,7 @@ public:
 
 private:
     scoped_ptr<QPixmap> pixmap_;
+    QPixmap result_;
     QRect rc_touched_;
     qreal zoom_;
     bool dirty_;
