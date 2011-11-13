@@ -1827,6 +1827,30 @@ bool SysStatus::enableMultiTouch(bool enable)
     return true;
 }
 
+bool SysStatus::requestMultiTouch()
+{
+    if (!sys::isIRTouch())
+    {
+        qWarning("requestMultiTouch can only be used on ir touch.\n");
+        return false;
+    }
+
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "requestMultiTouch"      // method.
+    );
+
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+        return false;
+    }
+    return true;
+}
+
 bool SysStatus::queryLedSignal()
 {
     if (!sys::isIRTouch())

@@ -1,5 +1,6 @@
 
 #include "onyx/ui/multi_touch.h"
+#include "onyx/sys/sys_status.h"
 
 MultiTouch::MultiTouch()
 {
@@ -22,8 +23,13 @@ void MultiTouch::onMultiTouchHoldDetected(QWidget *wnd, QRect r1, QRect r2, int 
     }
     else
     {
-        zoom_ = static_cast<qreal>(now) / static_cast<qreal>(prev);
+        QRect ra;
+        ra.setCoords(r1.center().x(), r1.center().y(), r2.center().x(), r2.center().y());
+        zoom_ = sqrt(static_cast<qreal>(diagonal(ra)) / static_cast<qreal>(diagonal(rc_touched_)));
+        *pixmap_ = pixmap_->scaled(pixmap_->width() * zoom_, pixmap_->height() * zoom_);
+        rc_touched_ = ra;
     }
+    sys::SysStatus::instance().requestMultiTouch();
 }
 
 int MultiTouch::diagonal(const QRect & rc)
@@ -39,11 +45,6 @@ void MultiTouch::onMultiTouchReleaseDetected(QRect r1, QRect r2)
 
 QPixmap * MultiTouch::pixmap()
 {
-    if (dirty_ && pixmap_)
-    {
-        *pixmap_ = pixmap_->scaled(pixmap_->width() * zoom_, pixmap_->height() * zoom_);
-        dirty_ = false;
-    }
     return pixmap_.get();
 }
 
