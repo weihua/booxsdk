@@ -12,49 +12,32 @@ MultiTouch::~MultiTouch()
 
 void MultiTouch::onMultiTouchHoldDetected(QWidget *wnd, QRect r1, QRect r2, int prev, int now)
 {
-    dirty_ = true;
+    rc_touched_.setCoords(r1.center().x(), r1.center().y(), r2.center().x(), r2.center().y());
+    rc_touched_ = rc_touched_.normalized();
 
-    // Just touched.
     if (prev == 0)
     {
-        pixmap_.reset(new QPixmap(QPixmap::grabWidget(wnd, wnd->rect())));
-        rc_touched_.setCoords(r1.center().x(), r1.center().y(), r2.center().x(), r2.center().y());
-        zoom_ = 1.0;
+        if (!band_)
+        {
+            band_.reset(new QRubberBand(QRubberBand::Rectangle, wnd));
+            band_->setGeometry(rc_touched_);
+            band_->show();
+        }
     }
     else
     {
-        QRect ra;
-        ra.setCoords(r1.center().x(), r1.center().y(), r2.center().x(), r2.center().y());
-        zoom_ = sqrt(static_cast<qreal>(diagonal(ra)) / static_cast<qreal>(diagonal(rc_touched_)));
-        result_ = pixmap_->scaled(pixmap_->width() * zoom_, pixmap_->height() * zoom_);
+        band_->setGeometry(rc_touched_);
     }
     sys::SysStatus::instance().requestMultiTouch();
 }
 
-int MultiTouch::diagonal(const QRect & rc)
-{
-    int l = rc.width() * rc.width() + rc.height() * rc.height();
-    return static_cast<int>(sqrt(static_cast<qreal>(l)));
-}
 
 void MultiTouch::onMultiTouchReleaseDetected(QRect r1, QRect r2)
 {
-    pixmap_.reset(0);
-}
-
-QPixmap * MultiTouch::pixmap()
-{
-    if (pixmap_)
+    if (band_)
     {
-        return &result_;
+        band_->hide();
+        band_.reset(0);
     }
-    return 0;
 }
-
-QPoint MultiTouch::position()
-{
-    return QPoint(rc_touched_.center().x() * (1.0 - zoom_), rc_touched_.center().y() * (1 - zoom_));
-}
-
-
 

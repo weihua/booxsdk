@@ -18,17 +18,11 @@ public:
     void onMultiTouchHoldDetected(QWidget *wnd, QRect r1, QRect r2, int prev, int now);
     void onMultiTouchReleaseDetected(QRect r1, QRect r2);
 
-    QPixmap * pixmap();
-    QPoint position();
-
-    int diagonal(const QRect & rc);
+    QRubberBand * band() { return band_.get(); }
 
 private:
-    scoped_ptr<QPixmap> pixmap_;
-    QPixmap result_;
+    scoped_ptr<QRubberBand> band_;
     QRect rc_touched_;
-    qreal zoom_;
-    bool dirty_;
 };
 
 #endif
