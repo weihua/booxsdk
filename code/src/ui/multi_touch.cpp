@@ -51,4 +51,10 @@ QPixmap * MultiTouch::pixmap()
     return 0;
 }
 
+QPoint MultiTouch::position()
+{
+    return QPoint(rc_touched_.center().x() * (1.0 - zoom_), rc_touched_.center().y() * (1 - zoom_));
+}
+
+
 
