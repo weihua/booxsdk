@@ -13,6 +13,7 @@
 #include "onyx/sys/sys_utils.h"
 #include "onyx/sys/font_conf.h"
 #include "onyx/sys/misc_conf.h"
+#include "onyx/sys/platform.h"
 #include "device_conf.h"
 
 namespace sys
@@ -419,6 +420,15 @@ bool SystemConfig::isSDMounted()
 
 bool SystemConfig::isFlashMounted()
 {
+    if (is166E())
+    {
+        return isMounted("/media/mtd8/vfat.bin");
+    }
+    else if (isImx508())
+    {
+        return isMounted("/dev/mmcblk0p3");
+    }
+
     return isMounted("/dev/mtdblock5");
 }
 
