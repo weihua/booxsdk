@@ -2,6 +2,7 @@
 #include "onyx/ui/multi_touch.h"
 #include "onyx/sys/sys_status.h"
 
+
 MultiTouch::MultiTouch()
 {
 }
@@ -10,7 +11,7 @@ MultiTouch::~MultiTouch()
 {
 }
 
-void MultiTouch::onMultiTouchHoldDetected(QWidget *wnd, QRect r1, QRect r2, int prev, int now)
+void MultiTouch::onHoldDetectedBand(QWidget *wnd, QRect r1, QRect r2, int prev, int now)
 {
     rc_touched_.setCoords(r1.center().x(), r1.center().y(), r2.center().x(), r2.center().y());
     rc_touched_ = rc_touched_.normalized();
@@ -31,13 +32,52 @@ void MultiTouch::onMultiTouchHoldDetected(QWidget *wnd, QRect r1, QRect r2, int 
     sys::SysStatus::instance().requestMultiTouch();
 }
 
+void MultiTouch::onHoldDetectedPixmap(QWidget *wnd, QRect r1, QRect r2, int prev, int now)
+{
+    dirty_ = true;
 
-void MultiTouch::onMultiTouchReleaseDetected(QRect r1, QRect r2)
+    // Just touched.
+    if (prev == 0)
+    {
+        pixmap_.reset(new QPixmap(QPixmap::grabWidget(wnd, wnd->rect())));
+        rc_touched_.setCoords(r1.center().x(), r1.center().y(), r2.center().x(), r2.center().y());
+        zoom_ = 1.0;
+    }
+    else
+    {
+        QTime t;
+        t.start();
+        QRect ra;
+        ra.setCoords(r1.center().x(), r1.center().y(), r2.center().x(), r2.center().y());
+        zoom_ = sqrt(static_cast<qreal>(diagonal(ra)) / static_cast<qreal>(diagonal(rc_touched_)));
+        result_ = pixmap_->scaled(pixmap_->width() * zoom_, pixmap_->height() * zoom_);
+        qDebug() << "pixmap zooming " << t.elapsed();
+    }
+    sys::SysStatus::instance().requestMultiTouch();
+}
+
+int MultiTouch::diagonal(const QRect & rc)
+{
+    int l = rc.width() * rc.width() + rc.height() * rc.height();
+    return static_cast<int>(sqrt(static_cast<qreal>(l)));
+}
+
+void MultiTouch::onHoldReleaseDetected(QRect r1, QRect r2)
 {
     if (band_)
     {
         band_->hide();
         band_.reset(0);
     }
+    pixmap_.reset(0);
+}
+
+QPixmap * MultiTouch::pixmap()
+{
+    if (pixmap_)
+    {
+        return &result_;
+    }
+    return 0;
 }
 
