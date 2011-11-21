@@ -149,6 +149,7 @@ class SysStatus : public QObject
     void reportUserBehavior(const onyx::data::UserBehavior &behaviour);
 
     bool enableMultiTouch(bool enable = true);
+    bool requestMultiTouch();
     bool queryLedSignal();
 
     // The following signals must be the same with system manager.
@@ -203,6 +204,7 @@ class SysStatus : public QObject
     void mouseLongPress(QPoint, QSize);
     void multiTouchPressDetected(QRect, QRect);
     void multiTouchReleaseDetected(QRect, QRect);
+    void multiTouchHoldDetected(QRect, QRect, int, int);
     void ledSignal(const QByteArray & x, const QByteArray & y);
 
     void configKeyboard();
@@ -249,6 +251,7 @@ class SysStatus : public QObject
     void onMouseLongPress(int, int, int, int);    
     void onMultiTouchPressDetected(int, int, int, int, int, int, int, int);
     void onMultiTouchReleaseDetected(int, int, int, int, int, int, int, int);
+    void onMultiTouchHoldDetected(int, int, int, int, int, int, int, int, int, int);
     void onLedSignal(const QByteArray & x, const QByteArray & y);
 
     void onConfigKeyboard();

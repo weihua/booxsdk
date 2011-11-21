@@ -50,6 +50,8 @@ const char * const CONFIG_ENV_MATRIX_F      = "env_matrix.f";
 
 const char * const CONFIG_IS_COMIC_MODE_ACTIVATED = "comic_mode_activated";
 
+const char * const CONFIG_IMAGE_EMBOLDEN_LEVEL = "image_embolden_level";
+
 struct Configuration
 {
     QVariantMap options;        ///< Document related options.
