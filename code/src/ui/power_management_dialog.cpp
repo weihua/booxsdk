@@ -139,6 +139,11 @@ void PowerManagementDialog::createLayout()
     int left = 100, status = 0;
     status_.batteryStatus(left, status);
     t = t.arg(left);
+
+    if (isPmExclusive())
+    {
+        t.clear();
+    }
     battery_power_.setText(t);
     ver_layout_.addWidget(&battery_power_);
 
