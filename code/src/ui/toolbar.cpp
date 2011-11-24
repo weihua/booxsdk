@@ -32,7 +32,7 @@ void OnyxToolBarItem::onActionChanged()
 
 QSize OnyxToolBarItem::iconSize()
 {
-    return QSize(28, 28);
+    return action_.icon().actualSize(QSize(56, 56));
 }
 
 void OnyxToolBarItem::mousePressEvent(QMouseEvent *me)
@@ -90,7 +90,7 @@ OnyxToolBar::OnyxToolBar(QWidget *parent)
     , layout_(this)
 {
     setAutoFillBackground(false);
-    setFixedHeight(35);
+    setFixedHeight(60);
     layout_.setSpacing(8);
     layout_.setContentsMargins(2, 1, 2, 1);
     layout_.insertStretch(0, 0);
