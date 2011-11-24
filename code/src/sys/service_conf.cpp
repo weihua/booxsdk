@@ -65,7 +65,7 @@ static Service sudoku_service("com.onyx.service.sudoku",
                             "/com/onyx/object/sudoku",
                             "com.onyx.interface.sudoku",
                             OPEN_METHOD,
-                            "sudoku");
+                            "sudoku.oar");
 
 static  Service naboo_viewer_service("com.onyx.service.naboo_viewer",
                             "/com/onyx/object/naboo_viewer",
