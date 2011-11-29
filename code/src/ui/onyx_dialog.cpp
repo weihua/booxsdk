@@ -102,7 +102,7 @@ void OnyxDialog::createDefaultLayout()
 
     // title widget.
     title_widget_.setAutoFillBackground(true);
-    title_widget_.setBackgroundRole(QPalette::Dark);
+    title_widget_.setBackgroundRole(QPalette::Text);
     title_widget_.setContentsMargins(0, 0, 0, 0);
     title_widget_.setFixedHeight(defaultItemHeight() + SPACING * 2);
     vbox_.addWidget(&title_widget_);
