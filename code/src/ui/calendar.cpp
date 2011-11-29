@@ -1,5 +1,6 @@
 #include "onyx/ui/calendar.h"
 #include "onyx/screen/screen_proxy.h"
+#include "onyx/sys/sys_conf.h"
 #include <QPainter>
 #include <QKeyEvent>
 #include <QApplication>
@@ -325,6 +326,54 @@ void Calendar::onOkClicked(bool)
 void Calendar::onCloseClicked()
 {
     reject();
+}
+
+void Calendar::mousePressEvent(QMouseEvent *e)
+{
+    e->accept();
+    begin_point_ = e->pos();
+}
+
+void Calendar::mouseReleaseEvent(QMouseEvent *e)
+{
+    e->accept();
+    stylusPan(e->pos(), begin_point_);
+}
+
+void Calendar::stylusPan(const QPoint &now, const QPoint &old)
+{
+    int direction = sys::SystemConfig::direction(old, now);
+
+    if (direction > 0)
+    {
+        ++page_tag_;
+        repaint();
+    }
+    else if (direction < 0)
+    {
+        --page_tag_;
+        repaint();
+    }
+    else
+    {
+        int total_width = this->rect().width();
+        int total_height = this->rect().height();
+        int ver_space = total_height/60;
+        int year_height = total_height/20;
+        int left_arrow_x = total_width/2 - 2*year_height;
+        int right_arrow_x = total_width/2 + 2*year_height + year_height*3/10;
+
+        if(QRect(left_arrow_x, ver_space + year_height/10, year_height/2, year_height*4/5).contains(now))
+        {
+            --page_tag_;
+            repaint();
+        }
+        else if(QRect(right_arrow_x - year_height/2, year_height/10, year_height/2, year_height*4/5).contains(now))
+        {
+            ++page_tag_;
+            repaint();
+        }
+    }
 }
 
 }   // namespace ui

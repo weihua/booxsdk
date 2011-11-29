@@ -22,6 +22,8 @@ public:
 private:
     void keyPressEvent(QKeyEvent *);
     void keyReleaseEvent(QKeyEvent *);
+    void mousePressEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
     bool event(QEvent *e);
     void createLayout();
     void paintEvent(QPaintEvent *);  
@@ -40,6 +42,7 @@ private:
     void setColAndRow(int& col, int& row, int total_width, int total_height, int hor_space, int ver_space);
     void month_loc(int& x,int& y, int col,int month);
     int firstMonth(int curr_month);
+    void stylusPan(const QPoint &now, const QPoint &old);
 
 private Q_SLOTS:
     void onReturn();
@@ -49,6 +52,7 @@ private Q_SLOTS:
 private:
     int page_tag_;
     int month_count_;
+    QPoint begin_point_;
 };
 
 }   // namespace ui
