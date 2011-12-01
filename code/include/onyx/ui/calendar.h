@@ -58,6 +58,9 @@ private:
     QPoint begin_point_;
     sys::SystemConfig conf_;
 
+    QRect left_arrow_rect_;
+    QRect right_arrow_rect_;
+
 };
 
 }   // namespace ui

@@ -115,8 +115,9 @@ void Calendar::drawYear(QPainter* painter, const QRect& rect, int year_height, i
 
 void Calendar::drawArrow(QPainter* painter, int total_width, int total_height, int hor_space, int ver_space, int year_height)
 {
-    int left_arrow_x = total_width/2 - 2*year_height;
-    int right_arrow_x = total_width/2 + 2*year_height + year_height*3/10;
+    int spacing = 100;
+    int left_arrow_x = total_width/2 - 2*year_height - spacing;
+    int right_arrow_x = total_width/2 + 2*year_height + year_height*3/10 + spacing;
     const QPointF arrow_left[3] = 
     {
         QPointF(left_arrow_x + year_height/2, ver_space + year_height/10),
@@ -136,10 +137,14 @@ void Calendar::drawArrow(QPainter* painter, int total_width, int total_height, i
     painter->drawPolygon(arrow_right,3);
     painter->setRenderHint(QPainter::Antialiasing,false);
 
-    painter->setPen(QPen(Qt::black, 3));
+    painter->setPen(QPen(Qt::black, 2));
     painter->setBrush(Qt::NoBrush);
-    painter->drawRect(left_arrow_x-year_height/4, ver_space, year_height, year_height);
-    painter->drawRect(right_arrow_x - year_height*3/4, ver_space, year_height, year_height);
+    left_arrow_rect_ = QRect(left_arrow_x - year_height*5/4, ver_space,
+            year_height*3, year_height);
+    right_arrow_rect_ = QRect(right_arrow_x - year_height*7/4, ver_space,
+                year_height*3, year_height);
+    painter->drawRect(left_arrow_rect_);
+    painter->drawRect(right_arrow_rect_);
 }
 
 void Calendar::setColAndRow(int& col, int& row, int total_width, int total_height, int hor_space, int ver_space)
@@ -391,19 +396,12 @@ void Calendar::stylusPan(const QPoint &now, const QPoint &old)
     }
     else
     {
-        int total_width = this->rect().width();
-        int total_height = this->rect().height();
-        int ver_space = total_height/60;
-        int year_height = total_height/20;
-        int left_arrow_x = total_width/2 - 2*year_height;
-        int right_arrow_x = total_width/2 + 2*year_height + year_height*3/10;
-
-        if(QRect(left_arrow_x-year_height/4, ver_space, year_height, year_height).contains(now))
+        if (left_arrow_rect_.contains(now))
         {
             --page_tag_;
             repaint();
         }
-        else if(QRect(right_arrow_x - year_height*3/4, ver_space, year_height, year_height).contains(now))
+        else if (right_arrow_rect_.contains(now))
         {
             ++page_tag_;
             repaint();
