@@ -122,6 +122,11 @@ void Calendar::drawArrow(QPainter* painter, int total_width, int total_height, i
     painter->drawPolygon(arrow_left,3);
     painter->drawPolygon(arrow_right,3);
     painter->setRenderHint(QPainter::Antialiasing,false);
+
+    painter->setPen(QPen(Qt::black, 3));
+    painter->setBrush(Qt::NoBrush);
+    painter->drawRect(left_arrow_x-year_height/4, ver_space, year_height, year_height);
+    painter->drawRect(right_arrow_x - year_height*3/4, ver_space, year_height, year_height);
 }
 
 void Calendar::setColAndRow(int& col, int& row, int total_width, int total_height, int hor_space, int ver_space)
@@ -363,12 +368,12 @@ void Calendar::stylusPan(const QPoint &now, const QPoint &old)
         int left_arrow_x = total_width/2 - 2*year_height;
         int right_arrow_x = total_width/2 + 2*year_height + year_height*3/10;
 
-        if(QRect(left_arrow_x, ver_space + year_height/10, year_height/2, year_height*4/5).contains(now))
+        if(QRect(left_arrow_x-year_height/4, ver_space, year_height, year_height).contains(now))
         {
             --page_tag_;
             repaint();
         }
-        else if(QRect(right_arrow_x - year_height/2, year_height/10, year_height/2, year_height*4/5).contains(now))
+        else if(QRect(right_arrow_x - year_height*3/4, ver_space, year_height, year_height).contains(now))
         {
             ++page_tag_;
             repaint();
