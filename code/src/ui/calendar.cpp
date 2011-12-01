@@ -1,9 +1,5 @@
 #include "onyx/ui/calendar.h"
 #include "onyx/screen/screen_proxy.h"
-#include "onyx/sys/sys_conf.h"
-#include <QPainter>
-#include <QKeyEvent>
-#include <QApplication>
 
 namespace ui {
 
@@ -11,6 +7,23 @@ enum MIN_SIZE_OF_MONTH
 {
     MINW = 200,
     MINH = 200
+};
+
+static const char* SCOPE = "only_for_russian";
+static const QString MONTH_ENG_NAMES[] =
+{
+    QT_TRANSLATE_NOOP("only_for_russian", "January"),
+    QT_TRANSLATE_NOOP("only_for_russian", "February"),
+    QT_TRANSLATE_NOOP("only_for_russian", "March"),
+    QT_TRANSLATE_NOOP("only_for_russian", "April"),
+    QT_TRANSLATE_NOOP("only_for_russian", "May"),
+    QT_TRANSLATE_NOOP("only_for_russian", "June"),
+    QT_TRANSLATE_NOOP("only_for_russian", "July"),
+    QT_TRANSLATE_NOOP("only_for_russian", "August"),
+    QT_TRANSLATE_NOOP("only_for_russian", "September"),
+    QT_TRANSLATE_NOOP("only_for_russian", "October"),
+    QT_TRANSLATE_NOOP("only_for_russian", "November"),
+    QT_TRANSLATE_NOOP("only_for_russian", "December"),
 };
 
 Calendar::Calendar(QWidget *parent)
@@ -154,6 +167,22 @@ void Calendar::setColAndRow(int& col, int& row, int total_width, int total_heigh
     }
 }
 
+void Calendar::drawMonthName(QPainter* painter, const QRect &month_name_rect,
+        const int month)
+{
+    QLocale locale = conf_.locale();
+    if (locale.language() == QLocale::Russian)
+    {
+        painter->drawText(month_name_rect, Qt::AlignCenter,
+                qApp->translate(SCOPE, MONTH_ENG_NAMES[month-1].toUtf8().data()));
+    }
+    else
+    {
+        painter->drawText(month_name_rect, Qt::AlignCenter,
+                QDate::longMonthName(month));
+    }
+}
+
 void Calendar::drawMonth(QPainter* painter,
                                 int inix,
                                 int iniy,
@@ -174,7 +203,8 @@ void Calendar::drawMonth(QPainter* painter,
     month_font.setBold(true);
     month_font.setPixelSize(day_height);
     painter->setFont(month_font);
-    painter->drawText(month_name_rect, Qt::AlignCenter, QDate::longMonthName(date.month()));
+
+    drawMonthName(painter, month_name_rect, date.month());
 
     // draw week name
     QFont week_font;
