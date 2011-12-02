@@ -188,6 +188,8 @@
     <file>images/toolbar_backward.png</file>
     <file>images/toolbar_refresh.png</file>
     <file>images/toolbar_stop.png</file>
+    <file>images/toolbar_has_bookmark.png</file> 
+    <file>images/toolbar_no_bookmark.png</file>
 
     <file>images/dictionary_search.png</file>
     <file>images/dictionary_title.png</file>
