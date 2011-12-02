@@ -14,18 +14,8 @@ QPushButton                             \
 {                                       \
     background: transparent;            \
     font-size: 14px;                    \
-    border-width: 1px;                  \
     border-color: transparent;          \
-    border-style: solid;                \
-    color: black;                       \
     padding: 0px;                       \
-}                                       \
-QPushButton:pressed                     \
-{                                       \
-    padding-left: 0px;                  \
-    padding-top: 0px;                   \
-    border-color: black;                \
-    background-color: black;            \
 }                                       \
 QPushButton:checked                     \
 {                                       \
@@ -56,6 +46,7 @@ TTSWidget::TTSWidget(QWidget *parent, TTS & ref)
     , menu_button_(tr(""), 0)
     , play_button_(tr(""), 0)
     , close_button_(tr(""), 0)
+    , volume_button_(tr(""), 0)
 {
     createLayout();
     setModal(false);
@@ -89,6 +80,33 @@ void TTSWidget::onTTSInitError()
     ErrorDialog err_dialog(err_msg);
     err_dialog.exec();
     QTimer::singleShot(0, this, SLOT(close()));
+}
+
+void TTSWidget::onVolumeButtonsPressed(bool)
+{
+    QRegion region = visibleRegion();
+    if (region.isEmpty())
+    {
+        return;
+    }
+
+    QRect visible_rect = region.boundingRect();
+    if (visible_rect.width() < height() && visible_rect.height() < height())
+    {
+        return;
+    }
+
+    VolumeControlDialog * dialog = volumeDialog(true);
+    if (!dialog->isVisible())
+    {
+        dialog->ensureVisible();
+        onyx::screen::instance().updateWidget(0, onyx::screen::ScreenProxy::GU,
+                false, onyx::screen::ScreenCommand::WAIT_COMMAND_FINISH);
+    }
+    else
+    {
+        dialog->resetTimer();
+    }
 }
 
 void TTSWidget::showEvent(QShowEvent* event)
@@ -156,12 +174,14 @@ void TTSWidget::startPlaying()
     }*/
 
     play_button_.setIcon(stop_icon_);
+    update();
     onyx::screen::instance().flush(this, onyx::screen::ScreenProxy::GU, false);
 }
 
 bool TTSWidget::pause()
 {
     play_button_.setIcon(play_icon_);
+    update();
     onyx::screen::instance().flush(this, onyx::screen::ScreenProxy::GU, false);
     return tts_.pause();
 }
@@ -169,6 +189,7 @@ bool TTSWidget::pause()
 bool TTSWidget::resume()
 {
     play_button_.setIcon(stop_icon_);
+    update();
     onyx::screen::instance().flush(this, onyx::screen::ScreenProxy::GU, false);
     return tts_.resume();
 }
@@ -240,6 +261,7 @@ void TTSWidget::createLayout()
     menu_button_.setIcon(QIcon(menu_map));
     menu_button_.setIconSize(menu_map.size());
     menu_button_.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    menu_button_.setCheckable(true);
 
     play_button_.setStyleSheet(TTS_BUTTON_STYLE);
     QSize icon_size;
@@ -249,21 +271,42 @@ void TTSWidget::createLayout()
     play_button_.setIcon(stop_icon_);
     play_button_.setIconSize(icon_size);
     play_button_.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    play_button_.setCheckable(true);
+
+    volume_button_.setStyleSheet(TTS_BUTTON_STYLE);
+    QPixmap volume_map(":/images/tts_volume.png");
+    volume_button_.setIcon(QIcon(volume_map));
+    volume_button_.setIconSize(volume_map.size());
+    volume_button_.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    volume_button_.setCheckable(true);
 
     close_button_.setStyleSheet(TTS_BUTTON_STYLE);
     QPixmap close_map(":/images/tts_close.png");
     close_button_.setIcon(QIcon(close_map));
     close_button_.setIconSize(close_map.size());
     close_button_.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    close_button_.setCheckable(true);
+
+    button_group_.addButton(&menu_button_);
+    button_group_.addButton(&play_button_);
+    button_group_.addButton(&volume_button_);
+    button_group_.addButton(&close_button_);
+    button_group_.setExclusive(true);
 
     layout_.addWidget(&menu_button_);
     layout_.addWidget(&play_button_);
+    layout_.addWidget(&volume_button_);
     layout_.addWidget(&close_button_);
 
     // Setup connection.
-    connect(&menu_button_, SIGNAL(clicked(bool)), this, SLOT(onPopupMenu(bool)), Qt::QueuedConnection);
-    connect(&play_button_, SIGNAL(clicked(bool)), this, SLOT(onPlayClicked(bool)), Qt::QueuedConnection);
-    connect(&close_button_, SIGNAL(clicked(bool)), this, SLOT(onCloseClicked(bool)), Qt::QueuedConnection);
+    connect(&menu_button_, SIGNAL(clicked(bool)), this,
+            SLOT(onPopupMenu(bool)), Qt::QueuedConnection);
+    connect(&play_button_, SIGNAL(clicked(bool)), this,
+            SLOT(onPlayClicked(bool)), Qt::QueuedConnection);
+    connect(&volume_button_, SIGNAL(clicked(bool)), this,
+            SLOT(onVolumeButtonsPressed(bool)), Qt::QueuedConnection);
+    connect(&close_button_, SIGNAL(clicked(bool)), this,
+            SLOT(onCloseClicked(bool)), Qt::QueuedConnection);
     connect(&tts_, SIGNAL(speakDone()), this, SLOT(onTextPlayed()));
 
 }
@@ -305,6 +348,25 @@ void TTSWidget::updateActions()
         int current_style = SPEAK_STYLE_NORMAL;
         tts_.currentStyle(current_style);
         style_actions_.generateActions(styles, current_style);
+    }
+}
+
+VolumeControlDialog *TTSWidget::volumeDialog(bool create)
+{
+    if (!volume_dialog_ && create)
+    {
+        volume_dialog_.reset(new VolumeControlDialog(0));
+    }
+    return volume_dialog_.get();
+}
+
+void TTSWidget::closeVolumeDialog()
+{
+    VolumeControlDialog *dialog = volumeDialog(false);
+    if (dialog)
+    {
+        dialog->reject();
+        volume_dialog_.reset(0);
     }
 }
 
@@ -376,6 +438,8 @@ void TTSWidget::onCloseClicked(bool)
     {
         return;
     }
+
+    closeVolumeDialog();
 
     stop();
     emit closed();

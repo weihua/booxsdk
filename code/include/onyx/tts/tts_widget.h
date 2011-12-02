@@ -7,6 +7,9 @@
 #include "onyx/tts/tts.h"
 #include "onyx/ui/ui.h"
 #include "onyx/ui/tts_actions.h"
+#include "onyx/ui/volume_control.h"
+
+using namespace ui;
 
 namespace tts
 {
@@ -37,6 +40,8 @@ public Q_SLOTS:
     void changeVolume(int, bool);
     void onCloseClicked(bool);
 
+    void closeVolumeDialog();
+
 Q_SIGNALS:
     void speakDone();
     void closed();
@@ -49,6 +54,8 @@ private Q_SLOTS:
     void onSystemVolumeChanged(int value, bool muted);
     void onTTSInitError();
 
+    void onVolumeButtonsPressed(bool);
+
 private:
     bool event(QEvent *e);
     void moveEvent(QMoveEvent *e);
@@ -60,6 +67,8 @@ private:
     void createLayout();
     void updateActions();
 
+    VolumeControlDialog * volumeDialog(bool create);
+
 private:
     TTS & tts_;
     QHBoxLayout   layout_;
@@ -67,6 +76,7 @@ private:
     ui::OnyxPushButton menu_button_;
     ui::OnyxPushButton play_button_;
     ui::OnyxPushButton close_button_;
+    ui::OnyxPushButton volume_button_;
     QButtonGroup       button_group_;
 
     QIcon              play_icon_;
@@ -79,6 +89,9 @@ private:
     ui::TTSSpeakerActions speaker_actions_;
     ui::TTSSpeedActions   speed_actions_;
     ui::TTSStyleActions   style_actions_;
+
+    scoped_ptr<VolumeControlDialog> volume_dialog_;
+
 };
 
 }   // namespace tts

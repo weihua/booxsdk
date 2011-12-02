@@ -116,7 +116,7 @@ void SystemActions::generateActions(const std::vector<int> & actions)
                 shared_ptr<QAction> volume(new QAction(exclusiveGroup()));
                 volume->setCheckable(true);
                 volume->setText(QCoreApplication::tr("Volume"));
-                volume->setIcon(QIcon(QPixmap(":/images/music.png")));
+                volume->setIcon(QIcon(QPixmap(":/images/system_volume.png")));
                 volume->setData(SYSTEM_VOLUME);
                 actions_.push_back(volume);
                 break;

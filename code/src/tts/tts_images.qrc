@@ -4,5 +4,6 @@
     <file>images/tts_close.png</file>
     <file>images/tts_play.png</file>
     <file>images/tts_stop.png</file>
+    <file>images/tts_volume.png</file>
   </qresource>
 </RCC>
