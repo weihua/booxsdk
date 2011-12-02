@@ -367,7 +367,7 @@ void ScreenProxy::updateWidgetWithGCInterval(const QWidget *widget,
         waveform = waveform_;
     }
 
-    if (GU == waveform || GC4 == waveform)
+    if (GU == waveform || GC4 == waveform || A2 == waveform)
     {
         increaseGUCount();
         if (0 != gc_interval_ && gu_count_ >= gc_interval_)

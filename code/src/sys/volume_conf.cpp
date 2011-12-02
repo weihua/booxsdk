@@ -58,7 +58,7 @@ QVector<int> VolumeConfig::volumes()
     if (VOLUMES.size() <= 0)
     {
 
-        if(sys::is166E() || sys::isImx508())
+        if(sys::is166E())
         {
             VOLUMES.push_back(0);
             VOLUMES.push_back(2);
@@ -70,6 +70,20 @@ QVector<int> VolumeConfig::volumes()
             VOLUMES.push_back(60);
             VOLUMES.push_back(80);
             VOLUMES.push_back(90);//10
+            VOLUMES.push_back(100);
+        }
+        else if (sys::isImx508())
+        {
+            VOLUMES.push_back(0);
+            VOLUMES.push_back(60);
+            VOLUMES.push_back(64);
+            VOLUMES.push_back(68);
+            VOLUMES.push_back(72); //5
+            VOLUMES.push_back(76);
+            VOLUMES.push_back(80);
+            VOLUMES.push_back(85);
+            VOLUMES.push_back(90);
+            VOLUMES.push_back(95); //10
             VOLUMES.push_back(100);
         }
         else

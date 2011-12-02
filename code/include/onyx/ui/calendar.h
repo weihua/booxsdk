@@ -2,8 +2,9 @@
 #ifndef ONYX_FULL_SCREEN_CALENDAR_H_
 #define ONYX_FULL_SCREEN_CALENDAR_H_
 
-#include <QDialog>
-#include <QDate>
+#include "onyx/base/base.h"
+#include "onyx/sys/sys.h"
+#include "onyx/ui/ui_global.h"
 
 namespace ui
 {
@@ -22,9 +23,13 @@ public:
 private:
     void keyPressEvent(QKeyEvent *);
     void keyReleaseEvent(QKeyEvent *);
+    void mousePressEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
     bool event(QEvent *e);
     void createLayout();
-    void paintEvent(QPaintEvent *);  
+    void paintEvent(QPaintEvent *);
+    void drawMonthName(QPainter* painter, const QRect &month_name_rect,
+            const int month);
     void drawMonth(QPainter* painter,
                    int inix,
                    int iniy,
@@ -40,6 +45,7 @@ private:
     void setColAndRow(int& col, int& row, int total_width, int total_height, int hor_space, int ver_space);
     void month_loc(int& x,int& y, int col,int month);
     int firstMonth(int curr_month);
+    void stylusPan(const QPoint &now, const QPoint &old);
 
 private Q_SLOTS:
     void onReturn();
@@ -49,6 +55,12 @@ private Q_SLOTS:
 private:
     int page_tag_;
     int month_count_;
+    QPoint begin_point_;
+    sys::SystemConfig conf_;
+
+    QRect left_arrow_rect_;
+    QRect right_arrow_rect_;
+
 };
 
 }   // namespace ui

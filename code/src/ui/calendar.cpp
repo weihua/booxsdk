@@ -1,8 +1,5 @@
 #include "onyx/ui/calendar.h"
 #include "onyx/screen/screen_proxy.h"
-#include <QPainter>
-#include <QKeyEvent>
-#include <QApplication>
 
 namespace ui {
 
@@ -10,6 +7,23 @@ enum MIN_SIZE_OF_MONTH
 {
     MINW = 200,
     MINH = 200
+};
+
+static const char* SCOPE = "only_for_russian";
+static const QString MONTH_ENG_NAMES[] =
+{
+    QT_TRANSLATE_NOOP("only_for_russian", "January"),
+    QT_TRANSLATE_NOOP("only_for_russian", "February"),
+    QT_TRANSLATE_NOOP("only_for_russian", "March"),
+    QT_TRANSLATE_NOOP("only_for_russian", "April"),
+    QT_TRANSLATE_NOOP("only_for_russian", "May"),
+    QT_TRANSLATE_NOOP("only_for_russian", "June"),
+    QT_TRANSLATE_NOOP("only_for_russian", "July"),
+    QT_TRANSLATE_NOOP("only_for_russian", "August"),
+    QT_TRANSLATE_NOOP("only_for_russian", "September"),
+    QT_TRANSLATE_NOOP("only_for_russian", "October"),
+    QT_TRANSLATE_NOOP("only_for_russian", "November"),
+    QT_TRANSLATE_NOOP("only_for_russian", "December"),
 };
 
 Calendar::Calendar(QWidget *parent)
@@ -101,8 +115,9 @@ void Calendar::drawYear(QPainter* painter, const QRect& rect, int year_height, i
 
 void Calendar::drawArrow(QPainter* painter, int total_width, int total_height, int hor_space, int ver_space, int year_height)
 {
-    int left_arrow_x = total_width/2 - 2*year_height;
-    int right_arrow_x = total_width/2 + 2*year_height + year_height*3/10;
+    int spacing = 100;
+    int left_arrow_x = total_width/2 - 2*year_height - spacing;
+    int right_arrow_x = total_width/2 + 2*year_height + year_height*3/10 + spacing;
     const QPointF arrow_left[3] = 
     {
         QPointF(left_arrow_x + year_height/2, ver_space + year_height/10),
@@ -121,6 +136,15 @@ void Calendar::drawArrow(QPainter* painter, int total_width, int total_height, i
     painter->drawPolygon(arrow_left,3);
     painter->drawPolygon(arrow_right,3);
     painter->setRenderHint(QPainter::Antialiasing,false);
+
+    painter->setPen(QPen(Qt::black, 2));
+    painter->setBrush(Qt::NoBrush);
+    left_arrow_rect_ = QRect(left_arrow_x - year_height*5/4, ver_space,
+            year_height*3, year_height);
+    right_arrow_rect_ = QRect(right_arrow_x - year_height*7/4, ver_space,
+                year_height*3, year_height);
+    painter->drawRect(left_arrow_rect_);
+    painter->drawRect(right_arrow_rect_);
 }
 
 void Calendar::setColAndRow(int& col, int& row, int total_width, int total_height, int hor_space, int ver_space)
@@ -153,6 +177,22 @@ void Calendar::setColAndRow(int& col, int& row, int total_width, int total_heigh
     }
 }
 
+void Calendar::drawMonthName(QPainter* painter, const QRect &month_name_rect,
+        const int month)
+{
+    QLocale locale = conf_.locale();
+    if (locale.language() == QLocale::Russian)
+    {
+        painter->drawText(month_name_rect, Qt::AlignCenter,
+                qApp->translate(SCOPE, MONTH_ENG_NAMES[month-1].toUtf8().data()));
+    }
+    else
+    {
+        painter->drawText(month_name_rect, Qt::AlignCenter,
+                QDate::longMonthName(month));
+    }
+}
+
 void Calendar::drawMonth(QPainter* painter,
                                 int inix,
                                 int iniy,
@@ -173,7 +213,8 @@ void Calendar::drawMonth(QPainter* painter,
     month_font.setBold(true);
     month_font.setPixelSize(day_height);
     painter->setFont(month_font);
-    painter->drawText(month_name_rect, Qt::AlignCenter, QDate::longMonthName(date.month()));
+
+    drawMonthName(painter, month_name_rect, date.month());
 
     // draw week name
     QFont week_font;
@@ -325,6 +366,47 @@ void Calendar::onOkClicked(bool)
 void Calendar::onCloseClicked()
 {
     reject();
+}
+
+void Calendar::mousePressEvent(QMouseEvent *e)
+{
+    e->accept();
+    begin_point_ = e->pos();
+}
+
+void Calendar::mouseReleaseEvent(QMouseEvent *e)
+{
+    e->accept();
+    stylusPan(e->pos(), begin_point_);
+}
+
+void Calendar::stylusPan(const QPoint &now, const QPoint &old)
+{
+    int direction = sys::SystemConfig::direction(old, now);
+
+    if (direction > 0)
+    {
+        ++page_tag_;
+        repaint();
+    }
+    else if (direction < 0)
+    {
+        --page_tag_;
+        repaint();
+    }
+    else
+    {
+        if (left_arrow_rect_.contains(now))
+        {
+            --page_tag_;
+            repaint();
+        }
+        else if (right_arrow_rect_.contains(now))
+        {
+            ++page_tag_;
+            repaint();
+        }
+    }
 }
 
 }   // namespace ui

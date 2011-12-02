@@ -29,7 +29,7 @@ void ReadingStyleActions::generateActions(ReadingStyleType selected)
         act->setCheckable(true);
         act->setData(i);
 
-        QString t(tr("%1% line spacing"));
+        QString t(QCoreApplication::tr("%1% line spacing"));
         int percentage = 80 + (i - STYLE_LINE_SPACING_8) * 10;
         t = t.arg(percentage);
         act->setText(t);
