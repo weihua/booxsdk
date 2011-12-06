@@ -31,7 +31,19 @@ static const ItemStruct DISPLAY_ITEMS[] =
     {QT_TRANSLATE_NOOP("pm","10 minutes to standby\n15 minutes to shutdown"), 600 * 1000, 900 * 1000},
 };
 
+static const ItemStruct ICARUS_DISPLAY_ITEMS[] =
+{
+    {QT_TRANSLATE_NOOP("pm","3 minutes to standby"), 180 * 1000, 0},
+    {QT_TRANSLATE_NOOP("pm","5 minutes to standby"), 300 * 1000, 0},
+    {QT_TRANSLATE_NOOP("pm","10 minutes to standby"), 600 * 1000, 0},
+    {QT_TRANSLATE_NOOP("pm","20 minutes to standby"), 1200 * 1000, 0},
+    {QT_TRANSLATE_NOOP("pm","30 minutes to standby"), 1800 * 1000, 0},
+    {QT_TRANSLATE_NOOP("pm","1 hour to standby"), 3600 * 1000, 0},
+    {QT_TRANSLATE_NOOP("pm","never"), 0, 0},
+};
+
 static const int DISPLAY_COUNT = sizeof(DISPLAY_ITEMS) / sizeof(DISPLAY_ITEMS[0]);
+static const int ICARUS_DISPLAY_COUNT = sizeof(ICARUS_DISPLAY_ITEMS) / sizeof(ICARUS_DISPLAY_ITEMS[0]);
 
 static bool isPmExclusive()
 {
@@ -153,14 +165,25 @@ void PowerManagementDialog::createLayout()
     buttons_.setPreferItemSize(QSize(0, ITEM_HEIGHT));
     ODatas d;
 
-    const int display_cout = isPmExclusive() ? 4: DISPLAY_COUNT;
+    const ItemStruct *ITEMS;
+    int display_cout;
+    if ( qgetenv("CUSTOM_PM").toInt() == 1 )
+    {
+        display_cout = isPmExclusive() ? 4: ICARUS_DISPLAY_COUNT;
+        ITEMS = ICARUS_DISPLAY_ITEMS;
+    }
+    else
+    {
+        display_cout = isPmExclusive() ? 4: DISPLAY_COUNT;
+        ITEMS = DISPLAY_ITEMS;
+    }
     for (int row = 0; row < display_cout; ++row)
     {
         OData * item = new OData;
-        item->insert(TAG_TITLE, qApp->translate(SCOPE, DISPLAY_ITEMS[row].title));
+        item->insert(TAG_TITLE, qApp->translate(SCOPE, ITEMS[row].title));
         item->insert(TITLE_INDEX, row);
-        if ( (sys_standby_interval_ == DISPLAY_ITEMS[row].standby_seconds) &&
-             (sys_shutdown_interval_ == DISPLAY_ITEMS[row].shutdown_seconds)
+        if ( (sys_standby_interval_ == ITEMS[row].standby_seconds) &&
+             (sys_shutdown_interval_ == ITEMS[row].shutdown_seconds)
            )
         {
             interval_selected_ = item;
@@ -226,6 +249,8 @@ void PowerManagementDialog::onButtonChanged(CatalogView *catalog, ContentView *i
     int i = interval_selected_->value(TITLE_INDEX).toInt();
     standby_interval_ = DISPLAY_ITEMS[i].standby_seconds;
     shutdown_interval_ = DISPLAY_ITEMS[i].shutdown_seconds;
+
+    onOkClicked();
 }
 
 bool PowerManagementDialog::event(QEvent* qe)
