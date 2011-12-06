@@ -84,6 +84,12 @@ void ZoomSettingActions::generateActions( const std::vector<ZoomFactor> & values
             act->setText(QCoreApplication::tr("Selection Zoom"));
             act->setIcon(QIcon(QPixmap(":/images/zoom_selection_zoom.png")));
         }
+        else if (*iter == ZOOM_BY_TWO_POINTS)
+        {
+            // two points zooming
+            act->setText(QCoreApplication::tr("Zoom By Two Points"));
+            act->setIcon(QIcon(QPixmap(":/images/zoom_selection_zoom.png")));
+        }
         else if (*iter >= ZOOM_MIN)
         {
             act->setText(QString("%1%").arg(*iter));
