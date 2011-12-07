@@ -103,6 +103,7 @@ enum NetworkType
 
 enum SpecialZoomSetting
 {
+    ZOOM_BY_TWO_POINTS = -6,
     ZOOM_TO_PAGE     = -5,
     ZOOM_TO_WIDTH    = -4,
     ZOOM_TO_HEIGHT   = -3,
