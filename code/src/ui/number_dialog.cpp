@@ -53,6 +53,11 @@ void NumberDialog::setValue(const int value)
 int NumberDialog::popup(const int value, const int total)
 {
     total_ = total;
+    QString t = QCoreApplication::tr("Go To Page");
+    QString p("  %1/%2");
+    p = p.arg(value).arg(total);
+    t += p;
+    updateTitle(t);
 
     validator_.setRange(1, total);
     number_edit_.setValidator(&validator_);
