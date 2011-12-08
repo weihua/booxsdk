@@ -589,6 +589,20 @@ int SystemConfig::whichArea(const QPoint & old_position, const QPoint & new_posi
 QString SystemConfig::downloadFolder()
 {
     QString path;
+
+    // Please note that this path is directory, and should exists
+    // in file system.
+    QString predefined_path = qgetenv("ABSOLUTE_DOWNLOAD_PATH");
+    if (!predefined_path.isEmpty())
+    {
+        path = predefined_path;
+        QDir dir(path);
+        if (dir.exists())
+        {
+            return path;
+        }
+    }
+
     if (isSDMounted())
     {
         path = SDMMC_ROOT;
