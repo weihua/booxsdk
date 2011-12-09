@@ -28,6 +28,10 @@ ContentView * Factory::createView(QWidget *parent, const QString &type)
     {
         target = new ClockView(parent);
     }
+    else if (ButtonView::type() == type)
+    {
+        target = new ButtonView(parent);
+    }
     else
     {
         target = new CoverView(parent);
