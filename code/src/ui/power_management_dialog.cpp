@@ -64,11 +64,11 @@ PowerManagementDialog::PowerManagementDialog(QWidget *parent, SysStatus & ref)
     setModal(true);
     if(isPmExclusive())
     {
-        resize(400, 360);
+        resize(500, 360);
     }
     else
     {
-        resize(400, 500);
+        resize(500, 500);
     }
     interval_selected_ = NULL;
     createLayout();
