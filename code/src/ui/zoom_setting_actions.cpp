@@ -88,7 +88,7 @@ void ZoomSettingActions::generateActions( const std::vector<ZoomFactor> & values
         {
             // two points zooming
             act->setText(QCoreApplication::tr("Zoom By Two Points"));
-            act->setIcon(QIcon(QPixmap(":/images/zoom_selection_zoom.png")));
+            act->setIcon(QIcon(QPixmap(":/images/zoom_by_two_points.png")));
         }
         else if (*iter >= ZOOM_MIN)
         {
