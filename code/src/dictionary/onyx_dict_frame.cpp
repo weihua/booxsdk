@@ -209,7 +209,7 @@ void OnyxDictFrame::createTtsButtonView()
     tts_button_view_.setPreferItemSize(QSize(height, height));
 
     OData *dd = new OData;
-    QPixmap tts_pixmap(":/images/tts_menu.png");
+    QPixmap tts_pixmap(":/images/tts_icon.png");
     dd->insert(TAG_COVER, tts_pixmap);
     dd->insert(TAG_MENU_TYPE, MENU_TTS);
     tts_button_datas_.push_back(dd);
