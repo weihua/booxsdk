@@ -29,6 +29,9 @@ QSize StatusBarItemClock::sizeHint() const
 {
     int w = metrics_->width(time_text_);
     int h = static_cast<int> (metrics_->height());
+#ifndef Q_WS_QWS
+    w += 25;
+#endif
     return QSize(w, h);
 }
 
@@ -39,9 +42,7 @@ QSize StatusBarItemClock::minimumSizeHint() const
 
 void StatusBarItemClock::createLayout()
 {
-    int min_width = metrics_->width("09:99");
-    int height = metrics_->height();
-    setMinimumSize(min_width, height);
+
 }
 
 // return true if new time text is set, return false otherwise.
