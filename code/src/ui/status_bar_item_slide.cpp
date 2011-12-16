@@ -77,8 +77,10 @@ void StatusBarItemProgress::drawMessage(QPainter &painter)
     setFont(font);
     QFontMetrics metrics(font);
 
-    int text_width = metrics.width(message);
-    int x = rect().width() / 2 - text_width / 2;
+    // Jim: add redundace space for displaying full message at x86
+    static int REDUNDANCE = 40;
+    int text_width = metrics.width(message) + REDUNDANCE;
+    int x = rect().width() / 2 - text_width / 2 - REDUNDANCE/2;
     int y = 0;
     int text_height = rect().height() / 2 + 5;
     painter.setPen(Qt::white);
