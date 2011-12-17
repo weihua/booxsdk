@@ -72,13 +72,14 @@ void SwedishKeyboardData::initRightKeyCode()
 
 void SwedishKeyboardData::initBottomKeyCode()
 {
-    const QChar chs[] = {'"', '\'', ',', QChar(0x00E5), QChar(0x00E4),' '};
-    for (int i=0; i<6; i++)
+    const QChar chs[] = {'"', '\'', ',', QChar(0x00E5), QChar(0x00E4)};
+    for (int i=0; i<5; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
         bottom_codes_.push_back(dd);
     }
 
+    bottom_codes_.push_back(ODataPtr(createSpaceData()));
     bottom_codes_.push_back(ODataPtr(createBackspaceData()));
 
     const QChar chs_next[] = {QChar(0x00F6), ';'};
@@ -133,13 +134,14 @@ void SwedishKeyboardData::initRightKeyShiftCode()
 
 void SwedishKeyboardData::initBottomKeyShiftCode()
 {
-    const QChar chs[] = {'-', '_', ':', QChar(0x00C5), QChar(0x00C4), ' '};
-    for (int i=0; i<6; i++)
+    const QChar chs[] = {'-', '_', ':', QChar(0x00C5), QChar(0x00C4)};
+    for (int i=0; i<5; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
         bottom_shift_codes_.push_back(dd);
     }
 
+    bottom_shift_codes_.push_back(ODataPtr(createSpaceData()));
     bottom_shift_codes_.push_back(ODataPtr(createBackspaceData()));
 
     const QChar chs_next[] = {QChar(0x00D6), '?'};

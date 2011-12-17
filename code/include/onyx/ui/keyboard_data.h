@@ -52,6 +52,7 @@ protected:
     OData * createData(const QString & value);
     OData * createBackspaceData();
     OData * createEnterData();
+    OData * createSpaceData();
 
 protected:
     // Use these data for initialization.

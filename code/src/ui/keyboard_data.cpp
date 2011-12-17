@@ -106,6 +106,16 @@ OData * KeyboardData::createEnterData()
     return dd;
 }
 
+OData * KeyboardData::createSpaceData()
+{
+    QPixmap space_pixmap(":/images/space_key.png");
+    OData * dd = new OData;
+    dd->insert(TAG_COVER, space_pixmap);
+    dd->insert(TAG_SPECIAL_KEY, Qt::Key_Space);
+    dd->insert(TAG_SPECIAL_KEY_TEXT, " ");
+    return dd;
+}
+
 void KeyboardData::initMenuKeyCode()
 {
     ODataPtr dd(createData(QApplication::tr("Shift")));

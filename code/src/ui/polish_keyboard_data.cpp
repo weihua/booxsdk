@@ -84,13 +84,16 @@ void PolishKeyboardData::initRightKeyCode()
 
 void PolishKeyboardData::initBottomKeyCode()
 {
-    const QChar chs[] = {Polish_Character[1][1], Polish_Character[2][1], Polish_Character[3][1], Polish_Character[4][1], Polish_Character[5][1], ' '};//{'+', '-', '_', '"', ',', };
-    for (int i=0; i<6; i++)
+    const QChar chs[] = {Polish_Character[1][1], Polish_Character[2][1],
+            Polish_Character[3][1], Polish_Character[4][1],
+            Polish_Character[5][1]};
+    for (int i=0; i<5; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
         bottom_codes_.push_back(dd);
     }
 
+    bottom_codes_.push_back(ODataPtr(createSpaceData()));
     bottom_codes_.push_back(ODataPtr(createBackspaceData()));
 
     const QChar chs_next[] = {Polish_Character[7][1], Polish_Character[8][1], Polish_Character[6][1]}; //{};
@@ -146,13 +149,16 @@ void PolishKeyboardData::initRightKeyShiftCode()
 
 void PolishKeyboardData::initBottomKeyShiftCode()
 {
-    const QChar chs[] = {Polish_Character[1][0], Polish_Character[2][0], Polish_Character[3][0], Polish_Character[4][0], Polish_Character[5][0], ' '};//{'\\', '/', '[', ']', '=', };
-    for (int i=0; i<6; i++)
+    const QChar chs[] = {Polish_Character[1][0], Polish_Character[2][0],
+            Polish_Character[3][0], Polish_Character[4][0],
+            Polish_Character[5][0]};
+    for (int i=0; i<5; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
         bottom_shift_codes_.push_back(dd);
     }
 
+    bottom_shift_codes_.push_back(ODataPtr(createSpaceData()));
     bottom_shift_codes_.push_back(ODataPtr(createBackspaceData()));
 
     const QChar chs_next[] = {Polish_Character[7][0], Polish_Character[8][0], Polish_Character[6][0]};//{'?', ':'};

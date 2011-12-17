@@ -83,13 +83,14 @@ void RussianKeyboardData::initRightKeyCode()
 void RussianKeyboardData::initBottomKeyCode()
 {
     const QChar chs[] = {'.', ',', QChar(0x0437), QChar(0x0445),
-            QChar(0x0434), ' '};
-    for (int i=0; i<6; i++)
+            QChar(0x0434)};
+    for (int i=0; i<5; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
         bottom_codes_.push_back(dd);
     }
 
+    bottom_codes_.push_back(ODataPtr(createSpaceData()));
     ODataPtr dd(createBackspaceData());
     bottom_codes_.push_back(dd);
 
@@ -144,13 +145,14 @@ void RussianKeyboardData::initRightKeyShiftCode()
 void RussianKeyboardData::initBottomKeyShiftCode()
 {
     const QChar chs[] = {';', '\'', QChar(0x0437).toUpper(), QChar(0x0445).toUpper(),
-            QChar(0x0434).toUpper(), ' '};
-    for (int i=0; i<6; i++)
+            QChar(0x0434).toUpper()};
+    for (int i=0; i<5; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
         bottom_shift_codes_.push_back(dd);
     }
 
+    bottom_shift_codes_.push_back(ODataPtr(createSpaceData()));
     ODataPtr dd(createBackspaceData());
     bottom_shift_codes_.push_back(dd);
 

@@ -72,13 +72,14 @@ void EnglishKeyboardData::initRightKeyCode()
 
 void EnglishKeyboardData::initBottomKeyCode()
 {
-    const QChar chs[] = {'+', '-', '_', '"', ',', ' '};
-    for (int i=0; i<6; i++)
+    const QChar chs[] = {'+', '-', '_', '"', ','};
+    for (int i=0; i<5; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
         bottom_codes_.push_back(dd);
     }
 
+    bottom_codes_.push_back(ODataPtr(createSpaceData()));
     bottom_codes_.push_back(ODataPtr(createBackspaceData()));
 
     const QChar chs_next[] = {'\'', ';'};
@@ -133,13 +134,14 @@ void EnglishKeyboardData::initRightKeyShiftCode()
 
 void EnglishKeyboardData::initBottomKeyShiftCode()
 {
-    const QChar chs[] = {'\\', '/', '[', ']', '=', ' '};
-    for (int i=0; i<6; i++)
+    const QChar chs[] = {'\\', '/', '[', ']', '='};
+    for (int i=0; i<5; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
         bottom_shift_codes_.push_back(dd);
     }
 
+    bottom_shift_codes_.push_back(ODataPtr(createSpaceData()));
     bottom_shift_codes_.push_back(ODataPtr(createBackspaceData()));
 
     const QChar chs_next[] = {'?', ':'};
