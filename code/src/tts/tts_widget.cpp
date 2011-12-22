@@ -9,44 +9,13 @@ using namespace ui;
 namespace tts
 {
 
-static const QString TTS_BUTTON_STYLE =   "\
-QPushButton                             \
-{                                       \
-    background: transparent;            \
-    font-size: 14px;                    \
-    border-color: transparent;          \
-    padding: 0px;                       \
-}                                       \
-QPushButton:checked                     \
-{                                       \
-    padding-left: 0px;                  \
-    padding-top: 0px;                   \
-    border-color: black;                \
-    background-color: black;            \
-}                                       \
-QPushButton:focus {                     \
-    border-width: 2px;                  \
-    border-color: black;                \
-    border-style: solid;                \
-    border-radius: 3;                   \
-}                                       \
-QPushButton:disabled                    \
-{                                       \
-    padding-left: 0px;                  \
-    padding-top: 0px;                   \
-    border-color: dark;                 \
-    color: dark;                        \
-    background-color: white;            \
-}";
-
 TTSWidget::TTSWidget(QWidget *parent, TTS & ref)
     : QDialog(parent, Qt::WindowStaysOnTopHint|Qt::FramelessWindowHint)
     , tts_(ref)
     , layout_(this)
-    , menu_button_(tr(""), 0)
-    , play_button_(tr(""), 0)
-    , close_button_(tr(""), 0)
-    , volume_button_(tr(""), 0)
+    , play_icon(":/images/tts_play.png")
+    , stop_icon(":/images/tts_stop.png")
+    , buttons_(0)
 {
     createLayout();
     setModal(false);
@@ -173,14 +142,14 @@ void TTSWidget::startPlaying()
         resume();
     }*/
 
-    play_button_.setIcon(stop_icon_);
+    play_data->insert(TAG_COVER, stop_icon);
     update();
     onyx::screen::instance().flush(this, onyx::screen::ScreenProxy::GU, false);
 }
 
 bool TTSWidget::pause()
 {
-    play_button_.setIcon(play_icon_);
+    play_data->insert(TAG_COVER, play_icon);
     update();
     onyx::screen::instance().flush(this, onyx::screen::ScreenProxy::GU, false);
     return tts_.pause();
@@ -188,7 +157,7 @@ bool TTSWidget::pause()
 
 bool TTSWidget::resume()
 {
-    play_button_.setIcon(stop_icon_);
+    play_data->insert(TAG_COVER, stop_icon);
     update();
     onyx::screen::instance().flush(this, onyx::screen::ScreenProxy::GU, false);
     return tts_.resume();
@@ -201,7 +170,7 @@ bool TTSWidget::toggle()
 
 bool TTSWidget::stop()
 {
-    play_button_.setIcon(play_icon_);
+    play_data->insert(TAG_COVER, play_icon);
     onyx::screen::instance().flush(this, onyx::screen::ScreenProxy::GU, false);
     return tts_.stop();
 }
@@ -256,59 +225,59 @@ void TTSWidget::createLayout()
     layout_.setContentsMargins(2, 2, 2, 2);
     layout_.setSpacing(10);
 
-    menu_button_.setStyleSheet(TTS_BUTTON_STYLE);
-    QPixmap menu_map(":/images/tts_menu.png");
-    menu_button_.setIcon(QIcon(menu_map));
-    menu_button_.setIconSize(menu_map.size());
-    menu_button_.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    menu_button_.setCheckable(true);
+    ODatas button_data;
+    buttons_.setSubItemType(CoverView::type());
+    buttons_.setPreferItemSize(play_icon.size());
 
-    play_button_.setStyleSheet(TTS_BUTTON_STYLE);
-    QSize icon_size;
-    play_icon_ = loadIcon(":/images/tts_play.png", icon_size);
-    stop_icon_ = loadIcon(":/images/tts_stop.png", icon_size);
+    // menu button.
+    {
+        OData * dd = new OData;
+        QPixmap menu_map(":/images/tts_menu.png");
+        dd->insert(TAG_COVER, menu_map);
+        dd->insert(TAG_ID, MENU_);
+        button_data.push_back(dd);
+    }
 
-    play_button_.setIcon(stop_icon_);
-    play_button_.setIconSize(icon_size);
-    play_button_.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    play_button_.setCheckable(true);
+    // play button
+    {
+        play_data = new OData;
+        play_data->insert(TAG_COVER, play_icon);
+        play_data->insert(TAG_ID, PLAY_);
+        button_data.push_back(play_data);
+    }
 
-    volume_button_.setStyleSheet(TTS_BUTTON_STYLE);
-    QPixmap volume_map(":/images/tts_volume.png");
-    volume_button_.setIcon(QIcon(volume_map));
-    volume_button_.setIconSize(volume_map.size());
-    volume_button_.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    volume_button_.setCheckable(true);
+    // volume button
+    {
+        OData * dd = new OData;
+        QPixmap volume_map(":/images/tts_volume.png");
+        dd->insert(TAG_COVER, volume_map);
+        dd->insert(TAG_ID, VOLUME_);
+        button_data.push_back(dd);
+    }
 
-    close_button_.setStyleSheet(TTS_BUTTON_STYLE);
-    QPixmap close_map(":/images/tts_close.png");
-    close_button_.setIcon(QIcon(close_map));
-    close_button_.setIconSize(close_map.size());
-    close_button_.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    close_button_.setCheckable(true);
+    // close button
+    {
+        OData * dd = new OData;
+        QPixmap close_map(":/images/tts_close.png");
+        dd->insert(TAG_COVER, close_map);
+        dd->insert(TAG_ID, CLOSE_);
+        button_data.push_back(dd);
+    }
 
-    button_group_.addButton(&menu_button_);
-    button_group_.addButton(&play_button_);
-    button_group_.addButton(&volume_button_);
-    button_group_.addButton(&close_button_);
-    button_group_.setExclusive(true);
-
-    layout_.addWidget(&menu_button_);
-    layout_.addWidget(&play_button_);
-    layout_.addWidget(&volume_button_);
-    layout_.addWidget(&close_button_);
+    buttons_.setData(button_data);
+    buttons_.setFixedGrid(1, 4);
+    buttons_.setSpacing(5);
+    buttons_.setMinimumHeight(play_icon.height()+10);
+    buttons_.setMinimumWidth(play_icon.width()*4+30);
+    buttons_.setCheckedTo(0, 0);
 
     // Setup connection.
-    connect(&menu_button_, SIGNAL(clicked(bool)), this,
-            SLOT(onPopupMenu(bool)), Qt::QueuedConnection);
-    connect(&play_button_, SIGNAL(clicked(bool)), this,
-            SLOT(onPlayClicked(bool)), Qt::QueuedConnection);
-    connect(&volume_button_, SIGNAL(clicked(bool)), this,
-            SLOT(onVolumeButtonsPressed(bool)), Qt::QueuedConnection);
-    connect(&close_button_, SIGNAL(clicked(bool)), this,
-            SLOT(onCloseClicked(bool)), Qt::QueuedConnection);
     connect(&tts_, SIGNAL(speakDone()), this, SLOT(onTextPlayed()));
 
+    connect(&buttons_, SIGNAL(itemActivated(CatalogView*,ContentView*,int)),
+            this, SLOT(onItemActivated(CatalogView *, ContentView *, int)), Qt::QueuedConnection);
+
+    layout_.addWidget(&buttons_);
 }
 
 void TTSWidget::onPlayClicked(bool)
@@ -457,6 +426,35 @@ void TTSWidget::onTextPlayed()
     }
 
     emit speakDone();
+}
+
+void TTSWidget::onItemActivated(CatalogView *catalog, ContentView *item, int user_data)
+{
+    if (!item || !item->data())
+    {
+        return;
+    }
+
+    OData * item_data = item->data();
+    int type = item_data->value(TAG_ID).toInt();
+
+    switch(type)
+    {
+    case MENU_:
+        onPopupMenu(true);
+        break;
+    case PLAY_:
+        onPlayClicked(true);
+        break;
+    case VOLUME_:
+        onVolumeButtonsPressed(true);
+        break;
+    case CLOSE_:
+        onCloseClicked(true);
+        break;
+    default:
+        break;
+    }
 }
 
 }
