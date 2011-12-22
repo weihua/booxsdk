@@ -22,7 +22,7 @@ USBConnectionDialog::USBConnectionDialog(QWidget *parent)
 : MessageDialog(QMessageBox::Information,
                 tr("USB Connection"),
                 tr(""),
-                QMessageBox::Yes|QMessageBox::No)
+                QMessageBox::Yes|QMessageBox::No, parent)
 {
     MessageDialog::updateInformation(tr("USB connection detected. Do you want to connect to PC?"));
 }
@@ -35,7 +35,7 @@ DeleteFileDialog::DeleteFileDialog(const QString &path, QWidget *parent)
 : MessageDialog(QMessageBox::Warning,
                 tr("Delete"),
                 tr(""),
-                QMessageBox::Yes|QMessageBox::No)
+                QMessageBox::Yes|QMessageBox::No, parent)
 {
     QString str(tr("Do you want to remove %1?"));
     QFileInfo info(path);
@@ -52,7 +52,7 @@ FormatFlashDialog::FormatFlashDialog(QWidget *parent)
 : MessageDialog(QMessageBox::Warning,
                 tr("Warning"),
                 tr("Do you want to format internal flash, it will erase all data on flash?"),
-                QMessageBox::Yes|QMessageBox::No)
+                QMessageBox::Yes|QMessageBox::No, parent)
 {
 }
 
@@ -65,7 +65,7 @@ FormatSDDialog::FormatSDDialog(QWidget *parent)
 : MessageDialog(QMessageBox::Warning,
                 tr("Warning"),
                 tr("Do you want to format SD card, it will erase all data on SD card?"),
-                QMessageBox::Yes|QMessageBox::No)
+                QMessageBox::Yes|QMessageBox::No, parent)
 {
 }
 
