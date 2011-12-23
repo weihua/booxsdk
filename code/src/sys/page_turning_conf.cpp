@@ -1,5 +1,9 @@
 // Authors: John
 
+#ifdef BUILD_FOR_ARM
+#include <QtGui/qscreen_qws.h>
+#endif
+
 /// Public header of the system configuration library.
 #include "onyx/sys/page_turning_conf.h"
 
@@ -96,6 +100,29 @@ int PageTurningConfig::distance()
         THRESHOLD = 10;
     }
     return THRESHOLD;
+}
+
+int PageTurningConfig::whichArea(const QPoint & old_position, const QPoint & new_position)
+{
+    QRect screen = QApplication::desktop()->screenGeometry();
+    int degree = 0;
+#ifdef BUILD_FOR_ARM
+    degree = QScreen::instance()->transformOrientation() * 90;
+#endif
+    if (degree == 90 || degree == 270)
+    {
+        screen.setSize(QSize(screen.height(), screen.width()));
+    }
+
+    if (new_position.x() < screen.width() / 3)
+    {
+        return -1;
+    }
+    else if (new_position.x() > screen.width() * 2 / 3)
+    {
+        return 1;
+    }
+    return 0;
 }
 
 }   // namespace sys.

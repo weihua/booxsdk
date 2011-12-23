@@ -88,7 +88,8 @@ enum ReadingToolsType
     AUTO_LOAD_IMAGE,
     CLOCK_TOOL,
     COMIC_MODE,
-    UNDEFINED_TOOL
+    IMAGE_EMBOLDEN_TOOL,
+    UNDEFINED_TOOL,
 };
 
 enum NetworkType
@@ -102,6 +103,7 @@ enum NetworkType
 
 enum SpecialZoomSetting
 {
+    ZOOM_BY_TWO_POINTS = -6,
     ZOOM_TO_PAGE     = -5,
     ZOOM_TO_WIDTH    = -4,
     ZOOM_TO_HEIGHT   = -3,
@@ -170,6 +172,7 @@ enum SystemAction
     FULL_SCREEN,
     EXIT_FULL_SCREEN,
     BACKLIGHT_BRIGHTNESS,
+    SYSTEM_VOLUME,
 };
 
 enum AnnotationMode
