@@ -15,11 +15,27 @@ namespace screen
 const int PORT = 5678;
 
 static ScreenCommand command_;
-static QUdpSocket socket_;
+static bool g_unix_socket_ = false;
+static QUdpSocket udp_socket_;
+static QLocalSocket unix_socket_;
 
-inline static void connect()
+inline static void connectUdpSocket()
 {
-    socket_.connectToHost(QHostAddress(QHostAddress::LocalHost), PORT);
+    udp_socket_.connectToHost(QHostAddress(QHostAddress::LocalHost), PORT);
+}
+
+inline static void connectUnixSocket()
+{
+    unix_socket_.connectToServer(qgetenv("SCREEN_SERVER_ADDRESS").data());
+}
+
+inline static QIODevice & socket()
+{
+    if (g_unix_socket_)
+    {
+        return unix_socket_;
+    }
+    return udp_socket_;
 }
 
 // TODO: sendCommand should only take one argument. The second is redundant.
@@ -29,12 +45,12 @@ inline static void sendCommand(
 {
     // qDebug("sendCommand at %s", qPrintable(QTime::currentTime().toString("mm:ss.zzz")));
     command.wait_flags = wait;
-    socket_.write(reinterpret_cast<const char *>(&command), sizeof(command));
+    socket().write(reinterpret_cast<const char *>(&command), sizeof(command));
     if (wait & ScreenCommand::WAIT_COMMAND_FINISH)
     {
-        if (socket_.waitForReadyRead(3000))
+        if (socket().waitForReadyRead(3000))
         {
-            socket_.read(reinterpret_cast<char *>(&command), sizeof(command));
+            socket().read(reinterpret_cast<char *>(&command), sizeof(command));
         }
     }
 }
@@ -42,13 +58,21 @@ inline static void sendCommand(
 ScreenProxy::ScreenProxy()
 : enable_update_(true)
 , policy_(INVALID_POLICY)
-  , waveform_(ScreenProxy::GC)
-  , previous_waveform_(ScreenProxy::GC)
-  , user_data_(0)
-  , gc_interval_(1)
-  , gu_count_(0)
+, waveform_(ScreenProxy::GC)
+, previous_waveform_(ScreenProxy::GC)
+, user_data_(0)
+, gc_interval_(1)
+, gu_count_(0)
 {
-    connect();
+    g_unix_socket_ = (qgetenv("USE_UNIX_SOCKET").toInt() > 0);
+    if (g_unix_socket_)
+    {
+        connectUnixSocket();
+    }
+    else
+    {
+        connectUdpSocket();
+    }
 }
 
 ScreenProxy::~ScreenProxy()
