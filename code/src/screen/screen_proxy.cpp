@@ -16,26 +16,28 @@ const int PORT = 5678;
 
 static ScreenCommand command_;
 static bool g_unix_socket_ = false;
-static QUdpSocket udp_socket_;
-static QLocalSocket unix_socket_;
+static QUdpSocket *udp_socket_ = 0;
+static QLocalSocket *unix_socket_ = 0;
 
 inline static void connectUdpSocket()
 {
-    udp_socket_.connectToHost(QHostAddress(QHostAddress::LocalHost), PORT);
+    udp_socket_ = new QUdpSocket;
+    udp_socket_->connectToHost(QHostAddress(QHostAddress::LocalHost), PORT);
 }
 
 inline static void connectUnixSocket()
 {
-    unix_socket_.connectToServer(qgetenv("SCREEN_SERVER_ADDRESS").data());
+    unix_socket_ = new QLocalSocket;
+    unix_socket_->connectToServer(qgetenv("SCREEN_SERVER_ADDRESS").data());
 }
 
 inline static QIODevice & socket()
 {
     if (g_unix_socket_)
     {
-        return unix_socket_;
+        return *unix_socket_;
     }
-    return udp_socket_;
+    return *udp_socket_;
 }
 
 // TODO: sendCommand should only take one argument. The second is redundant.
@@ -77,6 +79,17 @@ ScreenProxy::ScreenProxy()
 
 ScreenProxy::~ScreenProxy()
 {
+    if (unix_socket_)
+    {
+        delete unix_socket_;
+        unix_socket_ = 0;
+    }
+
+    if (udp_socket_)
+    {
+        delete udp_socket_;
+        udp_socket_ = 0;
+    }
 }
 
 void ScreenProxy::setGCInterval(const int interval)
