@@ -27,12 +27,12 @@ MenuItem::~MenuItem()
 /// Can return a hardcode value for all menu items.
 QSize MenuItem::sizeHint() const
 {
-    return QSize(90, 95);
+    return QSize(80, 95);
 }
 
 QSize MenuItem::minimumSizeHint() const
 {
-    return QSize(90, 95);
+    return QSize(80, 95);
 }
 
 bool MenuItem::event(QEvent *e)
