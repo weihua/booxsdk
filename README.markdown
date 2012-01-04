@@ -10,7 +10,7 @@ ebook readers produced by Onyx International.
 ## Development environment
 
 The toolchain used for cross-compiling can be obtained at
-`https://github.com/onyx-intl/toolchain`. This repository contains toolchains for various processors (platforms). Each directory is for one platform.
+https://github.com/onyx-intl/toolchain. This repository contains toolchains for various processors (platforms). Each directory is for one platform.
 
 ### imx31
 The directory `imx31` is for BOOX A(X)60/A(X)60S, M90.
@@ -33,7 +33,7 @@ Then download some prebuilt third-party libraries:
     cd /opt/onyx/ && ln -s arm_imx508/ arm
 
 If you want to build the third-party libraries from source, you can
-get the source code at `http://opensource.onyx-international.com/`
+get the source code at http://opensource.onyx-international.com/
 
 To build the SDK, install CMake and Rake, then run
     rake build:arm:default
