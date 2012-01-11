@@ -1,6 +1,7 @@
 #include "onyx/ui/keyboard_navigator.h"
 #include "onyx/ui/number_dialog.h"
 #include "onyx/screen/screen_proxy.h"
+#include "onyx/screen/screen_update_watcher.h"
 
 namespace ui
 {
@@ -35,6 +36,7 @@ NumberDialog::NumberDialog(QWidget *parent)
             SLOT(onBackspaceClicked()));
 
     createLayout();
+    onyx::screen::watcher().addWatcher(this);
 }
 
 NumberDialog::~NumberDialog(void)
@@ -68,13 +70,8 @@ int NumberDialog::popup(const int value, const int total)
     number_edit_.selectAll();
     int w = contentsRect().width() - 2 * MARGINS;
     number_edit_.setFixedWidth(w);
-    onyx::screen::instance().flush();
-    onyx::screen::instance().updateWidgetRegion(
-        0,
-        outbounding(parentWidget()),
-        onyx::screen::ScreenProxy::GC,
-        false,
-        onyx::screen::ScreenCommand::WAIT_ALL);
+    onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC);
+    onyx::screen::instance().enableUpdate(true);
     return QDialog::exec();
 }
 
@@ -157,11 +154,9 @@ bool NumberDialog::event(QEvent * event)
     bool ret = OnyxDialog::event(event);
     if (event->type() == QEvent::UpdateRequest && onyx::screen::instance().isUpdateEnabled())
     {
-        onyx::screen::instance().updateWidget(
-            this,
-            onyx::screen::ScreenProxy::DW,
-            false,
-            onyx::screen::ScreenCommand::WAIT_NONE);
+        onyx::screen::watcher().enqueue(this,
+                                        onyx::screen::ScreenProxy::DW,
+                                        onyx::screen::ScreenCommand::WAIT_ALL);
     }
     return ret;
 }
@@ -172,7 +167,7 @@ void NumberDialog::onCloseClicked()
     reject();
     QApplication::processEvents();
     onyx::screen::instance().enableUpdate(true);
-    onyx::screen::instance().updateWidget(0, onyx::screen::ScreenProxy::GC);
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC);
 }
 
 void NumberDialog::onNumberClicked(const int number)
@@ -184,11 +179,6 @@ void NumberDialog::onNumberClicked(const int number)
     QApplication::postEvent(&number_edit_, key_event);
 
     update();
-    onyx::screen::instance().updateWidget(
-        &number_edit_,
-        onyx::screen::ScreenProxy::DW,
-        false,
-        onyx::screen::ScreenCommand::WAIT_ALL);
 }
 
 void NumberDialog::onBackspaceClicked()
@@ -197,11 +187,6 @@ void NumberDialog::onBackspaceClicked()
     QApplication::postEvent(&number_edit_, key_event);
 
     update();
-    onyx::screen::instance().updateWidget(
-        &number_edit_,
-        onyx::screen::ScreenProxy::DW,
-        false,
-        onyx::screen::ScreenCommand::WAIT_ALL);
 }
 
 }   // namespace ui
