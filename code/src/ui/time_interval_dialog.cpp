@@ -1,6 +1,7 @@
 #include "onyx/ui/keyboard_navigator.h"
 #include "onyx/ui/time_interval_dialog.h"
 #include "onyx/screen/screen_proxy.h"
+#include "onyx/screen/screen_update_watcher.h"
 
 namespace ui
 {
@@ -34,6 +35,7 @@ TimeIntervalDialog::TimeIntervalDialog(QWidget *parent)
             SLOT(onBackspaceClicked()));
 
     createLayout();
+    onyx::screen::watcher().addWatcher(this);
 }
 
 TimeIntervalDialog::~TimeIntervalDialog(void)
@@ -56,19 +58,15 @@ int TimeIntervalDialog::popup(const int value, const int total)
     validator_.setRange(1, total);
     number_edit_.setValidator(&validator_);
 
+    onyx::screen::instance().enableUpdate(false);
     shadows_.show(true);
     show();
 
     number_edit_.selectAll();
     int w = contentsRect().width() - 2 * MARGINS - second_label.size().width();
     number_edit_.setFixedWidth(w);
-    onyx::screen::instance().flush();
-    onyx::screen::instance().updateWidgetRegion(
-        0,
-        outbounding(parentWidget()),
-        onyx::screen::ScreenProxy::GC,
-        false,
-        onyx::screen::ScreenCommand::WAIT_ALL);
+    onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC);
+    onyx::screen::instance().enableUpdate(true);
     return QDialog::exec();
 }
 
@@ -161,11 +159,9 @@ bool TimeIntervalDialog::event(QEvent * event)
     bool ret = OnyxDialog::event(event);
     if (event->type() == QEvent::UpdateRequest && onyx::screen::instance().isUpdateEnabled())
     {
-        onyx::screen::instance().updateWidget(
-            this,
-            onyx::screen::ScreenProxy::DW,
-            false,
-            onyx::screen::ScreenCommand::WAIT_NONE);
+        onyx::screen::watcher().enqueue(this,
+                                        onyx::screen::ScreenProxy::DW,
+                                        onyx::screen::ScreenCommand::WAIT_ALL);
     }
     return ret;
 }
@@ -176,7 +172,7 @@ void TimeIntervalDialog::onCloseClicked()
     reject();
     QApplication::processEvents();
     onyx::screen::instance().enableUpdate(true);
-    onyx::screen::instance().updateWidget(0, onyx::screen::ScreenProxy::GC);
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC);
 }
 
 void TimeIntervalDialog::onNumberClicked(const int number)
@@ -188,11 +184,6 @@ void TimeIntervalDialog::onNumberClicked(const int number)
     QApplication::postEvent(&number_edit_, key_event);
 
     update();
-    onyx::screen::instance().updateWidget(
-        &number_edit_,
-        onyx::screen::ScreenProxy::DW,
-        false,
-        onyx::screen::ScreenCommand::WAIT_ALL);
 }
 
 void TimeIntervalDialog::onBackspaceClicked()
@@ -201,11 +192,6 @@ void TimeIntervalDialog::onBackspaceClicked()
     QApplication::postEvent(&number_edit_, key_event);
 
     update();
-    onyx::screen::instance().updateWidget(
-        &number_edit_,
-        onyx::screen::ScreenProxy::DW,
-        false,
-        onyx::screen::ScreenCommand::WAIT_ALL);
 }
 
 } //ui

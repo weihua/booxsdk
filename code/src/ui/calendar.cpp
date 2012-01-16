@@ -30,6 +30,7 @@ Calendar::Calendar(QWidget *parent)
 : QDialog(parent, Qt::FramelessWindowHint)
 , page_tag_(0)
 , month_count_(0)
+, flush_type_(onyx::screen::ScreenProxy::GU)
 {
     setFocusPolicy(Qt::StrongFocus);
     setFocus();
@@ -338,7 +339,8 @@ bool Calendar::event(QEvent *e)
     int ret = QWidget::event(e);
     if (e->type() == QEvent::UpdateRequest)
     {
-        onyx::screen::instance().updateWidget(this, onyx::screen::ScreenProxy::GC, true, onyx::screen::ScreenCommand::WAIT_ALL);
+        onyx::screen::instance().updateWidget(this, flush_type_, true, onyx::screen::ScreenCommand::WAIT_ALL);
+        flush_type_ = onyx::screen::ScreenProxy::GC;
         e->accept();
         return true;
     }
@@ -360,11 +362,13 @@ void Calendar::onReturn()
 
 void Calendar::onOkClicked(bool)
 {
+    flush_type_ = onyx::screen::ScreenProxy::GU;
     accept();
 }
 
 void Calendar::onCloseClicked()
 {
+    flush_type_ = onyx::screen::ScreenProxy::GU;
     reject();
 }
 

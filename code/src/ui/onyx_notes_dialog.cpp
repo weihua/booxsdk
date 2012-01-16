@@ -35,9 +35,9 @@ int OnyxNotesDialog::popup(const QString & text)
     {
         show();
     }
-    QWidget * widget = safeParentWidget(parentWidget());
-    resize(widget->width(), height());
-    move(widget->x(), widget->height() - height());
+    QRect rect = ui::screenGeometry();
+    resize(rect.width(), height());
+    move(0, rect.height() - height());
     return exec();
 }
 
