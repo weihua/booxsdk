@@ -187,6 +187,26 @@ void OnyxHandwritingWidget::createCharSubsetList()
 
     char_subset_list_.setSearchPolicy(CatalogView::NeighborFirst
             | CatalogView::AutoVerRecycle);
+
+    // set current locale
+    QLocale current_locale = QLocale::system();
+    QModelIndex index = HandwritingFunctionsModel::instance().getIndexBySetting(
+            current_locale.language(), char_subset_model_);
+    if (index.isValid())
+    {
+        QStandardItem *default_item = char_subset_model_.itemFromIndex(index);
+
+        int size = char_subset_list_datas_.size();
+        for (int i=0; i<size; i++)
+        {
+            ODataPtr p = char_subset_list_datas_.at(i);
+            if (p->value(TAG_TITLE).toString() ==  default_item->text())
+            {
+                char_subset_list_.select(p);
+                break;
+            }
+        }
+    }
 }
 
 void OnyxHandwritingWidget::connectWithChildren()
