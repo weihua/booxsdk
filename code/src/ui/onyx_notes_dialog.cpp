@@ -235,14 +235,11 @@ bool OnyxNotesDialog::eventFilter(QObject *obj, QEvent *event)
 void OnyxNotesDialog::keyPressEvent(QKeyEvent *event)
 {
     int key = event->key();
-    // TODO (Jim) need to find out why Qt::Key_F23 exists in sketching
-    // of handwriting.
     if (Qt::Key_Up != key
             && Qt::Key_Down != key
             && Qt::Key_Left != key
             && Qt::Key_Right != key
-            && Qt::Key_Return != key
-            && Qt::Key_F23 != key)
+            && Qt::Key_Return != key)
     {
         if (Qt::Key_Enter == key && KeyboardData::ENTER_TEXT != event->text())
         {
