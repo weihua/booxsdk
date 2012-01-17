@@ -69,6 +69,7 @@ private Q_SLOTS:
     void onProgressChanged(const int percent, const int value);
     void onMenuClicked();
     bool onItemStatusChanged(const StatusBarItemType type, const int state);
+    void onViewportChanged(const QRect & parent, const QRect & child);
 
     // handle the events from system status manager
     void onBatterySignal(int value, int status);

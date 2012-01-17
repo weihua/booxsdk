@@ -7,6 +7,7 @@
 #include "onyx/ui/status_bar_item_power.h"
 #include "onyx/ui/status_bar_item_slide.h"
 #include "onyx/ui/status_bar_item_stylus.h"
+#include "onyx/ui/status_bar_item_viewport.h"
 #include "onyx/ui/status_bar_item_text.h"
 #include "onyx/ui/status_bar_item_clock.h"
 #include "onyx/ui/status_bar_item_refresh_screen.h"
@@ -119,7 +120,7 @@ void StatusBar::addItems(StatusBarItemTypes items)
     const StatusBarItemType all[] =
     {
         MENU, PROGRESS, MESSAGE, STYLUS, CLOCK, INPUT_TEXT, VOLUME, SCREEN_REFRESH, INPUT_URL,THREEG_CONNECTION,
-        CONNECTION, MUSIC_PLAYER, BATTERY
+        CONNECTION, VIEWPORT, MUSIC_PLAYER, BATTERY
     };
     const int size = sizeof(all)/sizeof(all[0]);
     for(int i = 0; i < size; ++i)
@@ -303,6 +304,18 @@ void StatusBar::onProgressChanged(const int percent,
                                   const int value)
 {
     emit progressClicked(percent, value);
+}
+
+void StatusBar::onViewportChanged(const QRect & parent,
+                                  const QRect & child)
+{
+    StatusBarItem *ptr = item(VIEWPORT, false);
+    if (ptr)
+    {
+        StatusBarItemViewport *wnd = static_cast<StatusBarItemViewport*>(ptr);
+        wnd->setViewport(parent, child);
+        wnd->repaint();
+    }
 }
 
 void StatusBar::onMenuClicked()
@@ -781,6 +794,9 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
                 this, SLOT(onProgressChanging(const int, const int)));
         connect(item, SIGNAL(clicked(const int, const int)),
                 this, SLOT(onProgressChanged(const int, const int)));
+        break;
+    case VIEWPORT:
+        item = new StatusBarItemViewport(this);
         break;
     default:
         break;
