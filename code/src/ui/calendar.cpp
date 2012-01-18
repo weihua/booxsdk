@@ -1,5 +1,6 @@
 #include "onyx/ui/calendar.h"
 #include "onyx/screen/screen_proxy.h"
+#include "onyx/screen/screen_update_watcher.h"
 
 namespace ui {
 
@@ -35,6 +36,7 @@ Calendar::Calendar(QWidget *parent)
     setFocusPolicy(Qt::StrongFocus);
     setFocus();
     setModal(true);
+    onyx::screen::watcher().addWatcher(this);
 }
 
 Calendar::~Calendar(void)
@@ -290,7 +292,7 @@ int Calendar::exec()
     showFullScreen();
     QApplication::processEvents();
     onyx::screen::instance().enableUpdate(true);
-    onyx::screen::instance().updateWidget(this, onyx::screen::ScreenProxy::GC, true, onyx::screen::ScreenCommand::WAIT_ALL);
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC, onyx::screen::ScreenCommand::WAIT_ALL);
 
     return QDialog::exec();
 }
@@ -312,6 +314,7 @@ void Calendar::keyReleaseEvent(QKeyEvent *ke)
         {
             --page_tag_;
             repaint();
+            onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC, onyx::screen::ScreenCommand::WAIT_ALL);
             break;
         }
         case Qt::Key_Right:
@@ -319,6 +322,7 @@ void Calendar::keyReleaseEvent(QKeyEvent *ke)
         {
             ++page_tag_;
             repaint();
+            onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC, onyx::screen::ScreenCommand::WAIT_ALL);
             break;
         }
         case Qt::Key_Down:
@@ -337,13 +341,6 @@ void Calendar::keyReleaseEvent(QKeyEvent *ke)
 bool Calendar::event(QEvent *e)
 {
     int ret = QWidget::event(e);
-    if (e->type() == QEvent::UpdateRequest)
-    {
-        onyx::screen::instance().updateWidget(this, flush_type_, true, onyx::screen::ScreenCommand::WAIT_ALL);
-        flush_type_ = onyx::screen::ScreenProxy::GC;
-        e->accept();
-        return true;
-    }
     return ret;
 }
 
@@ -355,6 +352,12 @@ void Calendar::paintEvent(QPaintEvent *)
     drawPage(&painter,date);
 }
 
+void Calendar::showEvent(QShowEvent *)
+{
+    update();
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC, onyx::screen::ScreenCommand::WAIT_ALL);
+}
+
 void Calendar::onReturn()
 {
     onOkClicked(true);
@@ -362,13 +365,11 @@ void Calendar::onReturn()
 
 void Calendar::onOkClicked(bool)
 {
-    flush_type_ = onyx::screen::ScreenProxy::GU;
     accept();
 }
 
 void Calendar::onCloseClicked()
 {
-    flush_type_ = onyx::screen::ScreenProxy::GU;
     reject();
 }
 
@@ -392,11 +393,13 @@ void Calendar::stylusPan(const QPoint &now, const QPoint &old)
     {
         ++page_tag_;
         repaint();
+        onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC, onyx::screen::ScreenCommand::WAIT_ALL);
     }
     else if (direction < 0)
     {
         --page_tag_;
         repaint();
+        onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC, onyx::screen::ScreenCommand::WAIT_ALL);
     }
     else
     {
@@ -404,11 +407,13 @@ void Calendar::stylusPan(const QPoint &now, const QPoint &old)
         {
             --page_tag_;
             repaint();
+            onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC, onyx::screen::ScreenCommand::WAIT_ALL);
         }
         else if (right_arrow_rect_.contains(now))
         {
             ++page_tag_;
             repaint();
+            onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC, onyx::screen::ScreenCommand::WAIT_ALL);
         }
     }
 }

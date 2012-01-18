@@ -29,6 +29,7 @@ private:
     bool event(QEvent *e);
     void createLayout();
     void paintEvent(QPaintEvent *);
+    void showEvent(QShowEvent *);
     void drawMonthName(QPainter* painter, const QRect &month_name_rect,
             const int month);
     void drawMonth(QPainter* painter,
