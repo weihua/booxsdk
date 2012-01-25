@@ -446,4 +446,23 @@ void SketchActions::setSketchMode(const SketchMode mode, bool checked)
     }
 }
 
+QActionGroup * SketchActions::annotationModes()
+{
+    return anno_modes_.get();
+}
+QActionGroup * SketchActions::sketchModes()
+{
+    return sketch_modes_.get();
+}
+
+QActionGroup * SketchActions::colors()
+{
+    return colors_.get();
+}
+
+QActionGroup * SketchActions::shapes()
+{
+    return shapes_.get();
+}
+
 }
