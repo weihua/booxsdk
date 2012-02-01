@@ -4,6 +4,8 @@
 #include "onyx/ui/polish_keyboard_data.h"
 #include "onyx/ui/swedish_keyboard_data.h"
 #include "onyx/ui/georgian_keyboard_data.h"
+#include "onyx/ui/german_keyboard_data.h"
+#include "onyx/ui/hebrew_keyboard_data.h"
 #include "onyx/ui/keyboard_data.h"
 
 namespace ui
@@ -16,6 +18,8 @@ KeyboardDataFactory::KeyboardDataFactory()
     registerKeyboardData(QLocale::Polish, new PolishKeyboardData());
     registerKeyboardData(QLocale::Swedish, new SwedishKeyboardData());
     registerKeyboardData(QLocale::Georgian, new GeorgianKeyboardData());
+    registerKeyboardData(QLocale::German, new GermanKeyboardData());
+    registerKeyboardData(QLocale::Hebrew, new HebrewKeyboardData());
 }
 
 KeyboardDataFactory::~KeyboardDataFactory()
