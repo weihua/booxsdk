@@ -33,6 +33,13 @@ void ReadingToolsActions::generateActions(const vector<ReadingToolsType> & value
     for(vector<ReadingToolsType>::const_iterator iter = begin;
         iter != end; ++iter)
     {
+        //Check to disable TTS if need
+        if ((*iter == TEXT_TO_SPEECH) &&
+            (qgetenv("DISABLE_TTS").toInt() > 0))
+        {
+            continue;
+        }
+
         // Add to category automatically.
         shared_ptr<QAction> act(new QAction(exclusiveGroup()));
 
