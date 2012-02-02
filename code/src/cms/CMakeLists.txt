@@ -17,4 +17,8 @@ set(SRCS
   media_info_manager.cpp)
 
 add_library(onyx_cms ${SRCS})
+TARGET_LINK_LIBRARIES(onyx_cms
+    ${QT_LIBRARIES}
+    ${ADD_LIB})
+
 strict_warning(onyx_cms)

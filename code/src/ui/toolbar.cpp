@@ -98,6 +98,7 @@ OnyxToolBar::OnyxToolBar(QWidget *parent)
 
 OnyxToolBar::~OnyxToolBar()
 {
+    clear();
 }
 
 void OnyxToolBar::addAction(QAction *action)
@@ -105,6 +106,16 @@ void OnyxToolBar::addAction(QAction *action)
     OnyxToolBarItemPtr ptr(new OnyxToolBarItem(this, *action));
     items_.push_back(ptr);
     layout_.insertWidget(items_.size() - 1, ptr.get());
+}
+
+void OnyxToolBar::clear()
+{
+    for(size_t i = 0; i < items_.size(); ++i)
+    {
+        layout_.removeWidget(items_[i].get());
+        items_[i].reset(0);
+    }
+    items_.clear();
 }
 
 bool OnyxToolBar::event(QEvent *e)

@@ -335,7 +335,7 @@ void KeyBoard::init(const QLocale & locale)
         for (int k = 0; k < keys[i].size(); ++k)
         {
             uint code = keys[i][k];
-            QSize key_size = keyboard_layout_->getKeySize(code);
+            //QSize key_size = keyboard_layout_->getKeySize(code);
             shared_ptr<KeyBoardKey> key(new KeyBoardKey(keyboard_layout_.get(), this));
 
             int key_location = 0;

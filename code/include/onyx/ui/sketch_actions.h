@@ -64,6 +64,12 @@ public:
     /// Retrieve the selected sketch mode.
     SketchActionsType getSelectedValue(int & value, bool & checked);
 
+public:
+    QActionGroup * annotationModes();
+    QActionGroup * sketchModes();
+    QActionGroup * colors();
+    QActionGroup * shapes();
+
 private Q_SLOTS:
     void onSketchTriggered(bool checked);
     void onEraseTriggered(bool checked);
