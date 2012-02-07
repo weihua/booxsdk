@@ -34,8 +34,9 @@ void ReadingToolsActions::generateActions(const vector<ReadingToolsType> & value
         iter != end; ++iter)
     {
         //Check to disable TTS if need
-        if ((*iter == TEXT_TO_SPEECH) &&
-            (qgetenv("DISABLE_TTS").toInt() > 0))
+        if (((*iter == TEXT_TO_SPEECH) && (qgetenv("DISABLE_TTS").toInt() > 0)) ||
+            ((*iter == DICTIONARY_TOOL) && (qgetenv("DISABLE_DICT").toInt() > 0))
+           )
         {
             continue;
         }
