@@ -179,6 +179,12 @@ void PowerManagementDialog::createLayout()
     }
     for (int row = 0; row < display_cout; ++row)
     {
+        if ( qgetenv("DISABLE_NEVER_STANDBY_SHUTDOWN").toInt() > 0 &&
+             ITEMS[row].standby_seconds == 0 &&
+             ITEMS[row].shutdown_seconds == 0)
+        {
+            continue;
+        }
         OData * item = new OData;
         item->insert(TAG_TITLE, qApp->translate(SCOPE, ITEMS[row].title));
         item->insert(TITLE_INDEX, row);
