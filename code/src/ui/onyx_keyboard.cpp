@@ -349,7 +349,7 @@ void OnyxKeyboard::symbolClicked()
     }
     else
     {
-        top_.setData(keyboard_data_->topCodes(true));
+        top_.setData(keyboard_data_->topCodes(true, true));
         left_.setData(keyboard_data_->leftSymbolCodes());
         middle_.setData(keyboard_data_->middleSymbolCodes());
         right_.setData(keyboard_data_->rightSymbolCodes());
