@@ -11,6 +11,7 @@ const QString KeyboardData::ENTER_TEXT = "enter";
 
 KeyboardData::KeyboardData()
 {
+    initTopKeySymbolCode();
     initMenuKeyCode();
 }
 
@@ -34,8 +35,12 @@ KeyboardData::~KeyboardData()
     clearDatas(right_symbol_codes_);
 }
 
-ODatas & KeyboardData::topCodes(bool shift)
+ODatas & KeyboardData::topCodes(bool shift, bool symbol)
 {
+    if (symbol)
+    {
+        return top_symbol_codes_;
+    }
     return (!shift? top_codes_: top_shift_codes_);
 }
 
@@ -144,5 +149,14 @@ void KeyboardData::initMenuKeyCode()
     }
 }
 
+void KeyboardData::initTopKeySymbolCode()
+{
+    const QChar chs[] = { '!', '@', '#', '$', '%', '^', '&', '*', '(', ')'};
+    for (int i = 0; i < 10; i++)
+    {
+        ODataPtr dd(createData(QString(chs[i])));
+        top_symbol_codes_.push_back(dd);
+    }
+}
 
 }   // namespace ui
