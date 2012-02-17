@@ -36,6 +36,8 @@ QSize bestDialogSize();
 
 QString sizeString(int size);
 
+bool is97inch();
+
 };
 
 #endif  // ONYX_UI_UTILS_H_

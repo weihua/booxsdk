@@ -119,6 +119,13 @@ QString sizeString(int size)
     return string;
 }
 
+bool is97inch()
+{
+    int w = qgetenv("SCREEN_WIDTH").toInt();
+    int h = qgetenv("SCREEN_HEIGHT").toInt();
+    return (w >= 1200 || h >= 1200);
+}
+
 }
 
 
