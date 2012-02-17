@@ -112,6 +112,14 @@ void SystemActions::generateActions(const std::vector<int> & actions)
             }
         case SYSTEM_VOLUME:
             {
+                // when music and tts both are disabled, do not show volume configure
+                bool music_available = sys::SystemConfig::isMusicPlayerAvailable();
+                bool disable_tts = qgetenv("DISABLE_TTS").toInt();
+                if (!music_available && disable_tts)
+                {
+                    continue;
+                }
+
                 // system volume.
                 shared_ptr<QAction> volume(new QAction(exclusiveGroup()));
                 volume->setCheckable(true);
