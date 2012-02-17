@@ -24,9 +24,9 @@ typedef float ZoomFactor;
 enum ViewType
 {
     INVALID_VIEW = -1,
-    LIST_VIEW = 0,
+    THUMBNAIL_VIEW = 0,
     DETAILS_VIEW,
-    THUMBNAIL_VIEW
+    LIST_VIEW,
 };
 
 
