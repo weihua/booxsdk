@@ -764,9 +764,21 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
         connect(item, SIGNAL(clicked()), this, SLOT(onClockClicked()));
         break;
     case VOLUME:
-        item = new StatusBarItemVolume(this);
-        connect(item, SIGNAL(clicked()), this, SLOT(onVolumeClicked()));
-        break;
+        {
+            // when music and tts both are disabled, do not show volume icon
+            bool music_available = sys::SystemConfig::isMusicPlayerAvailable();
+            bool disable_tts = qgetenv("DISABLE_TTS").toInt();
+            if (!music_available && disable_tts)
+            {
+                item = 0;
+            }
+            else
+            {
+                item = new StatusBarItemVolume(this);
+                connect(item, SIGNAL(clicked()), this, SLOT(onVolumeClicked()));
+            }
+            break;
+        }
     case SCREEN_REFRESH:
         item = new StatusBarItemRefreshScreen(this);
         connect(item, SIGNAL(clicked()), this, SLOT(onScreenRefreshClicked()));
