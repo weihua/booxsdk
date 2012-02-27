@@ -7,7 +7,7 @@ namespace ui
 LowBatteryDialog::LowBatteryDialog(QWidget *parent)
 : MessageDialog(QMessageBox::Warning,
                 tr("Warning"),
-                tr("Low battery please charge."),
+                tr("Low battery, please charge."),
                 QMessageBox::Yes,
                 parent)
 {
