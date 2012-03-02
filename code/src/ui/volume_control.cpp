@@ -10,7 +10,7 @@ static const int TIMEOUT = 3000;
 static QVector<int> volumes;
 
 // VolumeControlDialog
-VolumeControlDialog::VolumeControlDialog(QWidget *parent)
+VolumeControlDialog::VolumeControlDialog(QWidget *parent, int time_out)
     : QDialog(parent, static_cast<Qt::WindowFlags>(Qt::WindowStaysOnTopHint|Qt::FramelessWindowHint))
     , layout_(this)
     , image_(":/images/volume_strength.png")
@@ -19,6 +19,7 @@ VolumeControlDialog::VolumeControlDialog(QWidget *parent)
     , max_(1)
     , pressing_value_(-1)
     , label_(0)
+    , time_out_(time_out)
 {
     SysStatus & sys_status = SysStatus::instance();
     SystemConfig conf;
@@ -68,7 +69,14 @@ void VolumeControlDialog::done(int r)
 void VolumeControlDialog::resetTimer()
 {
     timer_.stop();
-    timer_.start(TIMEOUT);
+    if (0 != time_out_)
+    {
+        timer_.start(time_out_);
+    }
+    else
+    {
+        timer_.start(TIMEOUT);
+    }
 }
 
 int VolumeControlDialog::ensureVisible()
