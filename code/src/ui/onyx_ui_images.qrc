@@ -241,6 +241,7 @@
     <file>images/lock_home_and_back.png</file>
     <file>images/lock_page_turning.png</file>
     <file>images/comic_mode.png</file>
+    <file>images/reading_options.png</file>
 
     <file>images/system_volume.png</file>
   </qresource>

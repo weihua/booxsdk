@@ -89,6 +89,7 @@ enum ReadingToolsType
     CLOCK_TOOL,
     COMIC_MODE,
     IMAGE_EMBOLDEN_TOOL,
+    READING_OPTIONS,
     UNDEFINED_TOOL,
 };
 
