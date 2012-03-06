@@ -59,6 +59,7 @@ DictWidget::DictWidget(QWidget *parent, DictionaryManager & dict, tts::TTS *tts)
     initDictionaries();
 
     connect(&timer_, SIGNAL(timeout()), this, SLOT(onTimeout()));
+    connect(&explanation_text_, SIGNAL(highlighted(QString)), this, SLOT(lookup(QString)));
 }
 
 DictWidget::~DictWidget()

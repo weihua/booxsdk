@@ -59,6 +59,7 @@ OnyxDictFrame::OnyxDictFrame(QWidget *parent, DictionaryManager & dict,
     SysStatus & sys_status = SysStatus::instance();
     connect(&sys_status, SIGNAL(volumeChanged(int, bool)), this, SLOT(onSystemVolumeChanged(int, bool)));
 
+    connect(&explanation_, SIGNAL(highlighted(QString)), this, SLOT(lookup(QString)));
     explanation_.installEventFilter(this);
     list_widget_.installEventFilter(this);
 }
@@ -348,6 +349,7 @@ void OnyxDictFrame::formatResult(QString &result, QString &fuzzy_word)
 
 bool OnyxDictFrame::lookup(const QString &word)
 {
+    this->editor()->setText(word);
     if (word.isEmpty())
     {
         return false;
