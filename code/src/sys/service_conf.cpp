@@ -345,7 +345,6 @@ void ServiceConfig::loadDefaultServices()
 
         audio_player.mutable_extensions().push_back("mp3");
         audio_player.mutable_extensions().push_back("wav");
-        audio_player.mutable_extensions().push_back("wma");
         DEFAULT_SERVICES.push_back(audio_player);
 
         music_player.mutable_extensions().push_back("mp3");
@@ -447,6 +446,14 @@ bool ServiceConfig::mediaService(QSqlDatabase &, Service & service)
         media_service.mutable_extensions().push_back("rm");
         media_service.mutable_extensions().push_back("wma");
         media_service.mutable_extensions().push_back("wav");
+
+        // extra audio formats that customers requested
+        media_service.mutable_extensions().push_back("amr");
+        media_service.mutable_extensions().push_back("flac");
+        media_service.mutable_extensions().push_back("ape");
+        media_service.mutable_extensions().push_back("mid");
+        media_service.mutable_extensions().push_back("aac");
+        media_service.mutable_extensions().push_back("m4a");
 
         media_service.mutable_extensions().push_back("avi");
         media_service.mutable_extensions().push_back("akv");
