@@ -25,7 +25,7 @@ VolumeControlDialog::VolumeControlDialog(QWidget *parent, int time_out)
     SystemConfig conf;
     min_ = conf.minVolume();
     max_ = conf.maxVolume();
-    volumes = conf.volumes();
+    volumes = conf.volumes().mid(1);
     conf.close();
 
     current_ = sys_status.volume() - min_;
@@ -128,33 +128,15 @@ void VolumeControlDialog::mousePressEvent(QMouseEvent *me)
     resetTimer();
     me->accept();
 
-    QRect rc1, rc2;
-    rc1 = rectForVolume(0);
-    int value = -1;
-    for(int i = 1; i < volumes.size(); ++i)
+    QRect rc;
+    int value=current_;
+    for(int i = 0; i < volumes.size(); ++i)
     {
-        rc2 = rectForVolume(i);
-        if (rc1.left() < me->pos().x() &&
-            me->pos().x() < rc2.left() &&
-            me->pos().y() > rc2.top())
+        rc = rectForVolume(i);
+        if (rc.contains(me->pos()))
         {
-            value = volumes[i - 1];
+            value = volumes[i];
             break;
-        }
-        rc1 = rc2;
-    }
-
-    if (value < 0)
-    {
-        rc1 = rectForVolume(0);
-        rc2 = rectForVolume(volumes.size() - 1);
-        if (me->pos().x() < rc1.left())
-        {
-            value = min_;
-        }
-        else if (me->pos().x() >= rc2.left())
-        {
-            value = max_;
         }
     }
 
