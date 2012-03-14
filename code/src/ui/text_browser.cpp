@@ -2,6 +2,7 @@
 #include <QtGui/QtGui>
 #include "onyx/ui/text_browser.h"
 #include "onyx/sys/sys.h"
+#include "onyx/screen/screen_proxy.h"
 
 namespace ui
 {
@@ -15,6 +16,13 @@ OnyxTextBrowser::OnyxTextBrowser(QWidget *parent)
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setFrameShadow(QFrame::Plain);
     setFrameShape(QFrame::Panel);
+
+    QPalette palette(this->palette());
+    palette.setBrush(QPalette::Active, QPalette::Highlight, palette.highlight());
+    palette.setBrush(QPalette::Inactive, QPalette::Highlight, palette.highlight());
+    palette.setColor(QPalette::Highlight, Qt::black);
+    palette.setColor(QPalette::HighlightedText, Qt::white);
+    this->setPalette(palette);
 }
 
 OnyxTextBrowser::~OnyxTextBrowser()
@@ -50,6 +58,16 @@ void OnyxTextBrowser::mouseReleaseEvent(QMouseEvent *me)
 
 void OnyxTextBrowser::mouseDoubleClickEvent(QMouseEvent * event)
 {
+    QTextBrowser::mouseDoubleClickEvent(event);
+    QTextCursor tc = cursorForPosition(event->pos());
+    QString select_text;
+    tc.select(QTextCursor::WordUnderCursor);
+    select_text = tc.selectedText();
+    if(!select_text.isEmpty())
+    {
+        onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::DW);
+        emit highlighted(select_text);
+    }
     event->accept();
 }
 

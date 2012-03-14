@@ -253,6 +253,12 @@ void ReadingToolsActions::generateActions(const vector<ReadingToolsType> & value
                 act->setIcon(QIcon(QPixmap(":/images/sketch_shape_5.png")));
             }
             break;
+        case READING_OPTIONS:
+            {
+                act->setText(QCoreApplication::tr("Reading Options"));
+                act->setIcon(QIcon(QPixmap(":/images/reading_options.png")));
+            }
+            break;
         default:
             break;
         }

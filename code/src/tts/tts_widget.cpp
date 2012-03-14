@@ -211,13 +211,6 @@ void TTSWidget::resizeEvent(QResizeEvent *e)
     update_parent_ = true;
 }
 
-static QIcon loadIcon(const QString & path, QSize & size)
-{
-    QPixmap pixmap(path);
-    size = pixmap.size();
-    return QIcon(pixmap);
-}
-
 void TTSWidget::createLayout()
 {
     // top box
@@ -324,7 +317,7 @@ VolumeControlDialog *TTSWidget::volumeDialog(bool create)
 {
     if (!volume_dialog_ && create)
     {
-        volume_dialog_.reset(new VolumeControlDialog(0));
+        volume_dialog_.reset(new VolumeControlDialog(0, 3500));
     }
     return volume_dialog_.get();
 }

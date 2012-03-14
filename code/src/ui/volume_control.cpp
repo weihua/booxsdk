@@ -10,7 +10,7 @@ static const int TIMEOUT = 3000;
 static QVector<int> volumes;
 
 // VolumeControlDialog
-VolumeControlDialog::VolumeControlDialog(QWidget *parent)
+VolumeControlDialog::VolumeControlDialog(QWidget *parent, int time_out)
     : QDialog(parent, static_cast<Qt::WindowFlags>(Qt::WindowStaysOnTopHint|Qt::FramelessWindowHint))
     , layout_(this)
     , image_(":/images/volume_strength.png")
@@ -19,12 +19,13 @@ VolumeControlDialog::VolumeControlDialog(QWidget *parent)
     , max_(1)
     , pressing_value_(-1)
     , label_(0)
+    , time_out_(time_out)
 {
     SysStatus & sys_status = SysStatus::instance();
     SystemConfig conf;
     min_ = conf.minVolume();
     max_ = conf.maxVolume();
-    volumes = conf.volumes();
+    volumes = conf.volumes().mid(1);
     conf.close();
 
     current_ = sys_status.volume() - min_;
@@ -68,7 +69,14 @@ void VolumeControlDialog::done(int r)
 void VolumeControlDialog::resetTimer()
 {
     timer_.stop();
-    timer_.start(TIMEOUT);
+    if (0 != time_out_)
+    {
+        timer_.start(time_out_);
+    }
+    else
+    {
+        timer_.start(TIMEOUT);
+    }
 }
 
 int VolumeControlDialog::ensureVisible()
@@ -120,33 +128,15 @@ void VolumeControlDialog::mousePressEvent(QMouseEvent *me)
     resetTimer();
     me->accept();
 
-    QRect rc1, rc2;
-    rc1 = rectForVolume(0);
-    int value = -1;
-    for(int i = 1; i < volumes.size(); ++i)
+    QRect rc;
+    int value=current_;
+    for(int i = 0; i < volumes.size(); ++i)
     {
-        rc2 = rectForVolume(i);
-        if (rc1.left() < me->pos().x() &&
-            me->pos().x() < rc2.left() &&
-            me->pos().y() > rc2.top())
+        rc = rectForVolume(i);
+        if (rc.contains(me->pos()))
         {
-            value = volumes[i - 1];
+            value = volumes[i];
             break;
-        }
-        rc1 = rc2;
-    }
-
-    if (value < 0)
-    {
-        rc1 = rectForVolume(0);
-        rc2 = rectForVolume(volumes.size() - 1);
-        if (me->pos().x() < rc1.left())
-        {
-            value = min_;
-        }
-        else if (me->pos().x() >= rc2.left())
-        {
-            value = max_;
         }
     }
 

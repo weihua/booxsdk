@@ -328,7 +328,11 @@ QString SystemConfig::notesTemplate(int index)
     if (!dir.cd(NOTES_TEMPLATE))
     {
         dir = QDir::home();
-        dir.cd(NOTES_TEMPLATE);
+        if (!dir.cd(NOTES_TEMPLATE))
+        {
+            dir = QDir("/usr/share/");
+            dir.cd(NOTES_TEMPLATE);
+        }
     }
 
     QDir::Filters filters = QDir::Files|QDir::NoDotAndDotDot;
