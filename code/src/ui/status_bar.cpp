@@ -323,6 +323,11 @@ void StatusBar::onMenuClicked()
     emit menuClicked();
 }
 
+void StatusBar::onStylusClicked()
+{
+    emit stylusClicked();
+}
+
 void StatusBar::onMessageAreaClicked()
 {
     if (!isJumpToPageEnabled())
@@ -799,6 +804,7 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
         break;
     case STYLUS:
         item = new StatusBarItemStylus(this);
+        connect(item, SIGNAL(clicked()), this, SLOT(onStylusClicked()));
         break;
     case PROGRESS:
         item = new StatusBarItemProgress(this);

@@ -69,6 +69,11 @@ MainWindow::MainWindow(QObject *parent)
             SLOT(onPopupContextMenu()));
 
     connect(&status_bar_,
+            SIGNAL(stylusClicked()),
+            this,
+            SLOT(onStatusBarStylusClicked()));
+
+    connect(&status_bar_,
             SIGNAL(progressClicked(const int, const int)),
             this,
             SLOT(onPagebarClicked(const int, const int)));
@@ -195,6 +200,11 @@ void MainWindow::onPagebarClicked(const int percent, const int value)
 void MainWindow::onPopupContextMenu()
 {
     emit popupContextMenu();
+}
+
+void MainWindow::onStatusBarStylusClicked()
+{
+    emit statusBarStylusClicked();
 }
 
 void MainWindow::handleItemStatusChanged(const StatusBarItemType type,

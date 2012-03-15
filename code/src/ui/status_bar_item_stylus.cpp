@@ -40,6 +40,17 @@ void StatusBarItemStylus::paintEvent(QPaintEvent *pe)
     painter.drawImage(point, img);
 }
 
+void StatusBarItemStylus::mousePressEvent(QMouseEvent *me)
+{
+    me->accept();
+}
+
+void StatusBarItemStylus::mouseReleaseEvent(QMouseEvent *me)
+{
+    me->accept();
+    emit clicked();
+}
+
 QImage & StatusBarItemStylus::image()
 {
     int key = state();
