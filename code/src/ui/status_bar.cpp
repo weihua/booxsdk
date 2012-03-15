@@ -378,6 +378,8 @@ void StatusBar::onBatteryClicked()
 
 void StatusBar::onMusicPlayerClicked()
 {
+    onyx::screen::instance().flush(this, onyx::screen::ScreenProxy::GU);
+    sys::SysStatus::instance().requestMusicPlayer(sys::START_PLAYER);
 }
 
 void StatusBar::onClockClicked()
