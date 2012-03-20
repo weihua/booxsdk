@@ -20,6 +20,7 @@ const char * const TOUCH_SCREEN_DEVICE = "/dev/ttymxc1";
 const char * const USB_ROOT            = "/media/usb";
 const char * const SDMMC_ROOT          = "/media/sd";
 const char * const LIBRARY_ROOT        = "/media/flash";
+const char * const LIBRARY2_ROOT        = "/media/flash2";
 
 // Default download directory
 const char * const DOWNLOAD_ROOT       = "/media/sd/download";

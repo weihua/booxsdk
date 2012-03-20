@@ -693,9 +693,28 @@ QString SystemConfig::memInfo()
 QString SystemConfig::flashInfo()
 {
     QString mount_point("/media/flash");
+    QString mount_point2("/media/flash2");
+    QString flash("%1/%2 MB");
+    int total_free_flash_size=freeSpace(mount_point)+freeSpace(mount_point2);
+    int total_flash_size=diskSpace(mount_point)+diskSpace(mount_point2);
+    flash=flash.arg(total_free_flash_size/1024/1024).arg(total_flash_size/1024/1024);
+    return flash; 
+}
+
+QString SystemConfig::storage1Info()
+{
+    QString mount_point("/media/flash");
     QString flash("%1/%2 MB");
     flash=flash.arg(freeSpace(mount_point)/1024/1024).arg(diskSpace(mount_point)/1024/1024);
-    return flash; 
+    return flash;
+}
+
+QString SystemConfig::storage2Info()
+{
+    QString mount_point("/media/flash2");
+    QString flash("%1/%2 MB");
+    flash=flash.arg(freeSpace(mount_point)/1024/1024).arg(diskSpace(mount_point)/1024/1024);
+    return flash;
 }
 
 bool SystemConfig::showBrowsingHistory()

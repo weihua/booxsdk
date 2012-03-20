@@ -134,6 +134,8 @@ public:
 
     QString cpuInfo();
     QString memInfo();
+    QString storage1Info();
+    QString storage2Info();
     QString flashInfo();
 
     // Enable to change boot splash.
