@@ -153,6 +153,13 @@ enum SketchShape
     UNKNOWN_SKETCH_SHAPE
 };
 
+enum SketchMiscItem
+{
+    SKETCH_MISC_INVALID_ITEM = 299,
+    SKETCH_MISC_PAN_MODE = 300,
+    SKETCH_MISC_TOGGLE_ANNOTATION_VISIBLE // toggle both annot and sketch's visible
+};
+
 enum RotateDegree
 {
     INVALID_ROTATE_DEGREE = -1,

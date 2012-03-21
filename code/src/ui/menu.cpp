@@ -268,6 +268,17 @@ QAction * PopupMenu::selectedCategory()
     return selected_category_;
 }
 
+void PopupMenu::setSelectedCategory(QAction *category)
+{
+    for (MenuItemsIter it = categroy_section_.items().begin();
+         it != categroy_section_.items().end();
+         it++) {
+        if ((*it)->action() == category) {
+            selected_category_ = category;
+        }
+    }
+}
+
 void PopupMenu::updateClickedItem(QWidget *wnd)
 {
     onyx::screen::instance().enableUpdate(false);

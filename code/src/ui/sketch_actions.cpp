@@ -76,6 +76,13 @@ void SketchActions::onShapeTriggered(QAction *action)
     ctx_.active_checked_status = true;
 }
 
+void SketchActions::onMiscItemTriggered(QAction *action)
+{
+    ctx_.active_type           = SKETCH_MISC_ITEM;
+    ctx_.cur_misc_item         = action->data().toInt();
+    ctx_.active_checked_status = true;
+}
+
 void SketchActions::generateAnnotationMode(const AnnotationModes & modes,
                                            const AnnotationMode selected_mode)
 {
@@ -358,6 +365,51 @@ void SketchActions::generateSketchShapes(const SketchShapes & shapes,
             SLOT(onShapeTriggered(QAction*)));
 }
 
+void SketchActions::generateSketchMiscItems(const SketchMiscItems &items)
+{
+    misc_items_.reset(new QActionGroup(0));
+    misc_items_->setExclusive(true);
+
+    SketchMiscItems::const_iterator begin = items.begin();
+    SketchMiscItems::const_iterator end   = items.end();
+    for(SketchMiscItems::const_iterator iter = begin; iter != end; ++iter)
+    {
+        // Add to group automatically.
+        shared_ptr<QAction> act(new QAction(misc_items_.get()));
+
+        // Change font and make it as checkable.
+        act->setCheckable(true);
+        act->setData(*iter);
+
+        switch (*iter) {
+        case SKETCH_MISC_PAN_MODE:
+            {
+                act->setText(QCoreApplication::tr("Hand Tool"));
+                act->setIcon(QIcon(QPixmap(":/images/scroll_page.png")));
+                break;
+            }
+        case SKETCH_MISC_TOGGLE_ANNOTATION_VISIBLE:
+            {
+                act->setText(QCoreApplication::tr("Show annotations"));
+                act->setIcon(QIcon(QPixmap(":/images/retrieve_word.png")));
+                break;
+            }
+        default:
+            break;
+        }
+        actions_.push_back(act);
+    }
+
+    shared_ptr<QAction> separator(new QAction(misc_items_.get()));
+    separator->setSeparator(true);
+    actions_.push_back(separator);
+
+    connect(misc_items_.get(),
+            SIGNAL(triggered(QAction*)),
+            this,
+            SLOT(onMiscItemTriggered(QAction*)));
+}
+
 SketchActionsType SketchActions::getSelectedValue(int & value, bool & checked)
 {
     switch (ctx_.active_type)
@@ -373,6 +425,9 @@ SketchActionsType SketchActions::getSelectedValue(int & value, bool & checked)
         break;
     case SKETCH_SHAPE:
         value = ctx_.cur_shape;
+        break;
+    case SKETCH_MISC_ITEM:
+        value = ctx_.cur_misc_item;
         break;
     default:
         value = -1;
@@ -459,6 +514,26 @@ void SketchActions::setSketchMode(const SketchMode mode, bool checked)
                  (*iter)->data().toInt() < MODE_UNKNOWN)
         {
             (*iter)->setChecked(false);
+        }
+    }
+}
+
+void SketchActions::setAnnotationVisible(bool value)
+{
+    vector< shared_ptr<QAction> >::const_iterator begin = actions_.begin();
+    vector< shared_ptr<QAction> >::const_iterator end   = actions_.end();
+    for(vector< shared_ptr<QAction> >::const_iterator iter = begin;
+        iter != end;
+        ++iter)
+    {
+        if ((*iter)->data().toInt() == static_cast<int>(SKETCH_MISC_TOGGLE_ANNOTATION_VISIBLE))
+        {
+            if (value) {
+                (*iter)->setText(QCoreApplication::tr("Hide Annotations"));
+            }
+            else {
+                (*iter)->setText(QCoreApplication::tr("Show Annotations"));
+            }
         }
     }
 }
