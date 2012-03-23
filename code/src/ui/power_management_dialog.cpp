@@ -157,7 +157,7 @@ void PowerManagementDialog::createLayout()
         t.clear();
     }
     battery_power_.setText(t);
-    if (!qgetenv("DISABLE_DISPLAY_BATTERY_STATUS").toInt())
+    if (qgetenv("ENABLE_DISPLAY_BATTERY_STATUS").toInt())
     {
         ver_layout_.addWidget(&battery_power_);
     }
