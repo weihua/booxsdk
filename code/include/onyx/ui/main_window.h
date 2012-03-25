@@ -41,6 +41,8 @@ public Q_SLOTS:
     void handlePopupJumpPageDialog();
     void handleClockClicked();
 
+    void onVolumeClicked();
+
 Q_SIGNALS:
     // base signals
     void createView(int type,

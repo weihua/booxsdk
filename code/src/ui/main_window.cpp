@@ -192,6 +192,11 @@ void MainWindow::handleClockClicked()
     status_bar_.onClockClicked();
 }
 
+void MainWindow::onVolumeClicked()
+{
+    status_bar_.onVolumeClicked();
+}
+
 void MainWindow::onPagebarClicked(const int percent, const int value)
 {
     emit pagebarClicked(percent, value - 1);

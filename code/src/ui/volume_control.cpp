@@ -25,7 +25,7 @@ VolumeControlDialog::VolumeControlDialog(QWidget *parent, int time_out)
     SystemConfig conf;
     min_ = conf.minVolume();
     max_ = conf.maxVolume();
-    volumes = conf.volumes().mid(1);
+    volumes = conf.volumes().mid(0);
     conf.close();
 
     current_ = sys_status.volume() - min_;
@@ -111,9 +111,9 @@ void VolumeControlDialog::paintEvent(QPaintEvent *e)
     painter.setRenderHint(QPainter::Antialiasing);
     painter.fillRect(rect(), QBrush(QColor(190, 190, 190)));
 
-    for (int i = 0; i < volumes.size(); ++i)
+    for (int i = 1; i < volumes.size(); ++i)
     {
-        painter.fillRect(rectForVolume(i), current_ >= volumes[i] ? Qt::black : Qt::white);
+        painter.fillRect(rectForVolume(i-1), current_ >= volumes[i] ? Qt::black : Qt::white);
     }
 }
 
@@ -130,9 +130,9 @@ void VolumeControlDialog::mousePressEvent(QMouseEvent *me)
 
     QRect rc;
     int value=current_;
-    for(int i = 0; i < volumes.size(); ++i)
+    for(int i = 1; i < volumes.size(); ++i)
     {
-        rc = rectForVolume(i);
+        rc = rectForVolume(i-1);
         if (rc.contains(me->pos()))
         {
             value = volumes[i];
@@ -170,7 +170,40 @@ bool VolumeControlDialog::event(QEvent *e)
 
 void VolumeControlDialog::keyPressEvent(QKeyEvent *ke)
 {
-    ke->ignore();
+    ke->accept();
+}
+
+int VolumeControlDialog::getVolumeIndex(int volume_value)
+{
+    int volume_index = -1;
+    int size = volumes.size();
+    for(int i = 0; i < size; ++i)
+    {
+        if (volume_value == volumes[i])
+        {
+            volume_index = i;
+            break;
+        }
+    }
+    return volume_index;
+}
+
+void VolumeControlDialog::manipulateVolume(bool increase)
+{
+    int volume_index = getVolumeIndex(current_);
+    int size = volumes.size();
+    if (increase && ++volume_index >= size)
+    {
+        volume_index = size-1;
+    }
+
+    if (!increase && --volume_index < 0)
+    {
+        volume_index = 0;
+    }
+
+    sys::SysStatus::instance().setVolume(volumes[volume_index]);
+    setVolume(volumes[volume_index], false);
 }
 
 void VolumeControlDialog::keyReleaseEvent(QKeyEvent *ke)
@@ -182,7 +215,19 @@ void VolumeControlDialog::keyReleaseEvent(QKeyEvent *ke)
         ke->accept();
         return;
     }
-    ke->ignore();
+
+    switch (key)
+    {
+    case Qt::Key_Left:
+        manipulateVolume(false);
+        break;
+    case Qt::Key_Right:
+        manipulateVolume(true);
+        break;
+    default:
+        break;
+    }
+    ke->accept();
 }
 
 void VolumeControlDialog::stopTimer()
@@ -215,7 +260,7 @@ QRect VolumeControlDialog::rectForVolume(int index)
 
     int x = spacing + left;
     int delta = 8;
-    int my_width = (width() - left - right) / volumes.size() - spacing;
+    int my_width = (width() - left - right) / (volumes.size()-1) - spacing;
 
     x += (my_width + spacing) * index;
     int h = 30 + index * delta;

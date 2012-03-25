@@ -3,6 +3,7 @@
 #endif
 
 #include "onyx/ui/system_actions.h"
+#include "onyx/ui/ui_utils.h"
 #include "onyx/screen/screen_proxy.h"
 #include "onyx/sys/sys_conf.h"
 #include "onyx/sys/platform.h"
@@ -35,10 +36,6 @@ void SystemActions::generateActions(const std::vector<int> & actions)
 #ifdef BUILD_WITH_TFT
         all.push_back(BACKLIGHT_BRIGHTNESS);
 #endif
-        if (sys::isIRTouch())
-        {
-            all.push_back(SYSTEM_VOLUME);
-        }
         all.push_back(RETURN_TO_LIBRARY);
     }
 

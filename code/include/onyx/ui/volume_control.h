@@ -48,6 +48,10 @@ private Q_SLOTS:
     void onTimeout();
     QRect rectForVolume(int index);
 
+private:
+    int getVolumeIndex(int volume_value);
+    void manipulateVolume(bool increase);
+
 public:
     QHBoxLayout        layout_;
     QImage image_;

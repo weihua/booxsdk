@@ -126,6 +126,11 @@ bool is97inch()
     return (w >= 1200 || h >= 1200);
 }
 
+bool isLandscapeVolumeMapping()
+{
+    return qgetenv("LANDSCAPE_VOLUME_MAPPING").toInt() > 0;
+}
+
 }
 
 
