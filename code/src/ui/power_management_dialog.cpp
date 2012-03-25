@@ -157,7 +157,10 @@ void PowerManagementDialog::createLayout()
         t.clear();
     }
     battery_power_.setText(t);
-    ver_layout_.addWidget(&battery_power_);
+    if (qgetenv("ENABLE_DISPLAY_BATTERY_STATUS").toInt())
+    {
+        ver_layout_.addWidget(&battery_power_);
+    }
 
     // Create display items
     buttons_.setSubItemType(CheckBoxView::type());

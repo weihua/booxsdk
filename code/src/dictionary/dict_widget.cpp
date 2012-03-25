@@ -722,6 +722,8 @@ void DictWidget::onRetrieveWordClicked(bool)
 {
     changeInternalState(RETRIEVING_WORD);
     checkSelectedButton();
+    repaint();
+    onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC, false);
 }
 
 void DictWidget::onOpenDictionaryToolClicked(bool)
