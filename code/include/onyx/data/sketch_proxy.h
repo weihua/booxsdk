@@ -66,6 +66,10 @@ public:
     // paint
     void paintPage(const QString & doc_path, const PageKey & page_key, QPainter & painter);
 
+    // help coordinate transform function,
+    // because SketchProxy has all knowledge to do transforming work, so we implement it here
+    bool transformToDocumentCoordinate(const QPoint &from, QPoint &to);
+
 Q_SIGNALS:
     void requestUpdateScreen();
 
