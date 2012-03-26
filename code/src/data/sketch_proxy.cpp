@@ -616,6 +616,53 @@ void SketchProxy::paintPage(const QString & doc_path,
     page->paint(sketch_ctx_, gc_, painter);
 }
 
+bool SketchProxy::transformToDocumentCoordinate(const QPoint &from, QPoint &to)
+{
+    if (!attached_widget_) {
+        qDebug("attached_widget_ is null");
+        return false;
+    }
+    else {
+        qDebug("attached_widget_ not null");
+    }
+
+    QPoint global_pos(from);
+    QPoint widget_pos = attached_widget_->mapFromGlobal(global_pos);
+
+    // check whether the point is in widget
+    if (widget_pos.x() < 0 ||
+        widget_pos.y() < 0 ||
+        widget_pos.x() > attached_widget_->width() ||
+        widget_pos.y() > attached_widget_->height())
+    {
+        qDebug("transformToDocumentCoordinate: Out of boundary");
+        return false;
+    }
+
+    QMouseEvent me(QEvent::MouseMove, widget_pos, global_pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+
+    SketchPosition sketch_pos;
+    SketchDocPtr doc(NULL);
+    SketchPagePtr page(NULL);
+
+    hitTest(&me, doc, page, sketch_pos);
+    if (!doc || !page)
+    {
+        qDebug("transformToDocumentCoordinate: hit test failed");
+        return false;
+    }
+
+    transformCoordinate(page->displayArea(),
+                        sketch_pos.sketch_pos,
+                        gc_.contentOrient(),
+                        to);
+
+    to.setX(to.x() / sketch_ctx_.zoom_);
+    to.setY(to.y() / sketch_ctx_.zoom_);
+
+    return true;
+}
+
 bool SketchProxy::activateDocument(const QString & doc_path)
 {
     SketchDocPtr doc = getDocument(doc_path);
