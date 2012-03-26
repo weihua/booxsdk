@@ -9,6 +9,7 @@
 #include "onyx/ui/french_keyboard_data.h"
 #include "onyx/ui/bulgarian_keyboard_data.h"
 #include "onyx/ui/czech_keyboard_data.h"
+#include "onyx/ui/hungarian_keyboard_data.h"
 #include "onyx/ui/keyboard_data.h"
 
 namespace ui
@@ -26,6 +27,7 @@ KeyboardDataFactory::KeyboardDataFactory()
     registerKeyboardData(QLocale::French, new FrenchKeyboardData());
     registerKeyboardData(QLocale::Bulgarian, new BulgarianKeyboardData());
     registerKeyboardData(QLocale::Czech, new CzechKeyboardData());
+    registerKeyboardData(QLocale::Hungarian, new HungarianKeyboardData());
 }
 
 KeyboardDataFactory::~KeyboardDataFactory()
