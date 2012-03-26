@@ -175,10 +175,9 @@ void PolishKeyboardData::initBottomKeyShiftCode()
 
 void PolishKeyboardData::initLeftKeySymbolCode()
 {
-    const QString chs[] = {"...", "{", "}",
-                           "www.", ".com", QString(QChar(0x00A2)),
-                           QString(QChar(0x00B9)), QString(QChar(0x00B2)),
-                           QString(QChar(0x00B3)), };
+    const QString chs[] = {"~", "_", "+",
+                           "`", "-", "=",
+                           "www.", ".com", "..."};
     for (int i = 0; i < 9; i++)
     {
         ODataPtr dd(createData(chs[i]));
@@ -193,9 +192,9 @@ void PolishKeyboardData::initLeftKeySymbolCode()
 
 void PolishKeyboardData::initMiddleKeySymbolCode()
 {
-    const QChar chs[] = {'~', '<', '>',
-                         '|', '`', QChar(0x20AC),
-                         '.', '+', '-', };
+    const QChar chs[] = {'{', '}', '|',
+                         '[', ']', '\\',
+                         '<', '>', ',', };
     for (int i = 0; i < 9; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
@@ -205,9 +204,9 @@ void PolishKeyboardData::initMiddleKeySymbolCode()
 
 void PolishKeyboardData::initRightKeySymbolCode()
 {
-    const QChar chs[] = {'_', '"', ',',
-                         QChar(0x00AD), '\'', ';',
-                         QChar(0x00AB), QChar(0x00BB)};
+    const QChar chs[] = {':', '"', '?',
+                         ';', '\'', '/',
+                         '.', QChar(0x00AD), QChar(0x00BB)};
     for (int i = 0; i < 8; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
