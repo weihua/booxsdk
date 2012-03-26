@@ -65,7 +65,8 @@ public:
     void setSketchShape(const SketchShape shape);
     void setSketchColor(const SketchColor color);
     // set different menu text according to annotation visible value
-    void setAnnotationVisible(bool value);
+    void setToggleAnnotationVisibleText(bool value);
+    void setPdfMergeEnabled(bool enabled);
 
     /// Retrieve the selected sketch mode.
     SketchActionsType getSelectedValue(int & value, bool & checked);
@@ -79,7 +80,6 @@ public:
 private Q_SLOTS:
     void onSketchTriggered(bool checked);
     void onEraseTriggered(bool checked);
-    void onMergeTriggered(bool checked);
     void onAddAnnotationTriggered(bool checked);
     void onDeleteAnnotationTriggered(bool checked);
     void onDisplayAnnotationsTriggered(bool checked);

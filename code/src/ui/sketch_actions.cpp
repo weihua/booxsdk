@@ -27,13 +27,6 @@ void SketchActions::onEraseTriggered(bool checked)
     ctx_.active_checked_status = checked;
 }
 
-void SketchActions::onMergeTriggered(bool checked)
-{
-    ctx_.active_type           = SKETCH_MODE;
-    ctx_.cur_sketch_mode       = MODE_MERGING;
-    ctx_.active_checked_status = checked;
-}
-
 void SketchActions::onAddAnnotationTriggered(bool checked)
 {
     ctx_.active_type           = ANNOTATION_MODE;
@@ -198,16 +191,6 @@ void SketchActions::generateSketchMode(const SketchModes & modes,
                         this,
                         SLOT(onEraseTriggered(bool)));
                 act->setIcon(QIcon(QPixmap(":/images/sketch_mode_erase.png")));
-            }
-            break;
-        case MODE_MERGING:
-            {
-                act->setText(QCoreApplication::tr("Merge Sketch"));
-                connect(act.get(),
-                        SIGNAL(toggled(bool)),
-                        this,
-                        SLOT(onMergeTriggered(bool)));
-                act->setIcon(QIcon(QPixmap(":/images/copy.png")));
             }
             break;
         default:
@@ -390,10 +373,16 @@ void SketchActions::generateSketchMiscItems(const SketchMiscItems &items)
             }
         case SKETCH_MISC_TOGGLE_ANNOTATION_VISIBLE:
             {
-                act->setText(QCoreApplication::tr("Show annotations"));
+                act->setText(QCoreApplication::tr("Show Annotations"));
                 act->setIcon(QIcon(QPixmap(":/images/retrieve_word.png")));
                 break;
             }
+        case SKETCH_MISC_PDF_MERGE:
+        {
+            act->setText(QCoreApplication::tr("Merge Annotations"));
+            act->setIcon(QIcon(QPixmap(":/images/copy.png")));
+            break;
+        }
         default:
             break;
         }
@@ -518,7 +507,7 @@ void SketchActions::setSketchMode(const SketchMode mode, bool checked)
     }
 }
 
-void SketchActions::setAnnotationVisible(bool value)
+void SketchActions::setToggleAnnotationVisibleText(bool value)
 {
     vector< shared_ptr<QAction> >::const_iterator begin = actions_.begin();
     vector< shared_ptr<QAction> >::const_iterator end   = actions_.end();
@@ -534,6 +523,21 @@ void SketchActions::setAnnotationVisible(bool value)
             else {
                 (*iter)->setText(QCoreApplication::tr("Show Annotations"));
             }
+        }
+    }
+}
+
+void SketchActions::setPdfMergeEnabled(bool enabled)
+{
+    vector< shared_ptr<QAction> >::const_iterator begin = actions_.begin();
+    vector< shared_ptr<QAction> >::const_iterator end   = actions_.end();
+    for(vector< shared_ptr<QAction> >::const_iterator iter = begin;
+        iter != end;
+        ++iter)
+    {
+        if ((*iter)->data().toInt() == static_cast<int>(SKETCH_MISC_PDF_MERGE))
+        {
+            (*iter)->setDisabled(!enabled);
         }
     }
 }

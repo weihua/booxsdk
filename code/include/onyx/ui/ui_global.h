@@ -128,7 +128,7 @@ enum SketchMode
 {
     MODE_SKETCHING = 10,
     MODE_ERASING,
-    MODE_MERGING,
+    MODE_MERGING, // deprecated
     MODE_UNKNOWN
 };
 
@@ -157,7 +157,8 @@ enum SketchMiscItem
 {
     SKETCH_MISC_INVALID_ITEM = 299,
     SKETCH_MISC_PAN_MODE = 300,
-    SKETCH_MISC_TOGGLE_ANNOTATION_VISIBLE // toggle both annot and sketch's visible
+    SKETCH_MISC_TOGGLE_ANNOTATION_VISIBLE, // toggle both annot and sketch's visible
+    SKETCH_MISC_PDF_MERGE,
 };
 
 enum RotateDegree
