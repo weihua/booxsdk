@@ -36,6 +36,33 @@ int getPenColor(const SketchColor c)
     return pen_color;
 }
 
+int getPenSize(const SketchShape s)
+{
+    int size = 1;
+    switch (s)
+    {
+    case SKETCH_SHAPE_0:
+        size = 1;
+        break;
+    case SKETCH_SHAPE_1:
+        size = 2;
+        break;
+    case SKETCH_SHAPE_2:
+        size = 4;
+        break;
+    case SKETCH_SHAPE_3:
+        size = 6;
+        break;
+    case SKETCH_SHAPE_4:
+        size = 8;
+        break;
+    default:
+        break;
+    }
+
+    return size;
+}
+
 int getPointSize(const SketchShape s, const ZoomFactor z)
 {
     int size = 1;
