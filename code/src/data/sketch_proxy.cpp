@@ -501,7 +501,19 @@ void SketchProxy::onReceivedTouchData(TouchData & data)
         widget_pos.x() > attached_widget_->width() ||
         widget_pos.y() > attached_widget_->height())
     {
-        // qDebug("Out of boundary");
+        // even though it's out of boundary, we need to deal with the mouse event,
+        // in order to tell state once mouse is in boundary again
+        if (pressure_of_last_point_ == 0 && touch_point.pressure > 0)
+        {
+            // mouse press, ignore
+        }
+        if (pressure_of_last_point_ > 0 && touch_point.pressure <= 0)
+        {
+            // mouse release
+            status_ = SKETCH_READY;
+        }
+
+        pressure_of_last_point_ = touch_point.pressure;
         return;
     }
 
@@ -515,6 +527,8 @@ void SketchProxy::onReceivedTouchData(TouchData & data)
     {
         type = QEvent::MouseButtonRelease;
     }
+
+    pressure_of_last_point_ = touch_point.pressure;
 
     QMouseEvent me(type, widget_pos, global_pos, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
     switch (type)
@@ -531,7 +545,6 @@ void SketchProxy::onReceivedTouchData(TouchData & data)
     default:
         break;
     }
-    pressure_of_last_point_ = touch_point.pressure;
 }
 
 void SketchProxy::attachWidget(QWidget * w)
