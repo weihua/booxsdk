@@ -91,6 +91,7 @@ enum ReadingToolsType
     IMAGE_EMBOLDEN_TOOL,
     READING_OPTIONS,
     UNDEFINED_TOOL,
+    MARGIN_SETTING,
 };
 
 enum NetworkType
