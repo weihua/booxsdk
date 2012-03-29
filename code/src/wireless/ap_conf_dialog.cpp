@@ -32,6 +32,7 @@ ApConfigDialog::ApConfigDialog(QWidget *parent, WifiProfile & profile)
     , keyboard_receiver_(0)
     , profile_(profile)
 {
+    keyboard_.setKeyboardLanguae(QLocale::English);
     createLayout();
 
     // Widget attributes.
