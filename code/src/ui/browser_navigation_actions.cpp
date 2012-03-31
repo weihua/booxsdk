@@ -54,18 +54,6 @@ void BrowserNavigationActions::generateActions(QWebHistory *history,
         actions_.push_back(forward);
     }
 
-    if(enable_history_)
-    {
-        shared_ptr<QAction> home(new QAction(exclusiveGroup()));
-        home->setText(QCoreApplication::tr("History"));
-        home->setIcon(QIcon(QPixmap(":/images/home.png")));
-        home->setData(NAVIGATE_SHOW_HISTORY);
-        home->setEnabled(true);
-        home->setCheckable(true);
-        home->setChecked(false);
-        actions_.push_back(home);
-    }
-
     shared_ptr<QAction> clear(new QAction(exclusiveGroup()));
     clear->setText(QCoreApplication::tr("Clear History"));
     clear->setIcon(QIcon(QPixmap(":/images/clear_history.png")));
@@ -74,6 +62,18 @@ void BrowserNavigationActions::generateActions(QWebHistory *history,
     clear->setCheckable(true);
     clear->setChecked(false);
     actions_.push_back(clear);
+
+    if(enable_history_)
+    {
+        shared_ptr<QAction> Show(new QAction(exclusiveGroup()));
+        Show->setText(QCoreApplication::tr("History"));
+        Show->setIcon(QIcon(QPixmap(":/images/history.png")));
+        Show->setData(NAVIGATE_SHOW_HISTORY);
+        Show->setEnabled(true);
+        Show->setCheckable(true);
+        Show->setChecked(false);
+        actions_.push_back(Show);
+    }
 
     if (enable_hyperlink_navigation)
     {

@@ -244,5 +244,6 @@
     <file>images/reading_options.png</file>
 
     <file>images/system_volume.png</file>
+    <file>images/history.png</file>
   </qresource>
 </RCC>
