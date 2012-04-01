@@ -561,4 +561,9 @@ QActionGroup * SketchActions::shapes()
     return shapes_.get();
 }
 
+QActionGroup *SketchActions::miscItems()
+{
+    return misc_items_.get();
+}
+
 }

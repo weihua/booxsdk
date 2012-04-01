@@ -76,6 +76,7 @@ public:
     QActionGroup * sketchModes();
     QActionGroup * colors();
     QActionGroup * shapes();
+    QActionGroup * miscItems();
 
 private Q_SLOTS:
     void onSketchTriggered(bool checked);
