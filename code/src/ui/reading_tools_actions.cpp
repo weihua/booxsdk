@@ -259,6 +259,12 @@ void ReadingToolsActions::generateActions(const vector<ReadingToolsType> & value
                 act->setIcon(QIcon(QPixmap(":/images/reading_options.png")));
             }
             break;
+        case MARGIN_SETTING:
+            {
+                act->setText(QCoreApplication::tr("Page Margin"));
+                act->setIcon(QIcon(QPixmap(":/images/zoom_hide_margin.png")));
+            }
+            break;
         default:
             break;
         }

@@ -49,7 +49,7 @@ TreeViewDialog::~TreeViewDialog(void)
 void TreeViewDialog::createLayout()
 {
     setAutoFillBackground(true);
-    setBackgroundRole(QPalette::Dark);
+    setBackgroundRole(QPalette::Text);
 
     layout_.setSpacing(0);
     layout_.setContentsMargins(0, 0, 0, 0);
@@ -58,12 +58,15 @@ void TreeViewDialog::createLayout()
     title_layout_.setSpacing(SPACING);
     title_layout_.setContentsMargins(5, 0, 5, 0);
     title_icon_.setPixmap(QPixmap(":/images/tree_view.png"));
+
     QFont font(title_label_.font());
     font.setPointSize(20);
     title_label_.setFont(font);
     title_label_.setAlignment(Qt::AlignVCenter);
     title_label_.useTitleBarStyle();
+
     title_layout_.addWidget(&title_icon_, 10);
+    title_layout_.addSpacing(20);
     title_layout_.addWidget(&title_label_, 500);
     title_layout_.addWidget(&close_button_, 50);
     close_button_.useDefaultHeight();

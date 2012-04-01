@@ -370,11 +370,17 @@ void OnyxKeyboard::languageClicked()
         QLocale selected = dialog.selectedLocale();
         if (selected.name() != language_.name())
         {
-            language_ = selected;
-            init(language_);
-            resetData(false);
+            setKeyboardLanguae(selected);
         }
     }
+}
+
+void OnyxKeyboard::setKeyboardLanguae(QLocale language)
+{
+    language_ = language;
+    init(language);
+    resetData(false);
+    update();
 }
 
 void OnyxKeyboard::writeFunctionClicked()
