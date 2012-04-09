@@ -106,6 +106,9 @@ void TTSWidget::ensureVisible()
         move(new_pos);
     }
 
+    qDebug() << "buttons height: " << buttons_.height() <<
+                "buttons width: " << buttons_.width();
+
     // Make sure the widget is visible.
     onyx::screen::instance().flush();
     onyx::screen::instance().updateWidget(parentWidget(), onyx::screen::ScreenProxy::GU);
@@ -262,6 +265,8 @@ void TTSWidget::createLayout()
     buttons_.setSpacing(5);
     buttons_.setMinimumHeight(play_icon.height()+10);
     buttons_.setMinimumWidth(play_icon.width()*4+30);
+    qDebug() << "min height: " << buttons_.minimumHeight() <<
+                "min width: " << buttons_.minimumWidth();
     buttons_.setCheckedTo(0, 0);
 
     // Setup connection.

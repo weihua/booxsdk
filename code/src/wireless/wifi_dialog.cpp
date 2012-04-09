@@ -2,7 +2,7 @@
 #include "onyx/wireless/wifi_dialog.h"
 #include "onyx/screen/screen_update_watcher.h"
 #include "onyx/data/data.h"
-#include "onyx/wireless/ap_conf_dialog.h"
+#include "onyx/wireless/ap_conf_dialog_s.h"
 
 namespace ui
 {
@@ -611,7 +611,7 @@ void WifiDialog::updateHardwareAddress()
 bool WifiDialog::showConfigurationDialog(WifiProfile &profile)
 {
     ap_dialog_visible_ = true;
-    ApConfigDialog dialog(this, profile);
+    ApConfigDialogS dialog(this, profile);
     int ret = dialog.popup();
     ap_dialog_visible_ = false;
 
