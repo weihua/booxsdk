@@ -12,6 +12,7 @@ namespace ui
 static const char* SCOPE = "pm";
 static const int ITEM_HEIGHT = 80;
 static const QString TITLE_INDEX = "title_index";
+static const QString BUTTON_INDEX = "button_index";
 
 struct ItemStruct
 {
@@ -86,7 +87,7 @@ int PowerManagementDialog::exec()
     if(interval_selected_)
     {
         buttons_.setFocus();
-        buttons_.setFocusTo(0, interval_selected_->value(TITLE_INDEX).toInt());
+        buttons_.setFocusTo(0, interval_selected_->value(BUTTON_INDEX).toInt());
     }
     else
     {
@@ -191,7 +192,8 @@ void PowerManagementDialog::createLayout()
         }
         OData * item = new OData;
         item->insert(TAG_TITLE, qApp->translate(SCOPE, ITEMS[row].title));
-        item->insert(TITLE_INDEX, btn_idx);
+        item->insert(TITLE_INDEX, row);
+        item->insert(BUTTON_INDEX, btn_idx);
         if ( (sys_standby_interval_ == ITEMS[row].standby_seconds) &&
              (sys_shutdown_interval_ == ITEMS[row].shutdown_seconds)
            )
