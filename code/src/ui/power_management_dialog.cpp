@@ -166,7 +166,6 @@ void PowerManagementDialog::createLayout()
     buttons_.setSubItemType(CheckBoxView::type());
     buttons_.setMargin(2, 2, 2, 2);
     buttons_.setPreferItemSize(QSize(0, ITEM_HEIGHT));
-    ODatas d;
 
     const ItemStruct *ITEMS;
     int display_cout;
@@ -180,7 +179,9 @@ void PowerManagementDialog::createLayout()
         display_cout = isPmExclusive() ? 4: DISPLAY_COUNT;
         ITEMS = DISPLAY_ITEMS;
     }
-    for (int row = 0; row < display_cout; ++row)
+
+    ODatas d;
+    for (int row = 0, btn_idx = 0; row < display_cout; ++row)
     {
         if ( qgetenv("DISABLE_NEVER_STANDBY_SHUTDOWN").toInt() > 0 &&
              ITEMS[row].standby_seconds == 0 &&
@@ -190,7 +191,7 @@ void PowerManagementDialog::createLayout()
         }
         OData * item = new OData;
         item->insert(TAG_TITLE, qApp->translate(SCOPE, ITEMS[row].title));
-        item->insert(TITLE_INDEX, row);
+        item->insert(TITLE_INDEX, btn_idx);
         if ( (sys_standby_interval_ == ITEMS[row].standby_seconds) &&
              (sys_shutdown_interval_ == ITEMS[row].shutdown_seconds)
            )
@@ -199,6 +200,7 @@ void PowerManagementDialog::createLayout()
             item->insert(TAG_CHECKED, true);
         }
         d.push_back(item);
+        btn_idx++;
     }
 
     buttons_.setData(d, true);
