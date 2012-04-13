@@ -655,7 +655,6 @@ bool ApConfigDialogS::eventFilter(QObject *obj, QEvent *event)
 {
     if (QEvent::KeyRelease == event->type())
     {
-        bool changed = false;
         QKeyEvent *key_event = static_cast<QKeyEvent *>(event);
         int key = key_event->key();
 
@@ -728,7 +727,6 @@ bool ApConfigDialogS::eventFilter(QObject *obj, QEvent *event)
                 {
                     plain_button_.setFocus();
                 }
-                changed = true;
             }
         }
     }
