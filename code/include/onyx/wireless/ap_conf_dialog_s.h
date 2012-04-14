@@ -40,6 +40,8 @@ private Q_SLOTS:
     void onWpaButtonClicked();
     void onWpa2ButtonClicked();
 
+    void onOutOfDown(CatalogView* child, int, int);
+
 private:
     void addLineEditsToGroup();
 
@@ -69,11 +71,15 @@ private:
     void setWpaProfile(WifiProfile & profile, const QString &id, const QString & key);
     void setWpa2Profile(WifiProfile & profile, const QString &id, const QString & key);
 
+    bool isSsidEmpty();
+
+    void createInputs(int size);
+
 private:
     QVBoxLayout big_layout_;
     QFormLayout form_layout_;
-    QGridLayout  auth_hbox_;    ///< Authentication box.
-    QGridLayout  enc_hbox_;     ///< Encryption box.
+    QGridLayout auth_hbox_;    ///< Authentication box.
+    QGridLayout enc_hbox_;     ///< Encryption box.
     QHBoxLayout *line_edit_layout_;
 
     OnyxLabel auth_label_;

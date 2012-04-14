@@ -8,7 +8,7 @@
 namespace ui
 {
 
-static const int LABEL_WIDTH = 150;
+static const int LABEL_WIDTH = 180;
 
 
 ApConfigDialogS::ApConfigDialogS(QWidget *parent, WifiProfile & profile)
@@ -34,18 +34,23 @@ ApConfigDialogS::ApConfigDialogS(QWidget *parent, WifiProfile & profile)
 {
     keyboard_.setKeyboardLanguae(QLocale::English);
 
-    ODataPtr dp(new OData);
-    dp->insert(TAG_TITLE, tr("SSID"));
-    dp->insert(TAG_DEFAULT_VALUE, profile_.ssid());
-    // TODO. has problem in keyboard navigating if edit view is set to disabled
-    dp->insert(TAG_DISABLED, false);
-    edit_list_.push_back(dp);
+    if (isSsidEmpty())
+    {
+        ODataPtr data_ssid(new OData);
+        data_ssid->insert(TAG_TITLE, tr("SSID"));
+        data_ssid->insert(TAG_DEFAULT_VALUE, profile_.ssid());
+        edit_list_.push_back(data_ssid);
+    }
 
-    dp = new OData;
-    dp->insert(TAG_TITLE, tr("PSK"));
-    dp->insert(TAG_DEFAULT_VALUE, profile_.psk());
-    dp->insert(TAG_IS_PASSWD, true);
-    edit_list_.push_back(dp);
+    ODataPtr data_psk = new OData;
+    data_psk->insert(TAG_TITLE, tr("PSK"));
+    data_psk->insert(TAG_DEFAULT_VALUE, profile_.psk());
+    data_psk->insert(TAG_IS_PASSWD, true);
+    if (!isSsidEmpty())
+    {
+        data_psk->insert(TAG_CHECKED, true);
+    }
+    edit_list_.push_back(data_psk);
 
     createLayout();
     connectWithChildren();
@@ -172,6 +177,36 @@ QString ApConfigDialogS::value(int d_index)
     return item->innerEdit()->text();
 }
 
+void ApConfigDialogS::createInputs(int size)
+{
+    for (int i=0; i<size; i++)
+    {
+        ODataPtr data = edit_list_.at(i);
+        QString label_text = data->value(TAG_TITLE).toString();
+        OnyxLabel *label = new OnyxLabel(label_text);
+        QFont font;
+        font.setPointSize(16);
+        font.setBold(true);
+        label->setFont(font);
+        label->setFixedWidth(LABEL_WIDTH);
+        label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        line_edit_layout_ = new QHBoxLayout;
+        big_layout_.addWidget(label);
+        line_edit_layout_->addWidget(edit_view_list_.at(i));
+        if (0 == i)
+        {
+            line_edit_layout_->addWidget(&sub_menu_, 0, Qt::AlignLeft);
+        }
+        else
+        {
+            OnyxLabel *dummy = new OnyxLabel("");
+            dummy->setFixedWidth(sub_menu_.width());
+            line_edit_layout_->addWidget(dummy, 0, Qt::AlignLeft);
+        }
+        big_layout_.addLayout(line_edit_layout_);
+    }
+}
+
 void ApConfigDialogS::createLayout()
 {
     vbox_.setSpacing(0);
@@ -182,10 +217,12 @@ void ApConfigDialogS::createLayout()
 
     QWidget *pwidget = safeParentWidget(parentWidget());
     int sub_menu_width = defaultItemHeight()*5;
-    int line_edit_width = pwidget->width()-LABEL_WIDTH-sub_menu_width-5;
+    int line_edit_width = pwidget->width()-sub_menu_width-5;
 
-    Qt::Alignment align = static_cast<Qt::Alignment>(Qt::AlignHCenter | Qt::AlignVCenter);
+    Qt::Alignment align = static_cast<Qt::Alignment>(Qt::AlignLeft | Qt::AlignVCenter);
     form_layout_.setFormAlignment(align);
+    form_layout_.setContentsMargins(4, 0, 4, 0);
+    form_layout_.setVerticalSpacing(2);
 
     plain_button_.installEventFilter(this);
     wep_button_.installEventFilter(this);
@@ -194,6 +231,9 @@ void ApConfigDialogS::createLayout()
     enc_tkip_button_.installEventFilter(this);
     enc_ccmp_button_.installEventFilter(this);
     keyboard_.installEventFilter(this);
+
+    auth_hbox_.setSpacing(4);
+    auth_hbox_.setContentsMargins(4, 0, 0, 0);
 
     auth_hbox_.addWidget(&plain_button_, 0, 0);
     auth_hbox_.addWidget(&wep_button_, 0, 1);
@@ -207,6 +247,9 @@ void ApConfigDialogS::createLayout()
     wep_button_.setCheckable(true);
     wpa_psk_button_.setCheckable(true);
     wpa2_psk_button_.setCheckable(true);
+
+    enc_hbox_.setSpacing(4);
+    enc_hbox_.setContentsMargins(4, 0, 0, 0);
 
     enc_hbox_.addWidget(&enc_tkip_button_, 0, 0);
     enc_hbox_.addWidget(&enc_ccmp_button_, 0, 1);
@@ -222,33 +265,32 @@ void ApConfigDialogS::createLayout()
     createShowPlainText();
 
     int size = edit_list_.size();
-    for (int i=0; i<size; i++)
+
+    if (1 == size)
     {
-        ODataPtr data = edit_list_.at(i);
-        QString label_text = data->value(TAG_TITLE).toString();
-        OnyxLabel *label = new OnyxLabel(label_text);
+        OnyxLabel *label = new OnyxLabel(tr("SSID")+":");
         QFont font;
         font.setPointSize(16);
         font.setBold(true);
         label->setFont(font);
         label->setFixedWidth(LABEL_WIDTH);
         label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+
+        OnyxLabel *ssid_label = new OnyxLabel(profile_.ssid());
+        QFont it_font;
+        it_font.setBold(true);
+        it_font.setItalic(true);
+        ssid_label->setFont(it_font);
+        ssid_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
         line_edit_layout_ = new QHBoxLayout;
-        line_edit_layout_->addWidget(label, 0, Qt::AlignLeft);
-        line_edit_layout_->addWidget(edit_view_list_.at(i), 0, Qt::AlignLeft);
-        line_edit_layout_->addSpacing(SPACING);
-        if (0 == i)
-        {
-            line_edit_layout_->addWidget(&sub_menu_, 0, Qt::AlignLeft);
-        }
-        else
-        {
-            OnyxLabel *dummy = new OnyxLabel("");
-            dummy->setFixedWidth(sub_menu_.width());
-            line_edit_layout_->addWidget(dummy, 0, Qt::AlignLeft);
-        }
-        big_layout_.addLayout(line_edit_layout_);
+        line_edit_layout_->setContentsMargins(4, 0, 0, 0);
+        line_edit_layout_->addWidget(ssid_label, 400, Qt::AlignLeft);
+
+        form_layout_.addRow(label, line_edit_layout_);
     }
+
+    createInputs(size);
+
     big_layout_.addWidget(&show_plain_text_);
     big_layout_.addWidget(&keyboard_);
 
@@ -338,8 +380,6 @@ void ApConfigDialogS::createLineEdits(const int &line_edit_width)
     }
     if (!edit_view_list_.isEmpty())
     {
-        edit_view_list_.front()->setNeighbor(keyboard_.menu(),
-                CatalogView::RECYCLE_DOWN);
         edit_view_list_.back()->setNeighbor(&show_plain_text_,
                 CatalogView::DOWN);
     }
@@ -348,6 +388,7 @@ void ApConfigDialogS::createLineEdits(const int &line_edit_width)
 void ApConfigDialogS::createSubMenu(const int &sub_menu_width)
 {
     const int height = defaultItemHeight();
+    sub_menu_.setSubItemType(ButtonView::type());
     sub_menu_.setPreferItemSize(QSize(height, height));
 
     ODataPtr dd(new OData);
@@ -361,6 +402,7 @@ void ApConfigDialogS::createSubMenu(const int &sub_menu_width)
     sub_menu_datas_.push_back(b);
 
     sub_menu_.setFixedGrid(1, 2);
+    sub_menu_.setSpacing(8);
     sub_menu_.setMargin(OnyxKeyboard::CATALOG_MARGIN);
     sub_menu_.setFixedHeight(defaultItemHeight()+2*SPACING);
     sub_menu_.setFixedWidth(sub_menu_width);
@@ -368,7 +410,6 @@ void ApConfigDialogS::createSubMenu(const int &sub_menu_width)
     sub_menu_.setNeighbor(edit_view_list_.front(), CatalogView::LEFT);
     sub_menu_.setNeighbor(edit_view_list_.front(), CatalogView::RECYCLE_LEFT);
     sub_menu_.setNeighbor(&show_plain_text_, CatalogView::DOWN);
-    sub_menu_.setNeighbor(keyboard_.menu(), CatalogView::RECYCLE_DOWN);
 }
 
 void ApConfigDialogS::createShowPlainText()
@@ -415,12 +456,20 @@ void ApConfigDialogS::updateWidgets(WifiProfile & profile)
     }
 }
 
+void ApConfigDialogS::onOutOfDown(CatalogView* child, int, int)
+{
+    plain_button_.setFocus();
+}
+
 void ApConfigDialogS::connectWithChildren()
 {
     connect(&sub_menu_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)),
             this, SLOT(onItemActivated(CatalogView *, ContentView *, int)));
     connect(&show_plain_text_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)),
             this, SLOT(onItemActivated(CatalogView *, ContentView *, int)));
+
+    connect(&keyboard_, SIGNAL(outOfDown(CatalogView*, int, int)),
+                this, SLOT(onOutOfDown(CatalogView*, int, int)));
 }
 
 void ApConfigDialogS::clearClicked()
@@ -488,13 +537,15 @@ void ApConfigDialogS::keyPressEvent(QKeyEvent *event)
 
 QString ApConfigDialogS::getSsidText()
 {
-    // TODO. bad hacking
+    if (!isSsidEmpty())
+    {
+        return profile_.ssid();
+    }
     return edit_view_group_.editList().first()->innerEdit()->text();
 }
 
 QString ApConfigDialogS::getPskText()
 {
-    // TODO. bad hacking
     return edit_view_group_.editList().last()->innerEdit()->text();
 }
 
@@ -579,6 +630,11 @@ void ApConfigDialogS::setWpa2Profile(WifiProfile & profile,
     }
     profile.setPairwise(t);
     profile.setPsk(key);
+}
+
+bool ApConfigDialogS::isSsidEmpty()
+{
+    return profile_.ssid().isEmpty();
 }
 
 void ApConfigDialogS::onItemActivated(CatalogView *catalog,
@@ -690,8 +746,7 @@ bool ApConfigDialogS::eventFilter(QObject *obj, QEvent *event)
                 }
             }
             else if (key == Qt::Key_Up) {
-                // has prolem to set focus on keyboard, so set on edit view instead
-                edit_view_group_.editList().first()->setFocus();
+                keyboard_.menu()->visibleSubItems().front()->setFocus();
             }
             else if (key == Qt::Key_Down) {
                 if (enc_tkip_button_.isEnabled()) {
