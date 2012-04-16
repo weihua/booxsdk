@@ -29,6 +29,10 @@ bool dockWidget(QWidget *target, QWidget * container, Qt::Alignment align)
 
 int statusBarHeight()
 {
+    if (sys::isIRTouch())
+    {
+        return 45;
+    }
     return 35;
 }
 

@@ -197,7 +197,7 @@ void StatusBarItemProgress::updatePath(QPainterPath & result,
     int height = rect.height();
     int x_start = rect.left();
     int x_end = rect.right();
-    int y = rect.top();
+    int y = rect.top()+2;
 
     const int ARC_RADIUS = 2;
     int diameter = (ARC_RADIUS << 1);
