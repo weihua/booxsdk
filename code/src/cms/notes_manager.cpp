@@ -60,8 +60,9 @@ QString NotesManager::suggestedName(QSqlDatabase & database)
             }
         }
     }
-    QString name("%1%2");
-    name = name.arg(NOTE_NAME).arg(max);
+    const QString curr_time = QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm");
+    QString name("%1%2%3%4");
+    name = name.arg(NOTE_NAME).arg(max).arg("_").arg(curr_time);
     return name;
 }
 
