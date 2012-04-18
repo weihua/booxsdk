@@ -208,14 +208,21 @@ bool SketchProxy::save(const QString & doc_path)
     return true;
 }
 
-void SketchProxy::save()
+bool SketchProxy::save()
 {
+    bool res = true;
+
     DocumentIter iter = docs_.begin();
     for (; iter != docs_.end(); iter++)
     {
         SketchDocPtr doc = *iter;
-        save(doc->path());
+        if (!save(doc->path())) {
+            // record fail result, and try saving as many files as possible
+            res = false;
+        }
     }
+
+    return res;
 }
 
 bool SketchProxy::exportDatabase(const QString & doc_path)

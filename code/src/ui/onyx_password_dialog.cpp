@@ -96,6 +96,11 @@ bool OnyxPasswordDialog::popup(const QString &password)
     resize(widget->width(), height());
     move(widget->x(), widget->height() - height());
 
+    if (0 == edit_view_group_.editList().size())
+    {
+        addLineEditsToGroup();
+    }
+
     return exec();
 }
 

@@ -835,6 +835,14 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
     {
         addWidget(ptr.get(), 1);
     }
+    else if (type == MENU &&
+             sys::isIRTouch())
+    {
+        OnyxLabel *label=new OnyxLabel(this);
+        label->setFixedWidth(15);
+        addWidget(label);
+        addWidget(ptr.get());
+    }
     else if (type != MENU && type != MESSAGE)
     {
         addPermanentWidget(ptr.get());

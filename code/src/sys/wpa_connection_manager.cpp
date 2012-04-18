@@ -3,6 +3,7 @@
 
 #include "onyx/sys/service.h"
 #include "onyx/sys/wpa_connection_manager.h"
+#include "onyx/sys/sys_status.h"
 
 static WifiProfile dummy;
 
@@ -34,12 +35,16 @@ WpaConnectionManager::~WpaConnectionManager()
 // - broadcast signals when state changed
 bool WpaConnectionManager::start()
 {
+    sys::SysStatus::instance().enableIdle(false);
+
     triggerScan();
     return true;
 }
 
 bool WpaConnectionManager::stop()
 {
+    sys::SysStatus::instance().enableIdle(true);
+
     wifi_enabled_ = false;
     return true;
 }

@@ -22,7 +22,7 @@ public:
     bool close(const QString & doc_path);
     void close();
     bool save(const QString & doc_path);
-    void save();
+    bool save();
 
     bool exportDatabase(const QString & doc_path);
     bool loadFromDatabase(const QString & db_name);
