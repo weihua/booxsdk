@@ -2,6 +2,7 @@
 #include <QtNetwork/QtNetwork>
 
 #include "onyx/sys/wpa_connection.h"
+#include "onyx/sys/platform.h"
 #ifdef CONFIG_CTRL_IFACE_UNIX
 #include "dirent.h"
 #endif
@@ -24,6 +25,9 @@ static const int LENGTH = 4096;
 static const QString service = "com.onyx.service.system_manager";
 static const QString object  = "/com/onyx/object/system_manager";
 static const QString iface   = "com.onyx.interface.system_manager";
+
+static const int IMX508_WIFI_QUAL_MAX = 55;
+static const int IMX508_WIFI_QUAL_MIN = 14;
 
 
 #if _WIN32
@@ -633,6 +637,22 @@ bool WpaConnection::detailInfo(WifiProfile & profile)
             // qDebug("profile ssid %s", qPrintable(profile.ssid()));
             // qDebug("ap ssid %s", qPrintable(ap.ssid()));
             profile.insert("qual", ap.quality());
+
+            if (sys::isImx508())
+            {
+                int offset = IMX508_WIFI_QUAL_MAX-IMX508_WIFI_QUAL_MIN;
+                double d_real_qual = (double)(ap.quality()-IMX508_WIFI_QUAL_MIN)/(double)offset;
+
+                int real_qual = d_real_qual*100+1;
+                if (real_qual < 0)
+                {
+                    real_qual = 0;
+                }
+                qDebug() << "snr value: " << ap.quality();
+                qDebug() << "quality: " << real_qual;
+                profile.setQuality(real_qual);
+            }
+
             return true;
         }
     }
