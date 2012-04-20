@@ -1,5 +1,6 @@
 #include "onyx/ui/status_bar_item_slide.h"
 #include "onyx/screen/screen_proxy.h"
+#include "onyx/sys/platform.h"
 
 namespace ui
 {
@@ -197,7 +198,12 @@ void StatusBarItemProgress::updatePath(QPainterPath & result,
     int height = rect.height();
     int x_start = rect.left();
     int x_end = rect.right();
-    int y = rect.top()+2;
+    int y = rect.top();
+
+    if (sys::isIRTouch())
+    {
+        y += 2;
+    }
 
     const int ARC_RADIUS = 2;
     int diameter = (ARC_RADIUS << 1);
