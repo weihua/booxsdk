@@ -67,7 +67,9 @@ OnyxHandwritingWidget::OnyxHandwritingWidget(QWidget *parent)
     createLayout();
 
     connectWithChildren();
-    initHandwrting();
+    // do no init handwriting since handwriting function is disable when
+    // keyboard start
+//    initHandwrting();
     onyx::screen::watcher().addWatcher(this);
 }
 
