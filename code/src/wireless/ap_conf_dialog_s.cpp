@@ -8,7 +8,7 @@
 namespace ui
 {
 
-static const int LABEL_WIDTH = 180;
+static const int LABEL_WIDTH = 80;
 
 
 ApConfigDialogS::ApConfigDialogS(QWidget *parent, WifiProfile & profile)
@@ -18,8 +18,8 @@ ApConfigDialogS::ApConfigDialogS(QWidget *parent, WifiProfile & profile)
     , auth_hbox_(0)
     , enc_hbox_(0)
     , line_edit_layout_(0)
-    , auth_label_(tr("Authentication"), 0)
-    , enc_label_(tr("Encryption"), 0)
+    , auth_label_(tr("Authentication")+":", 0)
+    , enc_label_(tr("Encryption")+":", 0)
     , auth_group_(0)
     , plain_button_(tr("None"), 0)
     , wep_button_(tr("WEP"), 0)
@@ -183,7 +183,7 @@ void ApConfigDialogS::createInputs(int size)
     {
         ODataPtr data = edit_list_.at(i);
         QString label_text = data->value(TAG_TITLE).toString();
-        OnyxLabel *label = new OnyxLabel(label_text);
+        OnyxLabel *label = new OnyxLabel(label_text+":");
         QFont font;
         font.setPointSize(16);
         font.setBold(true);
@@ -191,7 +191,7 @@ void ApConfigDialogS::createInputs(int size)
         label->setFixedWidth(LABEL_WIDTH);
         label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
         line_edit_layout_ = new QHBoxLayout;
-        big_layout_.addWidget(label);
+        line_edit_layout_->addWidget(label);
         line_edit_layout_->addWidget(edit_view_list_.at(i));
         if (0 == i)
         {
@@ -217,7 +217,7 @@ void ApConfigDialogS::createLayout()
 
     QWidget *pwidget = safeParentWidget(parentWidget());
     int sub_menu_width = defaultItemHeight()*5;
-    int line_edit_width = pwidget->width()-sub_menu_width-5;
+    int line_edit_width = pwidget->width()-(LABEL_WIDTH+sub_menu_width)-5;
 
     Qt::Alignment align = static_cast<Qt::Alignment>(Qt::AlignLeft | Qt::AlignVCenter);
     form_layout_.setFormAlignment(align);
@@ -283,10 +283,11 @@ void ApConfigDialogS::createLayout()
         ssid_label->setFont(it_font);
         ssid_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
         line_edit_layout_ = new QHBoxLayout;
+        line_edit_layout_->addWidget(label);
         line_edit_layout_->setContentsMargins(4, 0, 0, 0);
         line_edit_layout_->addWidget(ssid_label, 400, Qt::AlignLeft);
 
-        form_layout_.addRow(label, line_edit_layout_);
+        big_layout_.addLayout(line_edit_layout_);
     }
 
     createInputs(size);
@@ -641,7 +642,6 @@ void ApConfigDialogS::onItemActivated(CatalogView *catalog,
                                    ContentView *item,
                                    int user_data)
 {
-    qDebug() << "at onItemActivated, begin";
     OData * item_data = item->data();
     if (item_data->contains(TAG_MENU_TYPE))
     {
