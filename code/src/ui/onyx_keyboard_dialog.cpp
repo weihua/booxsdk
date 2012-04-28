@@ -43,7 +43,7 @@ QString OnyxKeyboardDialog::popup(const QString &text)
     }
     QWidget * widget = safeParentWidget(parentWidget());
     resize(widget->width(), height());
-    move(widget->x(), widget->height() - height());
+    move(widget->x(), ui::screenGeometry().height() - height());
 
     LineEditView *input = static_cast<LineEditView *>(
             line_edit_.visibleSubItems().front());
