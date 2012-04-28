@@ -248,8 +248,12 @@ void WifiDialog::arrangeAPItems(WifiProfiles & profiles)
     clearDatas(datas_);
     foreach(WifiProfile profile, profiles)
     {
-        ODataPtr d (new OData(profile));
-        datas_.push_back(d);
+        // should not show access point with empty ssid (hidden networks)
+        if (!profile.ssid().isEmpty())
+        {
+            ODataPtr d (new OData(profile));
+            datas_.push_back(d);
+        }
     }
     ap_view_.setData(datas_, true);
     showPaginationButtons(ap_view_.hasPrev(), ap_view_.hasNext());
@@ -491,6 +495,7 @@ void WifiDialog::updateStateLable(WpaConnection::ConnectionState state)
         break;
     case WpaConnection::STATE_ABORTED:
         state_widget_.setState(tr("Aborted."));
+        break;
     default:
         break;
     }
