@@ -135,6 +135,13 @@ bool isLandscapeVolumeMapping()
     return qgetenv("LANDSCAPE_VOLUME_MAPPING").toInt() > 0;
 }
 
+bool isHD()
+{
+    int w = qgetenv("SCREEN_WIDTH").toInt();
+    int h = qgetenv("SCREEN_HEIGHT").toInt();
+    return (w == 1024 || h == 1024);
+}
+
 }
 
 

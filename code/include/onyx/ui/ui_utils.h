@@ -40,6 +40,8 @@ bool is97inch();
 
 bool isLandscapeVolumeMapping();
 
+bool isHD();
+
 };
 
 #endif  // ONYX_UI_UTILS_H_

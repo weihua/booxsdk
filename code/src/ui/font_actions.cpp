@@ -1,4 +1,5 @@
 #include "onyx/ui/font_actions.h"
+#include "onyx/ui/ui_utils.h"
 
 namespace ui
 {
@@ -127,10 +128,14 @@ QFont FontActions::selectedFont()
 void FontActions::generateDefaultFontSize(vector<int> & size)
 {
     size.clear();
-    size.push_back(12);
-    size.push_back(14);
-    size.push_back(16);
-    size.push_back(18);
+    if (!ui::isHD())
+    {
+        size.push_back(12);
+        size.push_back(14);
+        size.push_back(16);
+        size.push_back(18);
+    }
+
     size.push_back(20);
     size.push_back(22);
     size.push_back(24);
@@ -142,6 +147,14 @@ void FontActions::generateDefaultFontSize(vector<int> & size)
     size.push_back(36);
     size.push_back(38);
     size.push_back(40);
+
+    if (ui::isHD())
+    {
+        size.push_back(44);
+        size.push_back(50);
+        size.push_back(60);
+        size.push_back(80);
+    }
 }
 
 static const qreal DELTA = 0.01;
