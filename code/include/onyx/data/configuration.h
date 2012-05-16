@@ -28,6 +28,7 @@ const char * const CONFIG_PAGE_NUMBER     = "page_number";
 const char * const CONFIG_FULLSCREEN      = "full_screen";
 
 const char * const CONFIG_PAGING_MODE     = "paging_mode";
+const char * const CONFIG_READING_MODE    = "reading_mode";
 const char * const CONFIG_DOC_LOCATION    = "document_location";
 const char * const CONFIG_FONT_INDEX      = "font_index";
 const char * const CONFIG_FONT_RATIO      = "font_ratio";
