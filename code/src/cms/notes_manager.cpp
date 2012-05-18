@@ -46,6 +46,8 @@ NotesManager::~NotesManager(void)
 QString NotesManager::suggestedName(QSqlDatabase & database)
 {
     const QString NOTE_NAME = "scribble_";
+    const QString curr_time = QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm");
+    int curr_time_len = curr_time.length();
     int max = 1;
     Notes notes;
     all(database, notes);
@@ -53,14 +55,17 @@ QString NotesManager::suggestedName(QSqlDatabase & database)
     {
         if (n.name().startsWith(NOTE_NAME))
         {
-            int value = n.name().section(NOTE_NAME, 1).trimmed().toInt();
+            QString str = n.name();
+            str = str.remove(0, NOTE_NAME.length());
+            str = str.remove(str.length() - curr_time_len - 1, curr_time_len + 1);
+            int value = str.toInt();
             if (max <= value)
             {
                 max = value + 1;
             }
         }
     }
-    const QString curr_time = QDateTime::currentDateTime().toString("yyyy-MM-dd_hh:mm");
+
     QString name("%1%2%3%4");
     name = name.arg(NOTE_NAME).arg(max).arg("_").arg(curr_time);
     return name;

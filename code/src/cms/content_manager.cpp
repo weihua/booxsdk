@@ -436,7 +436,6 @@ bool ContentManager::removeRecentDocument(const QString &doc_path)
     }
 
     if (!ContentCategory::removeChildContent(*database_,
-                                             recent_read_category_,
                                              node.id()))
     {
         return false;
