@@ -404,6 +404,10 @@ bool WpaConnection::connectTo(WifiProfile ap)
     int id = addNetwork();
     setNetworkParam(id, "ssid", ap.ssid().toAscii().constData(), true);
 
+    // To connect to hidden ssid. Seems work.
+    setNetworkParam(id, "ap_scan", "1", false);
+    setNetworkParam(id, "scan_ssid", "1", false);
+
     // encryption.
     encryptionAttributes(ap);
     connecting_ap_ = ap;
@@ -747,7 +751,7 @@ void WpaConnection::receiveMessages()
     {
         if (wpa_ctrl_recv(monitor_conn_, result.data(), &length) == 0)
         {
-          result[static_cast<uint>(length)] = 0;
+            result[static_cast<uint>(length)] = 0;
             parseMessage(result);
         }
     }
