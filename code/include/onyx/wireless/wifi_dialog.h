@@ -81,6 +81,8 @@ private:
     void showPaginationButtons(bool show_prev = false, bool show_next = false);
     bool showConfigurationDialog(WifiProfile &profile);
 
+    void checkAndRestorePassword(WifiProfile &profile);
+
 private:
     QVBoxLayout  big_box_;
     QHBoxLayout  title_hbox_;

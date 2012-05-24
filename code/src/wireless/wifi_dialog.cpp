@@ -257,6 +257,15 @@ void WifiDialog::arrangeAPItems(WifiProfiles & profiles)
     }
     ap_view_.setData(datas_, true);
     showPaginationButtons(ap_view_.hasPrev(), ap_view_.hasNext());
+
+    QVector<ContentView *> item_list = ap_view_.visibleSubItems();
+    int size = item_list.size();
+    for (int i=0; i<size; i++)
+    {
+        WifiAPItem * ap_item = static_cast<WifiAPItem *>(item_list.at(i));
+        QObject::connect(ap_item, SIGNAL(config(WifiProfile &)),
+                this, SLOT(onAPConfig(WifiProfile &)));
+    }
 }
 
 void WifiDialog::setupConnections()
@@ -613,8 +622,27 @@ void WifiDialog::updateHardwareAddress()
     hardware_address_.setText(text);
 }
 
+void WifiDialog::checkAndRestorePassword(WifiProfile &profile)
+{
+    sys::SystemConfig conf;
+    WifiProfiles stored_aps = records(conf);
+    for(int i = 0; i < stored_aps.size(); ++i)
+    {
+        if (stored_aps[i].bssid() == profile.bssid()
+                && profile.psk().isEmpty() && !stored_aps[i].psk().isEmpty())
+        {
+            profile.setPsk(stored_aps[i].psk());
+            break;
+        }
+    }
+}
+
+
 bool WifiDialog::showConfigurationDialog(WifiProfile &profile)
 {
+    // load the stored password
+    checkAndRestorePassword(profile);
+
     ap_dialog_visible_ = true;
     ApConfigDialogS dialog(this, profile);
     int ret = dialog.popup();
