@@ -37,6 +37,7 @@ static const QString RETRY_TAG = "retry";
 static const QString COUNT_TAG = "count";
 static const QString DHCP_TAG = "dhcp";
 static const QString USER_TAG = "user";
+static const QString PRESENT_TAG = "present";
 
 WifiNetworkProperties::WifiNetworkProperties()
     : OData()
@@ -403,6 +404,20 @@ bool WifiNetworkProperties::isDefinedByUser()
 void WifiNetworkProperties::defineByUser(bool def)
 {
     insert(USER_TAG, def);
+}
+
+bool WifiNetworkProperties::isPresent()
+{
+    if (contains(PRESENT_TAG))
+    {
+        return value(PRESENT_TAG).toBool();
+    }
+    return true;
+}
+
+void WifiNetworkProperties::setPresent(bool present)
+{
+    insert(PRESENT_TAG, present);
 }
 
 

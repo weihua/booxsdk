@@ -301,6 +301,21 @@ void WifiAPItem::createLayout()
 
 void WifiAPItem::updateByProfile(WifiProfile & profile)
 {
+    if (!profile.isPresent())
+    {
+        ssid_label_.setText(profile.ssid());
+        ssid_label_.setVisible(true);
+        lock_icon_label_.setVisible(false);
+        config_button_.setVisible(true);
+
+        for(int i = 0; i < SIGNAL_ICONS; ++i)
+        {
+            signal_labels_[i].setVisible(false);
+        }
+        update();
+        return;
+    }
+
     bool visible = !profile.bssid().isEmpty();
     ssid_label_.setVisible(visible);
     lock_icon_label_.setVisible(visible);
@@ -316,8 +331,8 @@ void WifiAPItem::updateByProfile(WifiProfile & profile)
         return;
     }
 
-    ssid_label_.setText(profile_.ssid());
-    if (profile_.isWep() || profile_.isWpa() || profile_.isWpa2())
+    ssid_label_.setText(profile.ssid());
+    if (profile.isWep() || profile.isWpa() || profile.isWpa2())
     {
         lock_icon_label_.setPixmap(QPixmap(":/images/lock.png"));
     }

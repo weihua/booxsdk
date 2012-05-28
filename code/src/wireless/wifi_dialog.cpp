@@ -8,7 +8,7 @@ namespace ui
 {
 const int SPACING = 2;
 const int WIDGET_HEIGHT = 36;
-static const int AP_ITEM_HEIGHT = 80;
+static const int AP_ITEM_HEIGHT = 55;
 static const int MARGINS = 10;
 
 static const QString BUTTON_STYLE =    "\
@@ -243,6 +243,45 @@ void WifiDialog::scanResults(WifiProfiles &aps)
 
 }
 
+void WifiDialog::connectAllAPItems(CatalogView &view)
+{
+    QVector<ContentView *> item_list = view.visibleSubItems();
+    int size = item_list.size();
+    for (int i=0; i<size; i++)
+    {
+        WifiAPItem * ap_item = static_cast<WifiAPItem *>(item_list.at(i));
+        QObject::connect(ap_item, SIGNAL(config(WifiProfile &)),
+                this, SLOT(onAPConfig(WifiProfile &)));
+    }
+}
+
+void WifiDialog::appendStoredAPs(WifiProfiles & list)
+{
+    sys::SystemConfig conf;
+    WifiProfiles stored_aps = records(conf);
+    for(int i = 0; i < stored_aps.size(); i++)
+    {
+        if (!stored_aps[i].ssid().isEmpty() && !stored_aps[i].bssid().isEmpty())
+        {
+            bool found = false;
+            foreach(WifiProfile profile, list)
+            {
+                if (stored_aps[i].ssid() == profile.ssid())
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                stored_aps[i].setPresent(false);
+                ODataPtr d(new OData(stored_aps[i]));
+                datas_.push_back(d);
+            }
+        }
+    }
+}
+
 void WifiDialog::arrangeAPItems(WifiProfiles & profiles)
 {
     clearDatas(datas_);
@@ -255,29 +294,28 @@ void WifiDialog::arrangeAPItems(WifiProfiles & profiles)
             datas_.push_back(d);
         }
     }
+
+    appendStoredAPs(profiles);
+
     ap_view_.setData(datas_, true);
     showPaginationButtons(ap_view_.hasPrev(), ap_view_.hasNext());
 
-    QVector<ContentView *> item_list = ap_view_.visibleSubItems();
-    int size = item_list.size();
-    for (int i=0; i<size; i++)
-    {
-        WifiAPItem * ap_item = static_cast<WifiAPItem *>(item_list.at(i));
-        QObject::connect(ap_item, SIGNAL(config(WifiProfile &)),
-                this, SLOT(onAPConfig(WifiProfile &)));
-    }
+    connectAllAPItems(ap_view_);
 }
 
 void WifiDialog::setupConnections()
 {
-    QObject::connect(&proxy_, SIGNAL(connectionChanged(WifiProfile,WpaConnection::ConnectionState)),
-        this, SLOT(onConnectionChanged(WifiProfile, WpaConnection::ConnectionState)));
+    QObject::connect(&proxy_,
+            SIGNAL(connectionChanged(WifiProfile,WpaConnection::ConnectionState)),
+            this,
+            SLOT(onConnectionChanged(WifiProfile, WpaConnection::ConnectionState)));
     QObject::connect(&proxy_, SIGNAL(passwordRequired(WifiProfile )),
             this, SLOT(onNeedPassword(WifiProfile )));
     QObject::connect(&proxy_, SIGNAL(noMatchedAP()),
             this, SLOT(onNoMatchedAP()));
 
-    QObject::connect(&sys_, SIGNAL(sdioChangedSignal(bool)), this, SLOT(onSdioChanged(bool)));
+    QObject::connect(&sys_, SIGNAL(sdioChangedSignal(bool)),
+            this, SLOT(onSdioChanged(bool)));
 }
 
 void WifiDialog::clear()
@@ -629,14 +667,14 @@ void WifiDialog::checkAndRestorePassword(WifiProfile &profile)
     for(int i = 0; i < stored_aps.size(); ++i)
     {
         if (stored_aps[i].bssid() == profile.bssid()
-                && profile.psk().isEmpty() && !stored_aps[i].psk().isEmpty())
+                && !profile.ssid().isEmpty() && profile.psk().isEmpty()
+                && !stored_aps[i].psk().isEmpty())
         {
             profile.setPsk(stored_aps[i].psk());
             break;
         }
     }
 }
-
 
 bool WifiDialog::showConfigurationDialog(WifiProfile &profile)
 {
