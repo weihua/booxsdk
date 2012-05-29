@@ -197,7 +197,7 @@ bool WifiAPItem::event(QEvent *e)
 
 void WifiAPItem::paintEvent(QPaintEvent *e)
 {
-    if (profile_.bssid().isEmpty())
+    if (profile_.bssid().isEmpty() && profile_.isPresent())
     {
         return;
     }
@@ -248,7 +248,7 @@ void WifiAPItem::mousePressEvent(QMouseEvent *e)
 
 void WifiAPItem::activateItem()
 {
-    if (!profile_.bssid().isEmpty())
+    if (!profile_.bssid().isEmpty() && profile_.isPresent())
     {
         previous_selected_item_ = selected_item_;
         selected_item_ = this;

@@ -261,7 +261,7 @@ void WifiDialog::appendStoredAPs(WifiProfiles & list)
     WifiProfiles stored_aps = records(conf);
     for(int i = 0; i < stored_aps.size(); i++)
     {
-        if (!stored_aps[i].ssid().isEmpty() && !stored_aps[i].bssid().isEmpty())
+        if (!stored_aps[i].ssid().isEmpty())
         {
             bool found = false;
             foreach(WifiProfile profile, list)
