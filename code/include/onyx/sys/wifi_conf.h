@@ -124,6 +124,9 @@ public:
     bool isDefinedByUser();
     void defineByUser(bool def);
 
+    bool isPresent();
+    void setPresent(bool present);
+
 };
 typedef WifiNetworkProperties WifiProfile;
 typedef QVector<WifiProfile> WifiProfiles;

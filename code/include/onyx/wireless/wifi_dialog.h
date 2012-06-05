@@ -62,7 +62,9 @@ private Q_SLOTS:
 
 private:
     void createLayout();
+    void connectAllAPItems(CatalogView &view);
     void arrangeAPItems(WifiProfiles & list);
+    void appendStoredAPs(WifiProfiles & list);
     void setupConnections();
     void clear();
 
@@ -108,6 +110,7 @@ private:
 
     WifiProfiles scan_results_;
     ODatas datas_;
+
 };
 
 }
