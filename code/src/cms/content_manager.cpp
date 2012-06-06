@@ -38,7 +38,14 @@ bool ContentManager::open(const QString & database_name)
 {
     if (!database_)
     {
-        database_.reset(new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE", "cms")));
+        if (QSqlDatabase::contains("cms"))
+        {
+            database_.reset(new QSqlDatabase(QSqlDatabase::database("cms")));
+        }
+        else
+        {
+            database_.reset(new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE", "cms")));
+        }
     }
 
     if (!database_->isOpen())
@@ -73,9 +80,11 @@ void ContentManager::close()
 {
     if (database_)
     {
-        database_->close();
+        // since cms will be always accessed in the process, so keep connection
+//        database_->close();
         database_.reset(0);
-        QSqlDatabase::removeDatabase("cms");
+        // keep connection name
+//        QSqlDatabase::removeDatabase("cms");
     }
 }
 
