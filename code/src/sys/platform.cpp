@@ -116,5 +116,10 @@ int batteryPercentageThreshold()
     return threshold;
 }
 
+bool isNoTouch()
+{
+    return qgetenv("NO_TOUCH").toInt() > 0;
+}
+
 }    // namespace sys
 

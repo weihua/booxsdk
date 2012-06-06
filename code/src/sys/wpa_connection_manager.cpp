@@ -681,3 +681,14 @@ void WpaConnectionManager::queryStatus()
     QVariantMap info;
     proxy().status(info);
 }
+
+bool WpaConnectionManager::isConnectionOnProgress()
+{
+    if (WpaConnection::STATE_SCANNING == internal_state_
+            || WpaConnection::STATE_CONNECTING == internal_state_
+            || WpaConnection::STATE_ACQUIRING_ADDRESS == internal_state_)
+    {
+        return true;
+    }
+    return false;
+}

@@ -30,6 +30,8 @@ bool collectUserBehavior();
 
 int batteryPercentageThreshold();
 
+bool isNoTouch();
+
 }
 
 #endif  // ONYX_SYSTEM_PLATFORM_H__
