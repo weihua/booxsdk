@@ -80,11 +80,9 @@ void ContentManager::close()
 {
     if (database_)
     {
-        // since cms will be always accessed in the process, so keep connection
-//        database_->close();
+        database_->close();
         database_.reset(0);
-        // keep connection name
-//        QSqlDatabase::removeDatabase("cms");
+        QSqlDatabase::removeDatabase("cms");
     }
 }
 
