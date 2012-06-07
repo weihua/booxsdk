@@ -28,6 +28,7 @@ static const QString FILE_TAG = "file";
 static const QString DIR_TAG = "dir";
 static const QString WEBSITE_TAG ="website";
 static const QString APPLICATION_TAG = "application";
+static const QString TAG_USER_DEFINED_PREFIX = "user_defined_";
 
 static const QString TAG_FONT_FAMILY = "fontfamily";
 static const QString TAG_FONT_SIZE = "fontsize";
