@@ -218,6 +218,11 @@ bool ContentManager::getContentNodeByUrl(ContentNode & info,
     return ContentNode::getContentNodeByUrl(*database_, url, info);
 }
 
+bool ContentManager::allNodes(cms_ids & nodes)
+{
+    return ContentNode::allNodes(*database_, nodes);
+}
+
 /// Update content node by url.
 bool ContentManager::updateContentNodeByUrl(const ContentNode& info,
                                             const QString & url)

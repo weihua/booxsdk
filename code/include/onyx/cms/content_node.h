@@ -159,6 +159,7 @@ private:
     static bool getContentNode(QSqlDatabase&, const cms_long, ContentNode &);
     static bool getContentNodeByUrl(QSqlDatabase&, const QString & url, ContentNode &);
     static bool updateContentNodeByUrl(QSqlDatabase&, const ContentNode &, const QString & url);
+    static bool allNodes(QSqlDatabase&, cms_ids & list);
 
     static bool createContentNode(QSqlDatabase&, ContentNode&);
     static bool updateContentNode(QSqlDatabase&, const ContentNode &);
