@@ -508,6 +508,11 @@ bool SysStatus::isFlashMounted()
     return file.readAll().contains(LIBRARY_ROOT);
 }
 
+bool SysStatus::isFlashMountedDynamic()
+{
+    return flash_mounted_;
+}
+
 bool SysStatus::isMusicPlayerRunning()
 {
     return isProcessRunning("music_player");

@@ -55,7 +55,10 @@ class SysStatus : public QObject
 
     bool isUSBMounted();
     bool isSDMounted();
+    /// return static mount state
     bool isFlashMounted();
+    /// return false when connected to PC
+    bool isFlashMountedDynamic();
     bool isMusicPlayerRunning();
     bool isProcessRunning(const QString & proc_name);
 
