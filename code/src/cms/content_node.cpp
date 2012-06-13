@@ -492,6 +492,21 @@ bool ContentNode::updateContentNodeByUrl(QSqlDatabase& database,
     return true;
 }
 
+bool ContentNode::allNodes(QSqlDatabase& database, cms_ids & list)
+{
+    QSqlQuery query(database);
+    query.prepare( "select id from content" );
+    if (!query.exec())
+    {
+        return false;
+    }
+    while (query.next())
+    {
+        list.push_back(query.value(0).toInt());
+    }
+    return (list.size() > 0);
+}
+
 bool ContentNode::createContentNode(QSqlDatabase& database,
                                     ContentNode & node)
 {

@@ -50,6 +50,7 @@ public:
     bool getContentNode(ContentNode & info);
     bool getContentNode(const cms_long id, ContentNode & info);
     bool getContentNodeByUrl(ContentNode & info, const QString & url);
+    bool allNodes(cms_ids & documents);
 
     bool updateContentNode(const ContentNode& info);
     bool updateContentNodeByUrl(const ContentNode& info, const QString & url);
