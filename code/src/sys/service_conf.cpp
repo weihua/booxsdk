@@ -73,6 +73,12 @@ static  Service naboo_viewer_service("com.onyx.service.naboo_viewer",
                             OPEN_METHOD,
                             "naboo_reader");
 
+static  Service onyx_pdf_reader_service("com.onyx.service.onyx_pdf_reader",
+                            "/com/onyx/object/onyx_pdf_reader",
+                            "com.onyx.interface.onyx_pdf_reader",
+                            OPEN_METHOD,
+                            "onyx_pdf_reader");
+
 static   Service onyx_reader("com.onyx.service.onyx_reader",
                              "/com/onyx/object/onyx_reader",
                              "com.onyx.interface.onyx_reader",
@@ -216,6 +222,14 @@ void ServiceConfig::loadDefaultServices()
             naboo_viewer_service.mutable_extensions().push_back("epub");
         }
         DEFAULT_SERVICES.push_back(naboo_viewer_service);
+
+        // onyx pdf reader service.
+        onyx_pdf_reader_service.mutable_extensions().push_back("pdf");
+        if (!enable_fb_epub)
+        {
+            onyx_pdf_reader_service.mutable_extensions().push_back("epub");
+        }
+        DEFAULT_SERVICES.push_back(onyx_pdf_reader_service);
 
         // image service.
         if (note_service.mutable_extensions().size() <= 0)
@@ -515,6 +529,12 @@ bool ServiceConfig::sudokuService(QSqlDatabase&, Service &service)
 bool ServiceConfig::nabooReaderService(QSqlDatabase &, Service & service)
 {
     service = naboo_viewer_service;
+    return true;
+}
+
+bool ServiceConfig::onyxPdfReaderService(QSqlDatabase &, Service &service)
+{
+    service = onyx_pdf_reader_service;
     return true;
 }
 

@@ -88,6 +88,7 @@ private:
     static bool officeViewerService(QSqlDatabase &, Service & service);
     static bool hasOfficeViewer();
     static bool nabooReaderService(QSqlDatabase &, Service & service);
+    static bool onyxPdfReaderService(QSqlDatabase &, Service & service);
     static bool onyxReaderService(QSqlDatabase &, Service & service);
     static bool coolReaderService(QSqlDatabase &, Service & service);
     static bool htmlReaderService(QSqlDatabase &, Service & service);

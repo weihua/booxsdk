@@ -147,6 +147,11 @@ bool SystemConfig::nabooReaderService(Service & service)
     return ServiceConfig::nabooReaderService(*database_, service);
 }
 
+bool SystemConfig::onyxPdfReaderService(Service &service)
+{
+    return ServiceConfig::onyxPdfReaderService(*database_, service);
+}
+
 bool SystemConfig::registerService(const Service &service,
                                    const QString &path)
 {

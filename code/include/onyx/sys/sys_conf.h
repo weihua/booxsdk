@@ -48,6 +48,7 @@ public:
     bool hasOfficeViewer();
     bool onyxReaderService(Service & service);
     bool nabooReaderService(Service &  service);
+    bool onyxPdfReaderService(Service &  service);
     bool coolReaderService(Service & service);
     bool htmlReaderService(Service & service);
     bool registerService(const Service &, const QString &);
