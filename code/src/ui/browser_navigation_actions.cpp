@@ -22,7 +22,9 @@ void BrowserNavigationActions::enableHistory(bool enable)
 
 void BrowserNavigationActions::generateActions(QWebHistory *history,
         bool enable_hyperlink_navigation,
-        bool hyperlink_navigation_mode)
+        bool hyperlink_navigation_mode,
+        bool enable_mobile_mode,
+        bool mobile_mode)
 {
     category()->setText(QCoreApplication::tr("Navigation"));
 
@@ -93,6 +95,25 @@ void BrowserNavigationActions::generateActions(QWebHistory *history,
         navigate_hyperlink->setCheckable(true);
         navigate_hyperlink->setChecked(false);
         actions_.push_back(navigate_hyperlink);
+    }
+
+    if (enable_mobile_mode)
+    {
+        shared_ptr<QAction> mode(new QAction(exclusiveGroup()));
+        if (!mobile_mode)
+        {
+            mode->setText(QCoreApplication::tr("Mobile Mode"));
+        }
+        else
+        {
+            mode->setText(QCoreApplication::tr("Exit Mobile Mode"));
+        }
+        mode->setIcon(QIcon(QPixmap(":/images/mobile_mode.png")));
+        mode->setData(NAVIGATE_BROWSER_MODE);
+        mode->setEnabled(true);
+        mode->setCheckable(true);
+        mode->setChecked(false);
+        actions_.push_back(mode);
     }
 }
 
