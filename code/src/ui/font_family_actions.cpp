@@ -19,6 +19,7 @@ FontFamilyActions::~FontFamilyActions(void)
 void FontFamilyActions::generateActions(const QString &font_family,
                                         bool scan_others)
 {
+    category()->setFont(actionFont());
     category()->setText(QCoreApplication::tr("Font Family"));
     actions_.clear();
 

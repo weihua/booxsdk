@@ -16,6 +16,7 @@ NetworkActions::~NetworkActions(void)
 
 void NetworkActions::generateActions(const vector<NetworkType> & values)
 {
+    category()->setFont(actionFont());
     category()->setText(QCoreApplication::tr("Network"));
     actions_.clear();
 
@@ -29,6 +30,7 @@ void NetworkActions::generateActions(const vector<NetworkType> & values)
 
         act->setCheckable(true);
         act->setData(*iter);
+        act->setFont(actionFont());
         switch (*iter)
         {
         case NETWORK_WIFI:

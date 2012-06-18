@@ -31,6 +31,10 @@ int statusBarHeight()
 {
     if (sys::isIRTouch())
     {
+        if(isHD())
+        {
+            return 60;
+        }
         return 45;
     }
     return 35;

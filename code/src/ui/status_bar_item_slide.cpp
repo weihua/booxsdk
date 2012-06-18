@@ -1,6 +1,7 @@
 #include "onyx/ui/status_bar_item_slide.h"
 #include "onyx/screen/screen_proxy.h"
 #include "onyx/sys/platform.h"
+#include "onyx/ui/ui_utils.h"
 
 namespace ui
 {
@@ -74,6 +75,10 @@ void StatusBarItemProgress::drawMessage(QPainter &painter)
 
     QFont font;
     font.setPointSize(17);
+    if(ui::isHD() && sys::isIRTouch())
+    {
+        font.setPointSize(22);
+    }
     font.setBold(true);
     setFont(font);
     QFontMetrics metrics(font);
@@ -91,7 +96,13 @@ void StatusBarItemProgress::drawMessage(QPainter &painter)
 
 void StatusBarItemProgress::resizeEvent(QResizeEvent * event)
 {
-    QRect rc(0, Y_POS, width(), HEIGHT);
+    int height_to_set = HEIGHT;
+    if(ui::isHD() && sys::isIRTouch())
+    {
+        height_to_set += 2;
+    }
+
+    QRect rc(0, Y_POS, width(), height_to_set);
     updatePath(bk_path_, rc);
 
     if (pressing_value_ > 0)
@@ -188,7 +199,14 @@ void StatusBarItemProgress::createLayout()
 void StatusBarItemProgress::updatefgPath(int value)
 {
     int w = width();
-    QRect rc(MARGIN, Y_POS + MARGIN, (w - MARGIN * 2) * value / total_, HEIGHT - 2 * MARGIN);
+
+    int height_to_set = HEIGHT;
+    if(ui::isHD() && sys::isIRTouch())
+    {
+        height_to_set += 2;
+    }
+
+    QRect rc(MARGIN, Y_POS + MARGIN, (w - MARGIN * 2) * value / total_, height_to_set - 2 * MARGIN);
     updatePath(fg_path_, rc);
 }
 
@@ -203,6 +221,10 @@ void StatusBarItemProgress::updatePath(QPainterPath & result,
     if (sys::isIRTouch())
     {
         y += 2;
+        if(ui::isHD())
+        {
+            y += 8;
+        }
     }
 
     const int ARC_RADIUS = 2;

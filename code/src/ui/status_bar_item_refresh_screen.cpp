@@ -54,6 +54,7 @@ QImage & StatusBarItemRefreshScreen::image()
 QString StatusBarItemRefreshScreen::resourcePath()
 {
     QString str(":/images/refresh_screen.png");
+    str = getIconPath(str);
     return str;
 }
 

@@ -51,6 +51,7 @@ public:
     StatusBarItemType type() const { return type_; }
     int state() const { return state_; }
     void setState(const int state);
+    QString getIconPath(QString str);
 
 private:
     StatusBarItemType type_;

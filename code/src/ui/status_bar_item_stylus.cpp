@@ -67,28 +67,28 @@ QString StatusBarItemStylus::resourcePath()
     switch (state())
     {
     case ID_PAN:
-        name = ":/images/stylus_pan.png";
+        name = getIconPath(":/images/stylus_pan.png");
         break;
     case ID_SKETCHING:
-        name = ":/images/stylus_sketch.png";
+        name = getIconPath(":/images/stylus_sketch.png");
         break;
     case ID_ZOOM_IN:
-        name = ":/images/stylus_zoom_in.png";
+        name = getIconPath(":/images/stylus_zoom_in.png");
         break;
     case ID_ERASING:
-        name = ":/images/stylus_erase_sketch.png";
+        name = getIconPath(":/images/stylus_erase_sketch.png");
         break;
     case ID_ADD_ANNOTATION:
-        name = ":/images/stylus_add_annotation.png";
+        name = getIconPath(":/images/stylus_add_annotation.png");
         break;
     case ID_DELETE_ANNOTATION:
-        name = ":/images/stylus_erase_annotation.png";
+        name = getIconPath(":/images/stylus_erase_annotation.png");
         break;
     case ID_FREE_PEN:
-        name = ":/images/stylus_pointer.png";
+        name = getIconPath(":/images/stylus_pointer.png");
         break;
     default:
-        name = ":/images/stylus_pan.png";
+        name = getIconPath(":/images/stylus_pan.png");
         break;
     }
     return name;

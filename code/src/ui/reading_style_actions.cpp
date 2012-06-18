@@ -17,6 +17,7 @@ ReadingStyleActions::~ReadingStyleActions(void)
 
 void ReadingStyleActions::generateActions(ReadingStyleType selected)
 {
+    category()->setFont(actionFont());
     category()->setText(QCoreApplication::tr("Style"));
     actions_.clear();
 
@@ -32,6 +33,7 @@ void ReadingStyleActions::generateActions(ReadingStyleType selected)
         QString t(QCoreApplication::tr("%1% line spacing"));
         int percentage = 80 + (i - STYLE_LINE_SPACING_8) * 10;
         t = t.arg(percentage);
+        act->setFont(actionFont());
         act->setText(t);
         act->setIcon(QIcon(QPixmap(":/images/line_space.png")));
 

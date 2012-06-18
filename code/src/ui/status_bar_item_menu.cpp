@@ -16,7 +16,7 @@ StatusBarItemMenu::~StatusBarItemMenu(void)
 
 void StatusBarItemMenu::createLayout()
 {
-    menu_icon_.reset(new QImage(":/images/menu.png"));
+    menu_icon_.reset(new QImage(getIconPath(":/images/menu.png")));
     setFixedWidth(menu_icon_->width() + 4);
 }
 

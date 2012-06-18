@@ -32,6 +32,7 @@ void ViewActions::onPageLayoutTriggered(QAction *action)
 void ViewActions::generateRotationActions(const Rotations & rotations,
                                           const ViewSettingType selected_value)
 {
+    category()->setFont(actionFont());
     category()->setText(QCoreApplication::tr("Layout"));
     category()->setIcon(QIcon(QPixmap(":/images/view_setting.png")));
 
@@ -45,6 +46,7 @@ void ViewActions::generateRotationActions(const Rotations & rotations,
         // Change font and make it as checkable.
         act->setCheckable(true);
         act->setData(*iter);
+        act->setFont(actionFont());
 
         if (*iter == selected_value)
         {
@@ -85,6 +87,7 @@ void ViewActions::generateRotationActions(const Rotations & rotations,
 void ViewActions::generatePageLayoutActions(const PageLayouts & layouts,
                                             const PageLayoutType selected_value)
 {
+    category()->setFont(actionFont());
     category()->setText(QCoreApplication::tr("Layout"));
     category()->setIcon(QIcon(QPixmap(":/images/view_setting.png")));
 
@@ -99,6 +102,7 @@ void ViewActions::generatePageLayoutActions(const PageLayouts & layouts,
         // Change font and make it as checkable.
         act->setCheckable(true);
         act->setData(*iter);
+        act->setFont(actionFont());
 
         if (*iter == selected_value)
         {

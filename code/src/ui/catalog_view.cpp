@@ -5,6 +5,7 @@
 #include "onyx/ui/ui_utils.h"
 #include "onyx/screen/screen_update_watcher.h"
 #include "onyx/ui/catalog_view.h"
+#include "onyx/sys/platform.h"
 
 namespace ui
 {
@@ -20,7 +21,6 @@ const QString CatalogView::RECYCLE_DOWN = "r-down";
 
 static const int FLAG_STOP = -2;
 static const int TITLE_BAR_HEIGHT = 30;
-
 
 CatalogView::CatalogView(Factory * factory, QWidget *parent)
         : QWidget(parent)
@@ -716,6 +716,11 @@ void CatalogView::paintEvent ( QPaintEvent * event )
         painter.setPen(Qt::white);
         QFont font(QApplication::font());
         font.setPointSize(ui::defaultFontPointSize() - 4);
+        if(ui::isHD() && sys::isIRTouch())
+        {
+            font.setPointSize(ui::defaultFontPointSize());
+            font.setBold(true);
+        }
         painter.setFont(font);
         painter.drawText(rc.adjusted(10, 0, 0, 0), Qt::AlignLeft|Qt::AlignVCenter, title_);
     }

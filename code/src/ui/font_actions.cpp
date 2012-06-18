@@ -28,6 +28,7 @@ void FontActions::generateActions(QFont  font,
                                       vector<int> & size,
                                       const int selected_size)
 {
+    category()->setFont(actionFont());
     category()->setText(QCoreApplication::tr("Font"));
     font_ = font;
 
@@ -81,6 +82,7 @@ void FontActions::generateActions(QFont  font,
     QString text(QCoreApplication::tr("Bold"));
     shared_ptr<QAction> bold(new QAction(text, style_group_.get()));
     QFont fb = bold->font();
+    fb.setPixelSize(13);
     fb.setBold(true);
     bold->setFont(fb);
     bold->setCheckable(true);
@@ -92,6 +94,7 @@ void FontActions::generateActions(QFont  font,
     QString title(QCoreApplication::tr("Italic"));
     shared_ptr<QAction> italic(new QAction(title, style_group_.get()));
     QFont fi = italic->font();
+    fi.setPixelSize(13);
     fi.setItalic(true);
     italic->setFont(fi);
     italic->setCheckable(true);
@@ -172,6 +175,7 @@ TextSizeActions::~TextSizeActions(void)
 void TextSizeActions::generateActions(vector<qreal> & size,
                                       const qreal selected_multiplier)
 {
+    category()->setFont(actionFont());
     category()->setText(QCoreApplication::tr("Font"));
     actions_.clear();
 
@@ -192,6 +196,7 @@ void TextSizeActions::generateActions(vector<qreal> & size,
 
         // Change font and make it as checkable.
         act->setCheckable(true);
+        act->setFont(actionFont());
         act->setData(*iter);
         act->setIcon(QIcon(QPixmap(":/images/font_size_item.png")));
 
@@ -258,6 +263,7 @@ FontIndexActions::~FontIndexActions(void)
 void FontIndexActions::generateActions( vector<int> & indexes,
                                         const int current )
 {
+    category()->setFont(actionFont());
     category()->setText(QCoreApplication::tr("Font"));
     actions_.clear();
 

@@ -9,6 +9,7 @@
 #include "onyx/ui/content_view.h"
 #include "onyx/sys/sys_conf.h"
 #include "onyx/data/data_tags.h"
+#include "onyx/sys/platform.h"
 
 namespace ui
 {
@@ -642,6 +643,7 @@ void ClockView::drawDigitalClock(QPainter &painter)
     int size = ui::defaultFontPointSize();
     QFont font(QApplication::font());
     font.setPointSize(size);
+    font.setBold(true);
     painter.setFont(font);
     painter.drawText(rect(), Qt::AlignCenter|Qt::TextWordWrap , QDateTime::currentDateTime().toString());
 }
@@ -650,6 +652,7 @@ void ClockView::paintEvent(QPaintEvent * event)
 {
      const double PI = 3.14159265;
      const double LEN = 75;
+
 
     static const QPoint hourHand[3] = {
          QPoint(3, 4),
@@ -701,6 +704,10 @@ void ClockView::paintEvent(QPaintEvent * event)
 
      QFont font;
      font.setPointSize(14);
+     if(ui::isHD() && sys::isIRTouch())
+     {
+         font.setPointSize(18);
+     }
      font.setBold(true);
      painter.setFont(font);
      QFontMetrics fm = painter.fontMetrics();

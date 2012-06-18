@@ -41,6 +41,7 @@ void ZoomSettingActions::setCurrentZoomValue(const ZoomFactor selected_value)
 /// Generate or re-generate the setting actions group.
 void ZoomSettingActions::generateActions( const std::vector<ZoomFactor> & values )
 {
+    category()->setFont(actionFont());
     category()->setText(QCoreApplication::tr("Zooming"));
     actions_.clear();
 
@@ -53,6 +54,7 @@ void ZoomSettingActions::generateActions( const std::vector<ZoomFactor> & values
 
         // Change font and make it as checkable.
         act->setCheckable(true);
+        act->setFont(actionFont());
 
         if (*iter == ZOOM_HIDE_MARGIN)
         {

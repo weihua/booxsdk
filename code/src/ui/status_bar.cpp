@@ -843,6 +843,14 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
         addWidget(label);
         addWidget(ptr.get());
     }
+    else if (type == BATTERY &&
+             sys::isIRTouch() && isHD())
+    {
+        OnyxLabel *label = new OnyxLabel(this);
+        label->setFixedWidth(10);
+        addPermanentWidget(ptr.get());
+        addPermanentWidget(label);
+    }
     else if (type != MENU && type != MESSAGE)
     {
         addPermanentWidget(ptr.get());

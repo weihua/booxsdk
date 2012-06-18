@@ -15,6 +15,7 @@ ReadingToolsActions::~ReadingToolsActions(void)
 
 void ReadingToolsActions::generateActions(const vector<ReadingToolsType> & values, bool append)
 {
+    category()->setFont(actionFont());
     category()->setText(QCoreApplication::tr("Tools"));
     if ( !append )
     {
@@ -47,6 +48,7 @@ void ReadingToolsActions::generateActions(const vector<ReadingToolsType> & value
         // Change font and make it as checkable.
         act->setCheckable(true);
         act->setData(*iter);
+        act->setFont(actionFont());
         switch (*iter)
         {
         case SEARCH_TOOL:
