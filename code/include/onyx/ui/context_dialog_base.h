@@ -3,6 +3,8 @@
 
 #include "onyx/base/base.h"
 #include "onyx/ui/ui_global.h"
+#include "onyx/ui/ui_utils.h"
+#include "onyx/sys/platform.h"
 
 namespace ui
 {
@@ -56,6 +58,20 @@ public:
 
     /// Clear all.actions.
     void clear() { actions_.clear(); }
+
+protected:
+    QFont actionFont()
+    {
+        QFont font;
+        if(ui::isHD() && sys::isIRTouch())
+        {
+            font.setPointSize(13);
+            font.setBold(true);
+            return font;
+        }
+        return font;
+    }
+
 
 protected:
     QAction category_action_;                   ///< The left category.

@@ -23,6 +23,14 @@ SystemActions::~SystemActions(void)
 
 void SystemActions::generateActions(const std::vector<int> & actions)
 {
+    QFont font;
+    if(ui::isHD() && sys::isIRTouch())
+    {
+        font.setPointSize(15);
+        font.setBold(true);
+    }
+    category()->setFont(font);
+
     category()->setText(QCoreApplication::tr("System"));
     actions_.clear();
 
@@ -47,6 +55,7 @@ void SystemActions::generateActions(const std::vector<int> & actions)
             {
                 shared_ptr<QAction> rotate(new QAction(exclusiveGroup()));
                 rotate->setCheckable(true);
+                rotate->setFont(font);
                 rotate->setText(QCoreApplication::tr("Rotate Screen"));
                 rotate->setIcon(QIcon(QPixmap(":/images/screen_rotation.png")));
                 rotate->setData(ROTATE_SCREEN);
@@ -58,6 +67,7 @@ void SystemActions::generateActions(const std::vector<int> & actions)
                 // Screen update type.
                 shared_ptr<QAction> screen(new QAction(exclusiveGroup()));
                 screen->setCheckable(true);
+                screen->setFont(font);
                 if (onyx::screen::instance().defaultWaveform() == onyx::screen::ScreenProxy::GC)
                 {
                     screen->setText(QCoreApplication::tr("Full Refresh Off"));
@@ -76,6 +86,7 @@ void SystemActions::generateActions(const std::vector<int> & actions)
             {
                 shared_ptr<QAction> fullScreen(new QAction(exclusiveGroup()));
                 fullScreen->setCheckable(true);
+                fullScreen->setFont(font);
                 fullScreen->setText(QCoreApplication::tr("Full Screen"));
                 fullScreen->setIcon(QIcon(QPixmap(":/images/full_screen.png")));
                 fullScreen->setData(FULL_SCREEN);
@@ -86,6 +97,7 @@ void SystemActions::generateActions(const std::vector<int> & actions)
             {
                 shared_ptr<QAction> exitFullScreen(new QAction(exclusiveGroup()));
                 exitFullScreen->setCheckable(true);
+                exitFullScreen->setFont(font);
                 exitFullScreen->setText(QCoreApplication::tr("Exit Full Screen"));
                 exitFullScreen->setIcon(QIcon(QPixmap(
                         ":/images/exit_full_screen.png")));
@@ -100,6 +112,7 @@ void SystemActions::generateActions(const std::vector<int> & actions)
                     // Music.
                     shared_ptr<QAction> music(new QAction(exclusiveGroup()));
                     music->setCheckable(true);
+                    music->setFont(font);
                     music->setText(QCoreApplication::tr("Music"));
                     music->setIcon(QIcon(QPixmap(":/images/music.png")));
                     music->setData(MUSIC);
@@ -120,6 +133,7 @@ void SystemActions::generateActions(const std::vector<int> & actions)
                 // system volume.
                 shared_ptr<QAction> volume(new QAction(exclusiveGroup()));
                 volume->setCheckable(true);
+                volume->setFont(font);
                 volume->setText(QCoreApplication::tr("Volume"));
                 volume->setIcon(QIcon(QPixmap(":/images/system_volume.png")));
                 volume->setData(SYSTEM_VOLUME);
@@ -131,6 +145,7 @@ void SystemActions::generateActions(const std::vector<int> & actions)
                 // Close document.
                 shared_ptr<QAction> close(new QAction(exclusiveGroup()));
                 close->setCheckable(true);
+                close->setFont(font);
                 close->setText(QCoreApplication::tr("Close"));
                 close->setIcon(QIcon(QPixmap(":/images/return_to_library.png")));
                 close->setData(RETURN_TO_LIBRARY);
@@ -141,6 +156,7 @@ void SystemActions::generateActions(const std::vector<int> & actions)
             {
                 shared_ptr<QAction> br(new QAction(exclusiveGroup()));
                 br->setCheckable(true);
+                br->setFont(font);
                 br->setText(QCoreApplication::tr("Brightness"));
                 br->setIcon(QIcon(QPixmap(":/images/return_to_library.png")));
                 br->setData(BACKLIGHT_BRIGHTNESS);
@@ -155,6 +171,7 @@ void SystemActions::addAboutAction()
 {
     shared_ptr<QAction> about(new QAction(exclusiveGroup()));
     about->setCheckable(true);
+    about->setFont(actionFont());
     about->setText(QCoreApplication::tr("About"));
     about->setIcon(QIcon(QPixmap(":/images/about.png")));
     about->setData(ABOUT_INFO);

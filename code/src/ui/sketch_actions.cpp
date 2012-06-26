@@ -92,6 +92,7 @@ void SketchActions::generateAnnotationMode(const AnnotationModes & modes,
         // Change font and make it as checkable.
         act->setCheckable(true);
         act->setData(*iter);
+        act->setFont(actionFont());
         switch (*iter)
         {
         case ADD_ANNOTATION:
@@ -155,6 +156,7 @@ void SketchActions::generateAnnotationMode(const AnnotationModes & modes,
 void SketchActions::generateSketchMode(const SketchModes & modes,
                                        const SketchMode selected_mode)
 {
+    category()->setFont(actionFont());
     category()->setText(QCoreApplication::tr("Annotations"));
     category()->setIcon(QIcon(QPixmap(":/images/annotations.png")));
 
@@ -171,6 +173,7 @@ void SketchActions::generateSketchMode(const SketchModes & modes,
         // Change font and make it as checkable.
         act->setCheckable(true);
         act->setData(*iter);
+        act->setFont(actionFont());
         switch (*iter)
         {
         case MODE_SKETCHING:
@@ -227,7 +230,7 @@ void SketchActions::generateSketchColors(const SketchColors & colors,
         // Change font and make it as checkable.
         act->setCheckable(true);
         act->setData(*iter);
-
+        act->setFont(actionFont());
         switch (*iter)
         {
         case SKETCH_COLOR_WHITE:
@@ -292,6 +295,7 @@ void SketchActions::generateSketchShapes(const SketchShapes & shapes,
         // Change font and make it as checkable.
         act->setCheckable(true);
         act->setData(*iter);
+        act->setFont(actionFont());
 
         // Set current mode
         if (*iter == selected_shape)
@@ -363,6 +367,7 @@ void SketchActions::generateSketchMiscItems(const SketchMiscItems &items)
         // Change font and make it as checkable.
         act->setCheckable(true);
         act->setData(*iter);
+        act->setFont(actionFont());
 
         switch (*iter) {
         case SKETCH_MISC_PAGE_MODE:

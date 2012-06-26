@@ -1,5 +1,7 @@
 #include "onyx/base/device.h"
 #include "onyx/ui/status_bar_item_power.h"
+#include "onyx/ui/ui_utils.h"
+#include "onyx/sys/platform.h"
 
 namespace ui
 {
@@ -101,6 +103,10 @@ QString StatusBarItemBattery::resourcePath()
 {
     QString image_path = imagesPrefix();
 
+    if(ui::isHD() && sys::isIRTouch())
+    {
+        image_path = "/usr/share/ui/status_bar/images/";
+    }
     if (status_ & BATTERY_STATUS_CHARGING)
     {
         image_path.append("battery_charge_%1.png");

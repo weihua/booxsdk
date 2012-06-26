@@ -55,6 +55,7 @@ QImage & StatusBarItemVolume::image()
 QString StatusBarItemVolume::resourcePath()
 {
     QString str(":/images/volume.png");
+    str = getIconPath(str);
     return str;
 }
 

@@ -1,5 +1,7 @@
 #include <algorithm>
 #include "onyx/ui/menu_item.h"
+#include "onyx/sys/platform.h"
+
 
 namespace ui
 {
@@ -27,11 +29,19 @@ MenuItem::~MenuItem()
 /// Can return a hardcode value for all menu items.
 QSize MenuItem::sizeHint() const
 {
+    if(ui::isHD() && sys::isIRTouch())
+    {
+        return QSize(100, 105);
+    }
     return QSize(80, 95);
 }
 
 QSize MenuItem::minimumSizeHint() const
 {
+    if(ui::isHD() && sys::isIRTouch())
+    {
+        return QSize(100, 105);
+    }
     return QSize(80, 95);
 }
 

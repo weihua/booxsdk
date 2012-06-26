@@ -1,6 +1,8 @@
 #include "onyx/base/device.h"
 #include "onyx/ui/status_bar_item_clock.h"
 #include "onyx/screen/screen_proxy.h"
+#include "onyx/sys/platform.h"
+#include "onyx/ui/ui_utils.h"
 
 namespace ui
 {
@@ -13,6 +15,10 @@ StatusBarItemClock::StatusBarItemClock(QWidget *parent)
 {
     QFont font;
     font.setPointSize(20);
+    if(ui::isHD() && sys::isIRTouch())
+    {
+        font.setPointSize(28);
+    }
     font.setBold(true);
     setFont(font);
     metrics_.reset(new QFontMetrics(font));

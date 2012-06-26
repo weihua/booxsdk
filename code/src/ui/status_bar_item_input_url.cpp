@@ -54,7 +54,8 @@ QImage & StatusBarItemInputUrl::image()
 QString StatusBarItemInputUrl::resourcePath()
 {
     QString str(":/images/input_url.png");
-    return str;
+    QString path = getIconPath(str);
+    return path;
 }
 
 }

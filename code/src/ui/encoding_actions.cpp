@@ -43,6 +43,7 @@ EncodingActions::~EncodingActions(void)
 
 void EncodingActions::generateActions(const base::string &encoding)
 {
+    category()->setFont(actionFont());
     category()->setText(QCoreApplication::tr("Encoding"));
     actions_.clear();
 
@@ -52,6 +53,7 @@ void EncodingActions::generateActions(const base::string &encoding)
         shared_ptr<QAction> act(new QAction(ENCODINGS[i].c_str(), exclusiveGroup()));
         act->setCheckable(true);
         act->setData(i);
+        act->setFont(actionFont());
         if (caseCmp(encoding.c_str(), ENCODINGS[i].c_str()) == 0)
         {
             act->setChecked(true);

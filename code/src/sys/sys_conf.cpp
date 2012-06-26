@@ -380,11 +380,13 @@ bool SystemConfig::notesExportDirectory(const QString & note_name, QDir & dir)
         }
         if (dir.cd(NOTES))
         {
-            if (!dir.exists(note_name))
+            QString name_for_dir = note_name;
+            name_for_dir = name_for_dir.replace(":", "_");
+            if (!dir.exists(name_for_dir))
             {
-                dir.mkdir(note_name);
+                dir.mkdir(name_for_dir);
             }
-            if (dir.cd(note_name))
+            if (dir.cd(name_for_dir))
             {
                 return true;
             }
@@ -401,11 +403,13 @@ bool SystemConfig::notesExportDirectory(const QString & note_name, QDir & dir)
         }
         if (dir.cd(NOTES))
         {
-            if (!dir.exists(note_name))
+            QString name_for_dir = note_name;
+            name_for_dir = name_for_dir.replace(":", "_");
+            if (!dir.exists(name_for_dir))
             {
-                dir.mkdir(note_name);
+                dir.mkdir(name_for_dir);
             }
-            if (dir.cd(note_name))
+            if (dir.cd(name_for_dir))
             {
                 return true;
             }
