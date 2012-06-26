@@ -158,7 +158,8 @@ enum SketchShape
 enum SketchMiscItem
 {
     SKETCH_MISC_INVALID_ITEM = 299,
-    SKETCH_MISC_PAN_MODE = 300,
+    SKETCH_MISC_PAGE_MODE = 300,
+    SKETCH_MISC_PAN_MODE,
     SKETCH_MISC_TOGGLE_ANNOTATION_VISIBLE, // toggle both annot and sketch's visible
     SKETCH_MISC_PDF_MERGE,
 };
@@ -237,6 +238,7 @@ enum FunctionID
     ID_SKETCHING,
     ID_ERASING,
     ID_COMIC_MODE,
+    ID_HAND,
     ID_UNKNOWN
 };
 

@@ -365,6 +365,12 @@ void SketchActions::generateSketchMiscItems(const SketchMiscItems &items)
         act->setData(*iter);
 
         switch (*iter) {
+        case SKETCH_MISC_PAGE_MODE:
+            {
+                act->setText(QCoreApplication::tr("Page Mode"));
+                act->setIcon(QIcon(QPixmap(":/images/zoom_hide_margin.png")));
+                break;
+            }
         case SKETCH_MISC_PAN_MODE:
             {
                 act->setText(QCoreApplication::tr("Hand Tool"));
