@@ -87,6 +87,9 @@ QString StatusBarItemStylus::resourcePath()
     case ID_FREE_PEN:
         name = getIconPath(":/images/stylus_pointer.png");
         break;
+    case ID_HAND:
+        name = ":/images/stylus_hand.png";
+        break;
     default:
         name = getIconPath(":/images/stylus_pan.png");
         break;
