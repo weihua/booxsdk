@@ -26,6 +26,7 @@ void BrowserNavigationActions::generateActions(QWebHistory *history,
         bool enable_mobile_mode,
         bool mobile_mode)
 {
+    category()->setFont(actionFont());
     category()->setText(QCoreApplication::tr("Navigation"));
 
     actions_.clear();
@@ -34,6 +35,7 @@ void BrowserNavigationActions::generateActions(QWebHistory *history,
     if (can_go_back)
     {
         shared_ptr<QAction> backward(new QAction(exclusiveGroup()));
+        backward->setFont(actionFont());
         backward->setText(QCoreApplication::tr("Backward"));
         backward->setIcon(QIcon(QPixmap(":/images/backward.png")));
         backward->setData(NAVIGATE_BACKWARD);
@@ -47,6 +49,7 @@ void BrowserNavigationActions::generateActions(QWebHistory *history,
     if (can_go_forward)
     {
         shared_ptr<QAction> forward(new QAction(exclusiveGroup()));
+        forward->setFont(actionFont());
         forward->setText(QCoreApplication::tr("Forward"));
         forward->setIcon(QIcon(QPixmap(":/images/forward.png")));
         forward->setData(NAVIGATE_FORWARD);
@@ -57,6 +60,7 @@ void BrowserNavigationActions::generateActions(QWebHistory *history,
     }
 
     shared_ptr<QAction> clear(new QAction(exclusiveGroup()));
+    clear->setFont(actionFont());
     clear->setText(QCoreApplication::tr("Clear History"));
     clear->setIcon(QIcon(QPixmap(":/images/clear_history.png")));
     clear->setData(NAVIGATE_CLEAR_HISTORY);
@@ -68,6 +72,7 @@ void BrowserNavigationActions::generateActions(QWebHistory *history,
     if(enable_history_)
     {
         shared_ptr<QAction> Show(new QAction(exclusiveGroup()));
+        Show->setFont(actionFont());
         Show->setText(QCoreApplication::tr("History"));
         Show->setIcon(QIcon(QPixmap(":/images/history.png")));
         Show->setData(NAVIGATE_SHOW_HISTORY);
@@ -89,6 +94,7 @@ void BrowserNavigationActions::generateActions(QWebHistory *history,
             text = QCoreApplication::tr("Exit Navigation");
         }
         navigate_hyperlink->setText(text);
+        navigate_hyperlink->setFont(actionFont());
         navigate_hyperlink->setIcon(QIcon(QPixmap(":/images/hyperlink_navigation_mode.png")));
         navigate_hyperlink->setData(NAVIGATE_HYPER_LINK_VIA_KEYBOARD);
         navigate_hyperlink->setEnabled(true);
@@ -108,6 +114,7 @@ void BrowserNavigationActions::generateActions(QWebHistory *history,
         {
             mode->setText(QCoreApplication::tr("Exit Mobile Mode"));
         }
+        mode->setFont(actionFont());
         mode->setIcon(QIcon(QPixmap(":/images/mobile_mode.png")));
         mode->setData(NAVIGATE_BROWSER_MODE);
         mode->setEnabled(true);
