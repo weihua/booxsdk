@@ -31,7 +31,7 @@ QSize MenuItem::sizeHint() const
 {
     if(ui::isHD() && sys::isIRTouch())
     {
-        return QSize(100, 105);
+        return QSize(100, 113);
     }
     return QSize(80, 95);
 }
@@ -40,7 +40,7 @@ QSize MenuItem::minimumSizeHint() const
 {
     if(ui::isHD() && sys::isIRTouch())
     {
-        return QSize(100, 105);
+        return QSize(100, 113);
     }
     return QSize(80, 95);
 }

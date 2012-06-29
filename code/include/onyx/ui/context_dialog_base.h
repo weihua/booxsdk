@@ -66,7 +66,6 @@ protected:
         if(ui::isHD() && sys::isIRTouch())
         {
             font.setPointSize(13);
-            font.setBold(true);
             return font;
         }
         return font;

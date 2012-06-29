@@ -19,6 +19,7 @@ StatusBarItemClock::StatusBarItemClock(QWidget *parent)
     {
         font.setPointSize(28);
     }
+
     font.setBold(true);
     setFont(font);
     metrics_.reset(new QFontMetrics(font));

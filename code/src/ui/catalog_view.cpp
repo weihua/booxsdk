@@ -718,7 +718,6 @@ void CatalogView::paintEvent ( QPaintEvent * event )
         font.setPointSize(ui::defaultFontPointSize() - 4);
         if(ui::isHD() && sys::isIRTouch())
         {
-            font.setPointSize(ui::defaultFontPointSize());
             font.setBold(true);
         }
         painter.setFont(font);
