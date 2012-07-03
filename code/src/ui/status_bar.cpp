@@ -765,7 +765,7 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
     case MUSIC_PLAYER:
         item = new StatusBarItemMusicPlayer(this);
         connect(item, SIGNAL(clicked()), this, SLOT(onMusicPlayerClicked()));
-        break; 
+        break;
     case CLOCK:
         item = new StatusBarItemClock(this);
         connect(item, SIGNAL(clicked()), this, SLOT(onClockClicked()));
