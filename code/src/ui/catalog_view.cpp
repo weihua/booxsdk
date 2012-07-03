@@ -716,10 +716,6 @@ void CatalogView::paintEvent ( QPaintEvent * event )
         painter.setPen(Qt::white);
         QFont font(QApplication::font());
         font.setPointSize(ui::defaultFontPointSize() - 4);
-        if(ui::isHD() && sys::isIRTouch())
-        {
-            font.setBold(true);
-        }
         painter.setFont(font);
         painter.drawText(rc.adjusted(10, 0, 0, 0), Qt::AlignLeft|Qt::AlignVCenter, title_);
     }
