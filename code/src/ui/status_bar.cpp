@@ -15,6 +15,7 @@
 #include "onyx/ui/status_bar_item_input.h"
 #include "onyx/ui/status_bar_item_connection.h"
 #include "onyx/ui/status_bar_item_3g_connection.h"
+#include "onyx/ui/status_bar_item_wifi_connection.h"
 #include "onyx/ui/status_bar_item_volume.h"
 #include "onyx/ui/status_bar_item_music_player.h"
 #include "onyx/ui/number_dialog.h"
@@ -102,6 +103,12 @@ void StatusBar::setupConnections()
             SIGNAL(configKeyboard()),
             this,
             SLOT(onConfigKeyboard()));
+
+    connect(&sys_status,
+            SIGNAL(reportWifiNetwork(const int, const int, const int)),
+            this,
+            SLOT(onReportWifiNetwork(const int, const int, const int)));
+
 }
 
 /// Update some status when it's created.
@@ -419,6 +426,11 @@ void StatusBar::onVolumeButtonsPressed()
     }
 }
 
+void StatusBar::onConnectionClicked()
+{
+    sys::SysStatus::instance().popupWifiDialog();
+}
+
 void StatusBar::onHideVolumeDialog()
 {
 }
@@ -629,6 +641,34 @@ void StatusBar::onConnectToPC(bool connected)
         closeUSBDialog();
     }
 }
+
+void StatusBar::onReportWifiNetwork(const int signal, const int total, const int network)
+{
+    static int count = 0;
+    StatusBarItem *ptr = item(CONNECTION, false);
+    if (ptr)
+    {
+        StatusBarItemWifiConnection *conn_ptr = static_cast<StatusBarItemWifiConnection*>(ptr);
+        bool update = conn_ptr->setConnectionInfomation(signal, total, network);
+        onyx::screen::instance().enableUpdate(false);
+        QApplication::processEvents();
+        onyx::screen::instance().enableUpdate(true);
+        if (isVisible() && update)
+        {
+            if (++count % 2)
+            {
+                onyx::screen::instance().updateWidget(ptr,
+                        onyx::screen::ScreenProxy::GC, false);
+            }
+            else
+            {
+                onyx::screen::instance().updateWidget(0,
+                        onyx::screen::ScreenProxy::GC, false);
+            }
+        }
+    }
+}
+
 /*
 void StatusBar::onUSBCableChanged(bool connected)
 {
@@ -799,7 +839,8 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
         connect(item, SIGNAL(clicked()), this, SLOT(onInputTextClicked()));
         break;
     case CONNECTION:
-        item = new StatusBarItemConnection(this);
+        item = new StatusBarItemWifiConnection(this);
+        connect(item, SIGNAL(clicked()), this, SLOT(onConnectionClicked()));
         break;
     case THREEG_CONNECTION:
         item = new StatusBarItem3GConnection(this);

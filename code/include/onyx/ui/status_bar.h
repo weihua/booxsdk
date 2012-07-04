@@ -70,6 +70,7 @@ private Q_SLOTS:
     void onProgressChanged(const int percent, const int value);
     void onMenuClicked();
     void onStylusClicked();
+    void onConnectionClicked();
     bool onItemStatusChanged(const StatusBarItemType type, const int state);
     void onViewportChanged(const QRect & parent, const QRect & child);
 
@@ -84,6 +85,9 @@ private Q_SLOTS:
     void onPppConnectionChanged(const QString &message, int value);
     void onStylusChanged(bool inserted);
     void onConnectToPC(bool);
+
+    void onReportWifiNetwork(const int, const int, const int);
+
     void onVolumeButtonsPressed();
     void onHideVolumeDialog();
     void onConfigKeyboard();
