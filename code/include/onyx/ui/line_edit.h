@@ -11,9 +11,11 @@ class OnyxLineEdit : public QLineEdit
 {
     Q_OBJECT
 public:
-    OnyxLineEdit(QWidget *parent);
-    OnyxLineEdit(const QString & text, QWidget *parent);
+    OnyxLineEdit(QWidget *parent, const QString &name = "");
+    OnyxLineEdit(const QString & text, QWidget *parent, const QString &name = "");
     ~OnyxLineEdit();
+
+    QString getName();
 
 protected:
     void focusInEvent(QFocusEvent *e);
@@ -21,6 +23,7 @@ protected:
 Q_SIGNALS:
     void getFocus(OnyxLineEdit *object);
     void setCheckByMouse(OnyxLineEdit *object);
+    void enterKeyPressed(OnyxLineEdit *object);
     void outOfRange(QKeyEvent *ke);
 
 protected:
@@ -29,6 +32,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent * event);
 
 private:
+    QString name_;      ///< name for keyboard dialog title
     bool out_of_range_;
 };
 
