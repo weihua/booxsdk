@@ -82,7 +82,7 @@ void RussianKeyboardData::initRightKeyCode()
 
 void RussianKeyboardData::initBottomKeyCode()
 {
-    const QChar chs[] = {'.', ',', QChar(0x0437), QChar(0x0445),
+    const QChar chs[] = {'.', ',', QChar(0x0451), QChar(0x0437), QChar(0x0445),
             QChar(0x0434)};
     for (int i=0; i<5; i++)
     {
@@ -144,7 +144,7 @@ void RussianKeyboardData::initRightKeyShiftCode()
 
 void RussianKeyboardData::initBottomKeyShiftCode()
 {
-    const QChar chs[] = {';', '\'', QChar(0x0437).toUpper(), QChar(0x0445).toUpper(),
+    const QChar chs[] = {';', '\'', QChar(0x0451).toUpper(), QChar(0x0437).toUpper(), QChar(0x0445).toUpper(),
             QChar(0x0434).toUpper()};
     for (int i=0; i<5; i++)
     {
