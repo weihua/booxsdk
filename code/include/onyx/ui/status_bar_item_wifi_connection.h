@@ -37,10 +37,11 @@ private:
 private:
     QString information_;
     int strength_;
+
     int total_;
     int text_width_;
 };
 
-};      // namespace ui
+}      // namespace ui
 
 #endif      // ONYX_STATUS_BAR_ITEM_WIFI_CONNECTION_H_
