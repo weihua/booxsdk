@@ -19,6 +19,7 @@ static const LocaleItem LANGUAGES[] =
 {
     {QT_TRANSLATE_NOOP("LocalePage", "English"),  QLocale(QLocale::English)},
     {QT_TRANSLATE_NOOP("LocalePage", "Russian"),  QLocale(QLocale::Russian)},
+    {QT_TRANSLATE_NOOP("LocalePage", "Spanish"),  QLocale(QLocale::Spanish)},
     {QT_TRANSLATE_NOOP("LocalePage", "Poland"),  QLocale(QLocale::Polish)},
     {QT_TRANSLATE_NOOP("LocalePage", "Swedish"),  QLocale(QLocale::Swedish)},
     {QT_TRANSLATE_NOOP("LocalePage", "Hungarian"),  QLocale(QLocale::Hungarian)},
