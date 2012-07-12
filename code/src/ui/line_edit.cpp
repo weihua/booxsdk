@@ -36,16 +36,18 @@ QLineEdit:disabled                      \
 namespace ui
 {
 
-OnyxLineEdit::OnyxLineEdit(QWidget *parent)
+OnyxLineEdit::OnyxLineEdit(QWidget *parent, const QString &name)
 : QLineEdit(parent)
+, name_(name)
 , out_of_range_(false)
 {
     setStyleSheet(LINE_EDIT_STYLE);
     QApplication::setCursorFlashTime(0);
 }
 
-OnyxLineEdit::OnyxLineEdit(const QString & text, QWidget *parent)
+OnyxLineEdit::OnyxLineEdit(const QString & text, QWidget *parent, const QString &name)
 : QLineEdit(text, parent)
+, name_(name)
 , out_of_range_(false)
 {
     setStyleSheet(LINE_EDIT_STYLE);
@@ -56,6 +58,11 @@ OnyxLineEdit::~OnyxLineEdit()
 {
 }
 
+QString OnyxLineEdit::getName()
+{
+    return name_;
+}
+
 void OnyxLineEdit::focusInEvent(QFocusEvent *e)
 {
     QLineEdit::focusInEvent(e);
@@ -64,6 +71,13 @@ void OnyxLineEdit::focusInEvent(QFocusEvent *e)
 
 void OnyxLineEdit::keyReleaseEvent(QKeyEvent *ke)
 {
+    if (ke->key() == Qt::Key_Enter || ke->key() == Qt::Key_Return)
+    {
+        emit enterKeyPressed(this);
+        ke->accept();
+        return;
+    }
+
     if (ke->key() == Qt::Key_Escape)
     {
         ke->ignore();

@@ -50,6 +50,8 @@ QString OnyxKeyboardDialog::popup(const QString &text)
             line_edit_.visibleSubItems().front());
     input->innerEdit()->setText(text);
 
+    keyboard_.initFocus();
+
     int is_accepted = exec();
     if (QDialog::Accepted == is_accepted)
     {

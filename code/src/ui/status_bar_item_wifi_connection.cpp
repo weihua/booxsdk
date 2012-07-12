@@ -86,12 +86,12 @@ void StatusBarItemWifiConnection::paintEvent(QPaintEvent *pe)
     QFontMetrics metric(font);
     rc = rect();
     rc.adjust(text_width_ + SPACING, SPACING, 0, -SPACING);
-    paintBars(painter, rc, QBrush(Qt::white), MAX);
-    paintBars(painter, rc, QBrush(Qt::black), strength_);
+    paintBars(painter, rc, QBrush(QColor(125, 125, 125)), MAX);
+    paintBars(painter, rc, QBrush(Qt::white), strength_);
 
     if (strength_ < 0)
     {
-        painter.setPen(QPen(QBrush(Qt::white), 3));
+        painter.setPen(QPen(QBrush(QColor(125, 125, 125)), 3));
         QPoint start(rc.topLeft());
         start.rx() += 3;
         start.ry() += rc.height() / 3;

@@ -46,6 +46,7 @@ bool WpaConnectionManager::stop()
     sys::SysStatus::instance().enableIdle(true);
 
     wifi_enabled_ = false;
+    stopWpaSupplicant();
     return true;
 }
 
@@ -93,6 +94,7 @@ void WpaConnectionManager::onScanReturned(WifiProfiles & list)
     if (proxy().isComplete())
     {
         qDebug("Complete, don't connect again.");
+        emit connectionChanged(dummy, WpaConnection::STATE_SCANNED);
         return;
     }
     connectToBestAP();
