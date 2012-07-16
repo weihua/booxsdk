@@ -49,4 +49,11 @@ static const QString TAG_ICON = "icon";
 
 static const QString TAG_ATTRIBUTE = "attribute";
 
+static const QString TAG_CDL_BOOK_TYPE = "cdl_book_type";
+static const QString TAG_CDL_BOOK_ENCRYPT_TYPE = "cdl_book_encrypt_type";
+static const QString TAG_CDL_BOOK_PRICE = "cdl_book_price";
+static const QString TAG_CDL_BOOK_RATING = "cdl_book_rating";
+static const QString TAG_CDL_BOOK_LOCAL_UPDATE_TIME = "cdl_book_local_update_time";
+static const QString TAG_CDL_BOOK_SERVER_UPDATE_TIME = "cdl_book_server_update_time";
+
 #endif
