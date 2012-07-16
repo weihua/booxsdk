@@ -11,16 +11,16 @@ QCheckBox {                                             \
     border-width: 1px;                                  \
     border-color: gray;                                 \
     border-style: solid;                                \
-    border-radius: 3;                                   \
+    border-radius: 5px;                                 \
  }                                                      \
  QCheckBox:checked {                                    \
     background: #a3a3a3;                                \
  }                                                      \
  QCheckBox:focus {                                      \
     border-width: 2px;                                  \
-    border-color: black;                                 \
+    border-color: black;                                \
     border-style: solid;                                \
-    border-radius: 3;                                   \
+    border-radius: 5px;                                 \
  }                                                      \
  QCheckBox::indicator {                                 \
      width: 25px;                                       \
