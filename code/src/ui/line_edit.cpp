@@ -14,7 +14,7 @@ QLineEdit                               \
     color: black;                       \
     border-width: 2px;                  \
     border-style: solid;                \
-    border-radius: 0;                   \
+    border-radius: 5px;                 \
     padding: 0px;                       \
     min-height: 32px;                   \
 }                                       \
@@ -25,10 +25,10 @@ QLineEdit:disabled                      \
     selection-background-color: black;  \
     selection-color: white;             \
     font: 24px bold;                    \
-    color: dark;                       \
+    color: dark;                        \
     border-width: 2px;                  \
     border-style: solid;                \
-    border-radius: 0;                   \
+    border-radius: 5px;                 \
     padding: 0px;                       \
     min-height: 32px;                   \
 }";
