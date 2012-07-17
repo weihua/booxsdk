@@ -18,7 +18,7 @@ public:
 
     void update(bool is_sd_card = false);
 
-    void scan(bool scan_sd_card = false);
+    void scan(const QString &extra_scan_path, bool scan_sd_card = false);
     QStringList extNames(MediaType type);
 
 private:

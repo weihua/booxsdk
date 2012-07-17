@@ -114,10 +114,13 @@ QString MediaInfoManager::sdPath()
 }
 
 /// scan both internal flash and sd card.
-void MediaInfoManager::scan(bool scan_sd_card)
+void MediaInfoManager::scan(const QString &extra_scan_path, bool scan_sd_card)
 {
-    QDir dir(internalStoragePath());
+    QDir extra_dir(extra_scan_path);
     QStringList result;
+    scanFoldersRecursively(extra_dir, result);
+
+    QDir dir(internalStoragePath());
     scanFoldersRecursively(dir, result);
 
     if (scan_sd_card)
