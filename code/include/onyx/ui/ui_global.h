@@ -29,6 +29,12 @@ enum ViewType
     THUMBNAIL_VIEW = 3,
 };
 
+enum LibraryFilterType
+{
+    LIBRARY_FILTER_ALL_ITEMS = 0,
+    LIBRARY_FILTER_STORE_ITEMS
+};
+
 
 enum EditType
 {
