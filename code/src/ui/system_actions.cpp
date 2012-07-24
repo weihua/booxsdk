@@ -156,6 +156,17 @@ void SystemActions::generateActions(const std::vector<int> & actions)
                 actions_.push_back(br);
                 break;
             }
+        case BOOK_DATA_SYNC:
+            {
+                shared_ptr<QAction> br(new QAction(exclusiveGroup()));
+                br->setCheckable(true);
+                br->setFont(actionFont());
+                br->setText(QCoreApplication::tr("Sync"));
+                br->setIcon(QIcon(QPixmap(":/images/sync.png")));
+                br->setData(BOOK_DATA_SYNC);
+                actions_.push_back(br);
+                break;
+            }
         }
     }
 }

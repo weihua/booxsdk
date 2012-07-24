@@ -99,6 +99,7 @@ enum ReadingToolsType
     UNDEFINED_TOOL,
     MARGIN_SETTING,
     WEB_BROWSER_MODE,
+    BOOK_DATA_SHARE_TOOL,
 };
 
 enum NetworkType
@@ -191,6 +192,7 @@ enum SystemAction
     EXIT_FULL_SCREEN,
     BACKLIGHT_BRIGHTNESS,
     SYSTEM_VOLUME,
+    BOOK_DATA_SYNC,
 };
 
 enum AnnotationMode
