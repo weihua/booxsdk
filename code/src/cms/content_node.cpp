@@ -219,6 +219,9 @@ ContentNode::getContentNode(QSqlDatabase &database,
     node.mutable_size() = info.size();
     node.mutable_location() = info.path();
     node.mutable_name() = info.fileName();
+    qDebug() << "ContentNode::getContentNode, size: " << info.size()
+             << ", location: " << info.path()
+             << ", name: " << info.fileName();
 
     // Query by name, location and size.
     QSqlQuery query(database);
@@ -231,7 +234,13 @@ ContentNode::getContentNode(QSqlDatabase &database,
     query.bindValue(":location", node.location());
     query.bindValue(":size", node.size());
 
-    if (query.exec() && query.next())
+    bool res = query.exec();
+    qDebug() << "ContentNode::getContentNode, " << query.executedQuery();
+    if (!res) {
+        qDebug() << "ContentNode::getContentNode, query failed: " << query.lastError().text()
+                 << ", sql: " << query.executedQuery();
+    }
+    if (res && query.next())
     {
         int index = 0;
         node.id_ = query.value(index++).toInt();
@@ -248,6 +257,7 @@ ContentNode::getContentNode(QSqlDatabase &database,
         node.mutable_attributes() = query.value(index++).toByteArray();
         return true;
     }
+    qDebug() << "empty select result";
 
     // File has been moved, check the name and size.
     /*
@@ -319,6 +329,10 @@ ContentNode::getContentNode(QSqlDatabase &database,
 bool ContentNode::getContentNode(QSqlDatabase & database,
                                  ContentNode &node)
 {
+    qDebug() << "ContentNode::getContentNode, size: " << node.size()
+             << ", location: " << node.location()
+             << ", name: " << node.name();
+
     QSqlQuery query(database);
     query.prepare( "select id, title, authors, description, "
                    "last_access, publisher, md5, "
@@ -344,8 +358,23 @@ bool ContentNode::getContentNode(QSqlDatabase & database,
         node.mutable_read_count() = query.value(index++).toInt();
         node.mutable_progress() = query.value(index++).toString();
         node.mutable_attributes() = query.value(index++).toByteArray();
+
+        QVariantMap attributes;
+        node.attributes(attributes);
+        QString isbn("isbn");
+        if (attributes.contains(isbn)) {
+            qDebug() << "isbn: " << attributes[isbn];
+        }
+        else {
+            qDebug() << "attributes not contains isbn";
+        }
+
+
+        qDebug() << "ContentNode::getContentNode, success";
         return true;
     }
+
+    qDebug() << "ContentNode::getContentNode, failed";
     return false;
 }
 
@@ -510,6 +539,7 @@ bool ContentNode::allNodes(QSqlDatabase& database, cms_ids & list)
 bool ContentNode::createContentNode(QSqlDatabase& database,
                                     ContentNode & node)
 {
+    qDebug() << "ContentNode::createContentNode, enter";
     QSqlQuery query(database);
     query.prepare ("insert into content "
                    "(name, location, title, authors, description, "
@@ -534,11 +564,23 @@ bool ContentNode::createContentNode(QSqlDatabase& database,
     query.addBindValue(node.progress());
     query.addBindValue(node.attributes());
 
+    QVariantMap attributes;
+    node.attributes(attributes);
+    QString isbn("isbn");
+    if (attributes.contains(isbn)) {
+        qDebug() << "isbn: " << attributes[isbn];
+    }
+    else {
+        qDebug() << "attributes not contains isbn";
+    }
+
     if (query.exec())
     {
         node.id_ = query.lastInsertId().toInt();
+        qDebug() << "ContentNode::createContentNode, success";
         return true;
     }
+    qDebug() << "ContentNode::createContentNode, failed";
     return false;
 }
 

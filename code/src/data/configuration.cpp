@@ -34,9 +34,11 @@ bool loadDocumentOptions(ContentManager & db,
     ContentNode::fromPath(conf.info, doc_path);
     if (!db.getContentNode(conf.info))
     {
+        qDebug() << "loadDocumentOptions, getContentNode failed: " << doc_path;
         db.createContentNode(conf.info);
         return true;
     }
+    qDebug() << "loadDocumentOptions, getContentNode success";
 
     // Read blob from the database.
     cms_blob options;

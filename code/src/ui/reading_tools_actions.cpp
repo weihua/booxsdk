@@ -267,6 +267,12 @@ void ReadingToolsActions::generateActions(const vector<ReadingToolsType> & value
                 act->setIcon(QIcon(QPixmap(":/images/zoom_hide_margin.png")));
             }
             break;
+        case BOOK_DATA_SHARE_TOOL:
+            {
+                act->setText(QCoreApplication::tr("Share"));
+                act->setIcon(QIcon(QPixmap(":/images/share.png")));
+            }
+            break;
         default:
             break;
         }
