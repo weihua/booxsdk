@@ -5,7 +5,7 @@
 #include "onyx/ui/menu_item.h"
 #include "onyx/ui/keyboard_navigator.h"
 #include "onyx/screen/screen_proxy.h"
-
+#include "onyx/screen/screen_update_watcher.h"
 
 
 namespace ui
@@ -36,6 +36,7 @@ PopupMenu::PopupMenu(QWidget *parent, bool load_translator)
 , system_separator_(this)
 {
     createMenuLayout();
+    onyx::screen::watcher().flush(this, onyx::screen::ScreenProxy::GU);
 }
 
 PopupMenu::~PopupMenu()
@@ -46,34 +47,20 @@ PopupMenu::~PopupMenu()
 // Create menu.
 void PopupMenu::createMenuLayout()
 {
-    big_layout_.setContentsMargins(5, 5, 5, 5);
-    big_layout_.setSpacing(2);
+    big_layout_.setContentsMargins(2, 16, 5, 5);
 
     big_layout_.addLayout(&menu_layout_);
 
     // Left category section.
+
     menu_layout_.addLayout(&categroy_section_.layout());
     menu_layout_.setSpacing(2);
 
-    // Separator
-    separator_.setFixedWidth(1);
-    separator_.setFocusPolicy(Qt::NoFocus);
-    separator_.setFrameShape(QFrame::VLine);
-    separator_.setAutoFillBackground(true);
-    separator_.setBackgroundRole(QPalette::Light);
-    menu_layout_.addWidget(&separator_);
 
     // Childrent section.
     menu_layout_.addLayout(&children_section_.layout());
-
-    // System action.
-    system_separator_.setFocusPolicy(Qt::NoFocus);
-    system_separator_.setFixedHeight(1);
-    system_separator_.setFrameShape(QFrame::HLine);
-    system_separator_.setAutoFillBackground(true);
-    system_separator_.setBackgroundRole(QPalette::Light);
-
-    big_layout_.addWidget(&system_separator_);
+    big_layout_.addSpacing(30);
+//    big_layout_.addWidget(&system_separator_);
     big_layout_.addLayout(&system_section_.layout());
 
     // Setup connection.
@@ -184,52 +171,20 @@ void PopupMenu::activate()
 void PopupMenu::paintEvent(QPaintEvent *pe)
 {
     QPainter p(this);
-    QRect rc = rect().adjusted(1, 1, -1, -1);
-    {
-        QPainterPath path;
-        path.addRoundedRect(rc, 10, 10);
-        QPen pen(Qt::SolidLine);
-        pen.setColor(Qt::black);
-        pen.setWidth(2);
-        p.setPen(pen);
-        p.drawPath(path);
-    }
+    int index = categroy_section_.currentFocusItem();
+    QString image_path(":/images/menu_background_%1.png");
+    image_path = image_path.arg(index);
+    p.drawPixmap(rect(), QPixmap(image_path));
+//    onyx::screen::instance().enableUpdate(true);
+//    onyx::screen::watcher().flush(this, onyx::screen::ScreenProxy::GU);
 
-    {
-        /*
-        rc = rc.adjusted(1, 1, -1, -1);
-        QPainterPath path;
-        path.addRoundedRect(rc, 10, 10);
-        QPen pen(Qt::SolidLine);
-        pen.setColor(QColor(255, 255, 255, 255));
-        pen.setWidth(2);
-        p.setPen(pen);
-        p.drawPath(path);
-        */
-    }
 
-    rc = rc.adjusted(1, 1, -1, -1);
-    QPainterPath path;
-    path.addRoundedRect(rc, 10, 10);
-    /*
-    QLinearGradient fade(0, 0, 0, rc.height());
-    fade.setColorAt(0, QColor(0, 0, 0, 255));
-    fade.setColorAt(0.01, QColor(128, 128, 128, 255));
-    fade.setColorAt(0.02, QColor(20, 20, 20, 255));
-    fade.setColorAt(0.98, QColor(20, 20, 20, 255));
-    fade.setColorAt(0.99, QColor(128, 128, 128, 255));
-    fade.setColorAt(1.0,  QColor(0, 0, 0, 255));
-    p.fillPath(path, fade);
-    */
-    p.fillPath(path, QBrush(QColor(255, 255, 255, 255)));
+
 }
 
 void PopupMenu::resizeEvent(QResizeEvent *)
 {
-    QPainterPath p;
-    p.addRoundedRect(rect(), 10, 10);
-    QRegion maskedRegion(p.toFillPolygon().toPolygon());
-    setMask(maskedRegion);
+
 }
 
 void PopupMenu::mousePressEvent(QMouseEvent *me)
@@ -303,6 +258,9 @@ void PopupMenu::onGroupClicked(MenuItem* wnd, QAction *action)
     onyx::screen::instance().enableUpdate(true);
     selected_category_ = action;
     arrangeItems(all_actions_[action]);
+
+    update();
+    onyx::screen::instance().flush(this,onyx::screen::ScreenProxy::GU);
 }
 
 /// We are able to handle some system action directly in
@@ -344,7 +302,8 @@ int PopupMenu::popup(const QString &)
     // that Qt system asks these applications to paint themselves
     // when menu is shown. The Qt framebuffer is updated but it's not necessary
     // to update the screen here.
-    onyx::screen::instance().enableUpdate(false);
+    onyx::screen::watcher().addWatcher(this);
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
 
     arrangeItems(all_actions_[group]);
     setModal(true);

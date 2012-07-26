@@ -65,7 +65,7 @@ public:
     int navigate(int);
     bool activate();
     void clear();
-
+    int focusItem();
     bool setFocus(int row = 0, int col = 0);
     bool hasFocus();
 
@@ -75,6 +75,9 @@ public:
     QGridLayout & layout() { return layout_; }
     MenuItems & items() { return items_; }
 
+    // return the index of the selected item, only for categories section
+    int currentFocusItem();
+
 Q_SIGNALS:
     void clicked(MenuItem *wnd, QAction *action);
 
@@ -83,7 +86,7 @@ private Q_SLOTS:
 
 private:
     MenuItem *createItem(QWidget *parent, QAction *action);
-    int focusItem();
+
 
     int prevRow(int pos);
     int prevColumn(int pos);
@@ -95,6 +98,8 @@ private:
     int selected_row_;
     int selected_column_;
     MenuItems items_;
+
+    int current_focus_;
 };
 
 }

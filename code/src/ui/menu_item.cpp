@@ -316,6 +316,10 @@ bool Section::hasFocus()
     return (focusItem() >= 0);
 }
 
+int Section::currentFocusItem()
+{
+    return current_focus_;
+}
 MenuItem *Section::createItem(QWidget *parent, QAction *action)
 {
     MenuItem * item = new MenuItem(parent, action);
@@ -430,6 +434,7 @@ MenuItem *Section::addItem(QWidget *parent, QAction *action, int row, int col)
 {
     MenuItem * item = createItem(parent, action);
     items_.push_back(item);
+    layout_.setVerticalSpacing(17);
     layout_.addWidget(item, row, col);
     return item;
 }
@@ -460,6 +465,7 @@ bool Section::arrangeItems(QWidget *parent, BaseActions *base_actions, int rows,
             {
                 MenuItem *wnd = createItem(parent, 0);
                 items_.push_back(wnd);
+                layout_.setVerticalSpacing(17);
                 layout_.addWidget(wnd, r, c);
             }
         }
@@ -518,6 +524,11 @@ bool Section::arrangeItems(QWidget *parent, BaseActions *base_actions, int rows,
 
 void Section::onClicked(MenuItem *wnd, QAction *action)
 {
+    int i = focusItem();
+    if (i >= 0)
+    {
+        current_focus_ = i;
+    }
     emit clicked(wnd, action);
 }
 
