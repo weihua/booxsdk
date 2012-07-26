@@ -250,5 +250,10 @@
 
     <file>images/share.png</file>
     <file>images/sync.png</file>
+    <file>images/menu_background_0.png</file>
+    <file>images/menu_background_1.png</file>
+    <file>images/menu_background_2.png</file>
+    <file>images/menu_background_3.png</file>
+    <file>images/menu_background_4.png</file>
   </qresource>
 </RCC>
