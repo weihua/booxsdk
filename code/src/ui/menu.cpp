@@ -36,6 +36,7 @@ PopupMenu::PopupMenu(QWidget *parent, bool load_translator)
 , system_separator_(this)
 {
     createMenuLayout();
+    onyx::screen::watcher().flush(this, onyx::screen::ScreenProxy::GU);
 }
 
 PopupMenu::~PopupMenu()
@@ -170,13 +171,13 @@ void PopupMenu::activate()
 void PopupMenu::paintEvent(QPaintEvent *pe)
 {
     QPainter p(this);
-
     int index = categroy_section_.currentFocusItem();
     QString image_path(":/images/menu_background_%1.png");
     image_path = image_path.arg(index);
     p.drawPixmap(rect(), QPixmap(image_path));
-    onyx::screen::instance().enableUpdate(true);
-    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
+//    onyx::screen::instance().enableUpdate(true);
+//    onyx::screen::watcher().flush(this, onyx::screen::ScreenProxy::GU);
+
 
 
 }
@@ -257,6 +258,9 @@ void PopupMenu::onGroupClicked(MenuItem* wnd, QAction *action)
     onyx::screen::instance().enableUpdate(true);
     selected_category_ = action;
     arrangeItems(all_actions_[action]);
+
+    update();
+    onyx::screen::instance().flush(this,onyx::screen::ScreenProxy::GU);
 }
 
 /// We are able to handle some system action directly in
