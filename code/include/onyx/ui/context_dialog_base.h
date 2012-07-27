@@ -65,6 +65,12 @@ protected:
         QFont font;
         if(ui::isHD() && sys::isIRTouch())
         {
+            if(qgetenv("HEBREW_GUI_MENU_FONT").toInt() == 1)
+            {
+                font.setPointSize(14);
+                font.setBold(true);
+                return font;
+            }
             font.setPointSize(13);
             return font;
         }
