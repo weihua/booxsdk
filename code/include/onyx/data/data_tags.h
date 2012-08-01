@@ -55,5 +55,6 @@ static const QString TAG_CDL_BOOK_PRICE = "cdl_book_price";
 static const QString TAG_CDL_BOOK_RATING = "cdl_book_rating";
 static const QString TAG_CDL_BOOK_LOCAL_UPDATE_TIME = "cdl_book_local_update_time";
 static const QString TAG_CDL_BOOK_SERVER_UPDATE_TIME = "cdl_book_server_update_time";
-
+static const QString TAG_CDL_BOOK_ID = "cdl_book_id";
+static const QString TAG_COVER_BIG ="big_cover";
 #endif
