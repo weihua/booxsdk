@@ -148,6 +148,8 @@ class SysStatus : public QObject
 
     bool setBrightness(const unsigned char brightness);
     unsigned char brightness();
+    void turnGlowLightOn(bool on);
+    bool glowLightOn();
 
     void reportUserBehavior(const onyx::data::UserBehavior &behaviour);
 
