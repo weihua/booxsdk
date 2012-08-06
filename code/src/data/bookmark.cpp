@@ -12,6 +12,7 @@ Bookmark::Bookmark()
 Bookmark::Bookmark(const Bookmark & right)
     : title_(right.title_)
     , data_(right.data_)
+    , update_time_(right.update_time_)
 {
 }
 
@@ -25,17 +26,27 @@ Bookmark::~Bookmark(void)
 {
 }
 
+// begins from 1000
+static int Data_Version = 1000;
+
 QDataStream & operator<< ( QDataStream & out, const Bookmark & bookmark )
 {
+    out << Data_Version;
     out << bookmark.title();
     out << bookmark.data();
+    out << bookmark.update_time();
     return out;
 }
 
 QDataStream & operator>> ( QDataStream & in, Bookmark & bookmark )
 {
-    in >> bookmark.mutable_title();
-    in >> bookmark.mutable_data();
+    int ver;
+    in >> ver;
+    if (ver == 1000) {
+        in >> bookmark.mutable_title();
+        in >> bookmark.mutable_data();
+        in >> bookmark.mutable_update_time();
+    }
     return in;
 }
 

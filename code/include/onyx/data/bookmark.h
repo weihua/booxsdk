@@ -26,6 +26,9 @@ public:
     const QVariant & data() const { return data_; }
     QVariant & mutable_data() { return data_; }
 
+    const QDateTime &update_time() const { return update_time_; }
+    QDateTime &mutable_update_time() { return update_time_; }
+
     bool operator == (const Bookmark & right) const
     {
         if (this != &right)
@@ -49,6 +52,7 @@ public:
 private:
     QString title_;
     QVariant data_;
+    QDateTime update_time_;
 };
 
 QDataStream & operator<< ( QDataStream & out, const Bookmark & bookmark );

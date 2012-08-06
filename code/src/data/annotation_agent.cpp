@@ -97,6 +97,7 @@ bool AnnotationAgent::save( const QString & doc_path )
 /// Save annotation data of all opened documents into database.
 void AnnotationAgent::save()
 {
+    qDebug() << "AnnotationAgent::save, enter";
     DocumentIter iter = docs_.begin();
     for (; iter != docs_.end(); iter++)
     {
@@ -126,6 +127,7 @@ void AnnotationAgent::save()
 
         dirty_pages.clear();
     }
+    qDebug() << "AnnotationAgent::save, finished";
 }
 
 /// Load all of the annotation pages in a given document. Returns true if loading succeeds.

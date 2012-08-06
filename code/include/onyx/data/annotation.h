@@ -45,6 +45,9 @@ public:
     int page() const { return page_; }
     int & mutable_page() { return page_; }
 
+    const QDateTime &update_time() const { return update_time_; }
+    QDateTime &mutable_update_time() { return update_time_; }
+
     inline bool operator == (const Annotation & right) const;
     inline Annotation & operator = (const Annotation & right);
 
@@ -59,6 +62,8 @@ private:
     QList<QRect> rect_list_;
     /// page of annotation
     int page_;
+    /// last create/update time
+    QDateTime update_time_;
 };
 
 /// Compare this annotation with right. Returns true if they are identical.
