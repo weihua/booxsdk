@@ -74,7 +74,8 @@ bool Annotation::operator == (const Annotation & right) const
         return (title_ == right.title_ &&
                 data_ == right.data_ &&
                 rect_list_ == right.rect_list_ &&
-                page_ == right.page_);
+                page_ == right.page_ &&
+                update_time_ == right.update_time_);
     }
     return true;
 }
@@ -88,6 +89,7 @@ Annotation & Annotation::operator = (const Annotation & right)
         data_  = right.data_;
         rect_list_ = right.rect_list_;
         page_ = right.page_;
+        update_time_ = right.update_time_;
     }
     return *this;
 }

@@ -33,8 +33,9 @@ public:
     {
         if (this != &right)
         {
-            return (title_    == right.title_ &&
-                    data_ == right.data_);
+            return (title_ == right.title_ &&
+                    data_ == right.data_ &&
+                    update_time_ == right.update_time_);
         }
         return true;
     }
@@ -45,6 +46,7 @@ public:
         {
             title_ = right.title_;
             data_  = right.data_;
+            update_time_ = right.update_time_;
         }
         return *this;
     }
