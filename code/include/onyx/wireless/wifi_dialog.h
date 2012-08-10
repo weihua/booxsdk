@@ -21,11 +21,13 @@ public:
     ~WifiDialog();
 
 public:
+    void runBackGround();
     int  popup(bool start_scan = true);
     void triggerScan();
     void connect(const QString & ssid, const QString &password);
     bool connectToBestAP();
     bool connectToDefaultAP();
+    void enableKeyboard(bool enable){ enable_keyboard_ = enable;}
 
 protected:
     virtual void keyPressEvent(QKeyEvent *);
@@ -107,6 +109,7 @@ private:
     bool auto_connect_to_best_ap_;      ///< Access points used successfully before.
     bool auto_connect_to_default_ap_;    ///< If we have pre-installed access point.
     bool ap_dialog_visible_;
+    bool enable_keyboard_;
 
     WifiProfiles scan_results_;
     ODatas datas_;

@@ -83,6 +83,7 @@ WifiDialog::WifiDialog(QWidget *parent,
     , sys_(sys)
     , proxy_(sys.connectionManager())
     , ap_dialog_visible_(false)
+    , enable_keyboard_(true)
 {
     setAutoFillBackground(true);
     setBackgroundRole(QPalette::Base);
@@ -93,6 +94,13 @@ WifiDialog::WifiDialog(QWidget *parent,
 
 WifiDialog::~WifiDialog()
 {
+}
+
+void WifiDialog::runBackGround()
+{
+    scanResults(scan_results_);
+    arrangeAPItems(scan_results_);
+    triggerScan();
 }
 
 int  WifiDialog::popup(bool scan)
@@ -682,8 +690,13 @@ bool WifiDialog::showConfigurationDialog(WifiProfile &profile)
     checkAndRestorePassword(profile);
 
     ap_dialog_visible_ = true;
-    ApConfigDialogS dialog(this, profile);
-    int ret = dialog.popup();
+    int ret = 0;
+    if(enable_keyboard_)
+    {
+        ApConfigDialogS dialog(this, profile);
+        ret = dialog.popup();
+    }
+
     ap_dialog_visible_ = false;
 
     // Update screen.

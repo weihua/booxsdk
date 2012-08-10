@@ -33,6 +33,7 @@ StatusBar::StatusBar(QWidget *parent, StatusBarItemTypes items)
     : QStatusBar(parent)
     , items_(0)
     , enable_jump_to_page_(true)
+    , auto_connect_(false)
 {
     createLayout();
     setupConnections();
@@ -614,6 +615,11 @@ void StatusBar::onConnectToPC(bool connected)
     // Popup dialog.
     if (connected && isActiveWindow() && ui::safeParentWidget(parentWidget())->isActiveWindow())
     {
+        if(auto_connect_)
+        {
+            autoSelect();
+            return;
+        }
         int ret = usbConnectionDialog(true)->exec();
         closeUSBDialog();
         if (ret != QMessageBox::Yes)
@@ -629,6 +635,14 @@ void StatusBar::onConnectToPC(bool connected)
         closeUSBDialog();
     }
 }
+
+void StatusBar::autoSelect()
+{
+    onyx::screen::instance().updateWidget(0, onyx::screen::ScreenProxy::GU);
+    onyx::screen::instance().flush();
+    SysStatus::instance().workInUSBSlaveMode();
+}
+
 /*
 void StatusBar::onUSBCableChanged(bool connected)
 {
