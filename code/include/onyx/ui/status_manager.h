@@ -50,6 +50,8 @@ public:
     inline bool isWaitDispSearchRes() const;
     inline bool isAddAnnotation() const;
     inline bool isDeleteAnnotation() const;
+    inline bool isAddHighlight() const;
+    inline bool isDeleteHighlight() const;
     inline bool isSketching() const;
     inline bool isErasing() const;
     inline bool isFreePen() const;
@@ -75,6 +77,8 @@ private:
     void setFreePen(FunctionStatus s);
     void setAddAnnotation(FunctionStatus s);
     void setDeleteAnnotation(FunctionStatus s);
+    void setAddHighlight(FunctionStatus s);
+    void setDeleteHighlight(FunctionStatus s);
     void setSlideShow(FunctionStatus s);
     void setDisplayHyperlinks(FunctionStatus s);
     void setRetrieveWord(FunctionStatus s);
@@ -162,6 +166,18 @@ inline bool StatusManager::isDeleteAnnotation() const
 {
     return ( annotation_group_.getStatus(ID_DELETE_ANNOTATION) == FUNC_SELECTED &&
              stylus_group_.getStatus(ID_DELETE_ANNOTATION) == FUNC_SELECTED );
+}
+
+bool StatusManager::isAddHighlight() const
+{
+    return ( annotation_group_.getStatus(ID_ADD_HIGHLIGHT) == FUNC_SELECTED &&
+             stylus_group_.getStatus(ID_FREE_PEN) == FUNC_SELECTED  );
+}
+
+bool StatusManager::isDeleteHighlight() const
+{
+    return ( annotation_group_.getStatus(ID_DELETE_HIGHLIGHT) == FUNC_SELECTED &&
+             stylus_group_.getStatus(ID_FREE_PEN) == FUNC_SELECTED  );
 }
 
 inline bool StatusManager::isComicMode() const

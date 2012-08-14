@@ -55,6 +55,20 @@ void SketchActions::onExportAnnotationsTriggered(bool checked)
     ctx_.active_checked_status = checked;
 }
 
+void SketchActions::onPdfMergeAnnotationsTriggered(bool checked)
+{
+    ctx_.active_type           = ANNOTATION_MODE;
+    ctx_.cur_anno_mode         = PDF_MERGE_ANNOTATIONS;
+    ctx_.active_checked_status = checked;
+}
+
+void SketchActions::onHighlightTriggered(QAction *action)
+{
+    ctx_.active_type           = HIGHLIGHT_MODE;
+    ctx_.cur_highlight_mode    = action->data().toInt();
+    ctx_.active_checked_status = true;
+}
+
 void SketchActions::onColorTriggered(QAction *action)
 {
     ctx_.active_type           = SKETCH_COLOR;
@@ -135,6 +149,16 @@ void SketchActions::generateAnnotationMode(const AnnotationModes & modes,
                 act->setIcon(QIcon(QPixmap(":/images/show_all_annotations.png")));
             }
             break;
+        case PDF_MERGE_ANNOTATIONS:
+            {
+                act->setText(QCoreApplication::tr("Merge Annotations"));
+                connect(act.get(),
+                        SIGNAL(toggled(bool)),
+                        this,
+                        SLOT(onPdfMergeAnnotationsTriggered(bool)));
+                act->setIcon(QIcon(QPixmap(":/images/copy.png")));
+            }
+            break;
         default:
             break;
         }
@@ -151,6 +175,65 @@ void SketchActions::generateAnnotationMode(const AnnotationModes & modes,
     shared_ptr<QAction> separator(new QAction(anno_modes_.get()));
     separator->setSeparator(true);
     actions_.push_back(separator);
+}
+
+void SketchActions::generateHighlightMode(const HighlightModes &modes, const HighlightMode selected_mode)
+{
+    highlight_modes_.reset(new QActionGroup(0));
+    highlight_modes_->setExclusive(false);
+
+    HighlightModes::const_iterator begin = modes.begin();
+    HighlightModes::const_iterator end   = modes.end();
+    for(HighlightModes::const_iterator iter = begin; iter != end; ++iter)
+    {
+        // Add to group automatically.
+        shared_ptr<QAction> act(new QAction(highlight_modes_.get()));
+
+        // Change font and make it as checkable.
+        act->setCheckable(true);
+        act->setData(*iter);
+        act->setFont(actionFont());
+        switch (*iter)
+        {
+        case ADD_HIGHLIGHT:
+            {
+                act->setText(QCoreApplication::tr("Add Highlight"));
+                act->setIcon(QIcon(QPixmap(":/images/add_annotation.png")));
+            }
+            break;
+        case DELETE_HIGHLIGHT:
+            {
+                act->setText(QCoreApplication::tr("Erase Highlight"));
+                act->setIcon(QIcon(QPixmap(":/images/delete_annotation.png")));
+            }
+            break;
+        case DISPLAY_ALL_HIGHLIGHTS:
+            {
+                act->setText(QCoreApplication::tr("All Highlights"));
+                act->setIcon(QIcon(QPixmap(":/images/show_all_annotations.png")));
+            }
+            break;
+        default:
+            break;
+        }
+
+        // Set current mode
+        if (*iter == selected_mode)
+        {
+            act->setChecked(true);
+        }
+        actions_.push_back(act);
+    }
+
+    // add separator
+    shared_ptr<QAction> separator(new QAction(highlight_modes_.get()));
+    separator->setSeparator(true);
+    actions_.push_back(separator);
+
+    connect(highlight_modes_.get(),
+            SIGNAL(triggered(QAction*)),
+            this,
+            SLOT(onHighlightTriggered(QAction*)));
 }
 
 void SketchActions::generateSketchMode(const SketchModes & modes,
@@ -417,6 +500,9 @@ SketchActionsType SketchActions::getSelectedValue(int & value, bool & checked)
     case ANNOTATION_MODE:
         value = ctx_.cur_anno_mode;
         break;
+    case HIGHLIGHT_MODE:
+        value = ctx_.cur_highlight_mode;
+        break;
     case SKETCH_MODE:
         value = ctx_.cur_sketch_mode;
         break;
@@ -492,6 +578,26 @@ void SketchActions::setAnnotationMode(const AnnotationMode mode, bool checked)
         }
         else if ((*iter)->data().toInt() > INVALID_ANNOTATION_MODE &&
                  (*iter)->data().toInt() < UNKNOWN_ANNOTATION_MODE)
+        {
+            (*iter)->setChecked(false);
+        }
+    }
+}
+
+void SketchActions::setHighlightMode(const HighlightMode mode, bool checked)
+{
+    vector< shared_ptr<QAction> >::const_iterator begin = actions_.begin();
+    vector< shared_ptr<QAction> >::const_iterator end   = actions_.end();
+    for(vector< shared_ptr<QAction> >::const_iterator iter = begin;
+        iter != end;
+        ++iter)
+    {
+        if ((*iter)->data().toInt() == static_cast<int>(mode))
+        {
+            (*iter)->setChecked(checked);
+        }
+        else if ((*iter)->data().toInt() > INVALID_HIGHLIGHT_MODE &&
+                 (*iter)->data().toInt() < UNKNOWN_HIGHLIGHT_MODE)
         {
             (*iter)->setChecked(false);
         }

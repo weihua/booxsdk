@@ -84,6 +84,12 @@ QString StatusBarItemStylus::resourcePath()
     case ID_DELETE_ANNOTATION:
         name = getIconPath(":/images/stylus_erase_annotation.png");
         break;
+    case ID_ADD_HIGHLIGHT:
+        name = getIconPath(":/images/stylus_add_annotation.png");
+        break;
+    case ID_DELETE_HIGHLIGHT:
+        name = getIconPath(":/images/stylus_erase_annotation.png");
+        break;
     case ID_FREE_PEN:
         name = getIconPath(":/images/stylus_pointer.png");
         break;

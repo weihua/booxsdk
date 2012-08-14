@@ -111,6 +111,8 @@ StatusManager::StatusManager()
     handlers_[ID_FREE_PEN] = &StatusManager::setFreePen;
     handlers_[ID_ADD_ANNOTATION] = &StatusManager::setAddAnnotation;
     handlers_[ID_DELETE_ANNOTATION] = &StatusManager::setDeleteAnnotation;
+    handlers_[ID_ADD_HIGHLIGHT] = &StatusManager::setAddHighlight;
+    handlers_[ID_DELETE_HIGHLIGHT] = &StatusManager::setDeleteHighlight;
     handlers_[ID_SLIDE_SHOW] = &StatusManager::setSlideShow;
     handlers_[ID_DISPLAY_HYPERLINKS] = &StatusManager::setDisplayHyperlinks;
     handlers_[ID_RETRIEVE_WORD] = &StatusManager::setRetrieveWord;
@@ -224,6 +226,14 @@ void StatusManager::initAnnotation()
     StatusActionPtr delete_annotation_action( new QAction(0) );
     delete_annotation_action->setData(ID_DELETE_ANNOTATION);
     annotation_group_.addAction(delete_annotation_action);
+
+    StatusActionPtr add_highlight_action( new QAction(0) );
+    add_highlight_action->setData(ID_ADD_HIGHLIGHT);
+    annotation_group_.addAction(add_highlight_action);
+
+    StatusActionPtr delete_highlight_action( new QAction(0) );
+    delete_highlight_action->setData(ID_DELETE_HIGHLIGHT);
+    annotation_group_.addAction(delete_highlight_action);
 }
 
 void StatusManager::initRunningStatus()
@@ -260,6 +270,8 @@ void StatusManager::resetAnnotationGroup()
 {
     annotation_group_.setStatus(ID_ADD_ANNOTATION, FUNC_NORMAL);
     annotation_group_.setStatus(ID_DELETE_ANNOTATION, FUNC_NORMAL);
+    annotation_group_.setStatus(ID_ADD_HIGHLIGHT, FUNC_NORMAL);
+    annotation_group_.setStatus(ID_DELETE_HIGHLIGHT, FUNC_NORMAL);
 }
 
 void StatusManager::setSlideShow(FunctionStatus s)
@@ -401,7 +413,7 @@ void StatusManager::setAddAnnotation(FunctionStatus s)
     }
     else
     {
-        annotation_group_.setStatus(ID_DELETE_ANNOTATION, FUNC_NORMAL);
+        this->resetAnnotationGroup();
         setPan(FUNC_SELECTED);
     }
 }
@@ -416,7 +428,37 @@ void StatusManager::setDeleteAnnotation(FunctionStatus s)
     }
     else
     {
-        annotation_group_.setStatus(ID_ADD_ANNOTATION, FUNC_NORMAL);
+        this->resetAnnotationGroup();
+        setPan(FUNC_SELECTED);
+    }
+}
+
+void StatusManager::setAddHighlight(FunctionStatus s)
+{
+    annotation_group_.setStatus(ID_ADD_HIGHLIGHT, s);
+    if (s == FUNC_SELECTED)
+    {
+        setFreePen(FUNC_SELECTED);
+        notify(ID_ADD_HIGHLIGHT);
+    }
+    else
+    {
+        this->resetAnnotationGroup();
+        setPan(FUNC_SELECTED);
+    }
+}
+
+void StatusManager::setDeleteHighlight(FunctionStatus s)
+{
+    annotation_group_.setStatus(ID_DELETE_HIGHLIGHT, s);
+    if (s == FUNC_SELECTED)
+    {
+        stylus_group_.setStatus(ID_DELETE_HIGHLIGHT, s);
+        notify(ID_DELETE_HIGHLIGHT);
+    }
+    else
+    {
+        this->resetAnnotationGroup();
         setPan(FUNC_SELECTED);
     }
 }
