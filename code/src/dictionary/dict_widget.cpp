@@ -529,7 +529,7 @@ void DictWidget::createLayout()
     func_description_label_.setFixedHeight(defaultItemHeight()-SPACING*2);
     func_description_label_.setFixedHeight(defaultItemHeight()-SPACING*2);
 
-    top_hbox_.setContentsMargins(0, 0, SPACING*2, 0);
+    top_hbox_.setContentsMargins(0, 0, SPACING*4, 0);
     top_hbox_.setSpacing(SPACING*2);
     top_hbox_.addWidget(&retrieve_words_button_);
     top_hbox_.addWidget(&explanation_button_);
@@ -539,6 +539,10 @@ void DictWidget::createLayout()
 
     top_hbox_.addWidget(&func_description_label_, 0, Qt::AlignRight);
 
+    retrieve_words_button_.setFixedWidth(80);
+    explanation_button_.setFixedWidth(80);
+    similar_words_button_.setFixedWidth(80);
+    dictionaries_button_.setFixedWidth(80);
 
     retrieve_words_button_.useDefaultHeight();
     explanation_button_.useDefaultHeight();

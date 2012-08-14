@@ -224,6 +224,12 @@ void OnyxDictFrame::createTtsButtonView()
     tts_button_view_.setNeighbor(keyboard_.top(), CatalogView::DOWN);
     tts_button_view_.setNeighbor(&dictionary_menu_, CatalogView::LEFT);
     tts_button_view_.setNeighbor(&dictionary_menu_, CatalogView::RECYCLE_LEFT);
+
+    if((qgetenv("DISABLE_TTS").toInt() == 1))
+    {
+        tts_button_view_.hide();
+    }
+
 }
 
 void OnyxDictFrame::createLayout()
