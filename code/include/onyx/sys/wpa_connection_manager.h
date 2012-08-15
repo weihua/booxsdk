@@ -118,6 +118,7 @@ private:
     bool auto_connect_;
     bool auto_reconnect_;
     bool wifi_enabled_;
+    bool disable_idle_;
 
     WifiProfiles scan_results_;     ///< Also serves as connect list.
     scoped_ptr<WifiProfiles> records_;  ///< All profiles that stored in database.

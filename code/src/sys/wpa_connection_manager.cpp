@@ -19,6 +19,7 @@ WpaConnectionManager::WpaConnectionManager()
 , auto_connect_(true)
 , auto_reconnect_(true)
 , wifi_enabled_(true)
+, disable_idle_(false)
 {
     setupConnections();
     scan_timer_.setInterval(1500);
@@ -35,7 +36,11 @@ WpaConnectionManager::~WpaConnectionManager()
 // - broadcast signals when state changed
 bool WpaConnectionManager::start()
 {
-    sys::SysStatus::instance().enableIdle(false);
+    if(!disable_idle_)
+    {
+        sys::SysStatus::instance().enableIdle(false);
+        disable_idle_ = true;
+    }
 
     triggerScan();
     return true;
