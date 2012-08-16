@@ -261,8 +261,19 @@ void PowerManagementDialog::onButtonChanged(CatalogView *catalog, ContentView *i
     catalog->update();
     onyx::screen::watcher().enqueue(catalog, onyx::screen::ScreenProxy::GU);
     int i = interval_selected_->value(TITLE_INDEX).toInt();
-    standby_interval_ = DISPLAY_ITEMS[i].standby_seconds;
-    shutdown_interval_ = DISPLAY_ITEMS[i].shutdown_seconds;
+
+
+    const ItemStruct *ITEMS;
+    if ( qgetenv("CUSTOM_PM").toInt() == 1 )
+    {
+        ITEMS = ICARUS_DISPLAY_ITEMS;
+    }
+    else
+    {
+        ITEMS = DISPLAY_ITEMS;
+    }
+    standby_interval_ = ITEMS[i].standby_seconds;
+    shutdown_interval_ = ITEMS[i].shutdown_seconds;
 
     onOkClicked();
 }
