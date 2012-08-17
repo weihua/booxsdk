@@ -21,6 +21,7 @@ public:
     ~WifiDialog();
 
 public:
+    void wifiScanResults(WifiProfiles &wifi_profiles) { wifi_profiles = scan_results_; }
     void runBackGround();
     int  popup(bool start_scan = true);
     void triggerScan();
