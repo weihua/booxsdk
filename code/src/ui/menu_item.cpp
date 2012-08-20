@@ -233,6 +233,7 @@ Section::Section()
     : layout_(0)
     , selected_row_(0)
     , selected_column_(0)
+    , current_focus_(0)
 {
 }
 
