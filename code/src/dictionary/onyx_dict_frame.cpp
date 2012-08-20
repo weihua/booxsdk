@@ -422,6 +422,12 @@ void OnyxDictFrame::updateSimilarWordsModel(int count)
         explanation = explanation.trimmed();
         item += "\t";
         item += explanation;
+
+        item.replace("<k>", "  ");
+        item.replace("</k>", "  ");
+        item.replace("<tr>", "  ");
+        item.replace("</tr>", "  ");
+
         ptr->setText(item);
         parentItem->appendRow(ptr);
     }

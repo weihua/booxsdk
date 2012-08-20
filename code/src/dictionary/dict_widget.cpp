@@ -359,6 +359,20 @@ void DictWidget::updateSimilarWordsModel(int count)
     // Pick up similar words from current dictionary.
     similar_words_.clear();
     dict_.similarWords(word_, similar_words_, similar_words_offset_, count);
+
+    QString result;
+    QString fuzzy_word("");
+    if(similar_words_.isEmpty())
+    {
+        dict_.fuzzyTranslate(word_, result, fuzzy_word);
+        result.replace("<k>", "");
+        int index = result.indexOf("</k>");
+        result = result.remove(index, result.length());
+
+        similar_words_.clear();
+        dict_.similarWords(result, similar_words_, similar_words_offset_, count);
+    }
+
     similar_words_model_.clear();
     QStandardItem *parentItem = similar_words_model_.invisibleRootItem();
     QString explanation;
@@ -373,6 +387,12 @@ void DictWidget::updateSimilarWordsModel(int count)
         explanation = explanation.trimmed();
         item += "\t";
         item += explanation;
+
+        item.replace("<k>", "  ");
+        item.replace("</k>", "  ");
+        item.replace("<tr>", "  ");
+        item.replace("</tr>", "  ");
+
         ptr->setText(item);
         parentItem->appendRow(ptr);
     }
