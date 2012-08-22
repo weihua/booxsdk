@@ -168,7 +168,14 @@ bool SystemConfig::open()
 {
     if (!database_)
     {
-        database_.reset(new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE", "system_config")));
+        if (QSqlDatabase::contains("system_config"))
+        {
+            database_.reset(new QSqlDatabase(QSqlDatabase::database("system_config")));
+        }
+        else
+        {
+            database_.reset(new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE", "system_config")));
+        }
         database_->setDatabaseName(QDir::home().filePath("system_config.db"));
     }
     return database_->open();
@@ -178,9 +185,7 @@ bool SystemConfig::close()
 {
     if (database_)
     {
-        database_->close();
         database_.reset(0);
-        QSqlDatabase::removeDatabase("system_config");
         return true;
     }
     return false;
@@ -739,7 +744,16 @@ bool SystemConfig::setMiscValue(const QString &key, const QString &value)
 
 QString SystemConfig::miscValue(const QString &key)
 {
+	if(getViewTitle())
+	{
+		return QString("1");
+	}
     return MiscConfig::getValue(*database_, key);
+}
+
+bool SystemConfig::getViewTitle()
+{
+    return qgetenv("DISPLAY_BOOK_TITLE") > 0;
 }
 
 int SystemConfig::screenUpdateGCInterval()
