@@ -753,7 +753,11 @@ QString SystemConfig::miscValue(const QString &key)
 
 bool SystemConfig::getViewTitle()
 {
-    return qgetenv("DISPLAY_BOOK_TITLE") > 0;
+    if(qgetenv("DISPLAY_BOOK_TITLE").toInt() > 0)
+    {
+        return true;
+    }
+    return false;
 }
 
 int SystemConfig::screenUpdateGCInterval()
