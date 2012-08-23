@@ -114,6 +114,7 @@ public:
     // Use MiscConfig
     bool setMiscValue(const QString &key, const QString &value);
     QString miscValue(const QString &key);
+    bool getViewTitle();
     int screenUpdateGCInterval();
     int screenUpdateGrayScaleSetting();
 
