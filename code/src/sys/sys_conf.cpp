@@ -744,10 +744,6 @@ bool SystemConfig::setMiscValue(const QString &key, const QString &value)
 
 QString SystemConfig::miscValue(const QString &key)
 {
-	if(getViewTitle())
-	{
-		return QString("1");
-	}
     return MiscConfig::getValue(*database_, key);
 }
 
