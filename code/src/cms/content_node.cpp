@@ -255,9 +255,10 @@ ContentNode::getContentNode(QSqlDatabase &database,
         node.mutable_read_count() = query.value(index++).toInt();
         node.mutable_progress() = query.value(index++).toString();
         node.mutable_attributes() = query.value(index++).toByteArray();
+        qDebug() << "ContentNode::getContentNode, query ok";
         return true;
     }
-    qDebug() << "empty select result";
+    qDebug() << "ContentNode::getContentNode, query failed";
 
     // File has been moved, check the name and size.
     /*
@@ -539,7 +540,7 @@ bool ContentNode::allNodes(QSqlDatabase& database, cms_ids & list)
 bool ContentNode::createContentNode(QSqlDatabase& database,
                                     ContentNode & node)
 {
-    qDebug() << "ContentNode::createContentNode, enter";
+    qDebug() << "ContentNode::createContentNode, enter, " << node.name() << ", " << node.location() << ", " << node.size();
     QSqlQuery query(database);
     query.prepare ("insert into content "
                    "(name, location, title, authors, description, "
