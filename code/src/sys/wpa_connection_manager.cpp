@@ -43,10 +43,12 @@ bool WpaConnectionManager::start()
 
 bool WpaConnectionManager::stop()
 {
-    sys::SysStatus::instance().enableIdle(true);
+    internal_state_ = WpaConnection::STATE_DISCONNECTED;
 
     wifi_enabled_ = false;
+    enableSdio(false);
     stopWpaSupplicant();
+    SysStatus::instance().enableIdle(true);
     return true;
 }
 
