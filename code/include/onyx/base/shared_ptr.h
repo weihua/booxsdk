@@ -6,15 +6,16 @@
 #include <algorithm>  // for swap
 #include <cassert>
 
+namespace base {
+
 template <typename T> class shared_ptr;
 template <typename T> class weak_ptr;
 template <typename T> class enable_shared_from_this;
 
-namespace internal {
 
 class shared_ptr_counter {
-  template <typename T> friend class ::shared_ptr;
-  template <typename T> friend class ::weak_ptr;
+  template <typename T> friend class shared_ptr;
+  template <typename T> friend class weak_ptr;
  private:
   shared_ptr_counter() : refcount_(1), weak_count_(1) { }
   int refcount_;
@@ -28,7 +29,7 @@ T2 CompareAndSet(T1* n, T2 m, T3 v) {
   return r;
 }
 
-}  // namespace internal
+
 
 template <typename T>
 class shared_ptr {
@@ -38,7 +39,7 @@ class shared_ptr {
 
   explicit shared_ptr(T* ptr = NULL)
       : ptr_(ptr),
-        counter_(ptr != NULL ? new internal::shared_ptr_counter : NULL) {
+        counter_(ptr != NULL ? new base::shared_ptr_counter : NULL) {
     sp_enable_shared_from_this(counter_, ptr_, ptr);
   }
 
@@ -88,14 +89,14 @@ class shared_ptr {
   // enable_shared_from_this support
   template <typename X, typename Y>
   static void sp_enable_shared_from_this(
-      internal::shared_ptr_counter* counter,
+      base::shared_ptr_counter* counter,
       const enable_shared_from_this<X> * pe,
       Y* px) {
     if(pe != 0) pe->weak_this_.CopyFrom(px, counter);
   }
 
   static void sp_enable_shared_from_this(
-      const internal::shared_ptr_counter* counter, ...) {
+      const base::shared_ptr_counter* counter, ...) {
   }
 
   void reset(T* p = NULL) {
@@ -147,7 +148,7 @@ class shared_ptr {
   }
 
   T* ptr_;
-  internal::shared_ptr_counter* counter_;
+  base::shared_ptr_counter* counter_;
 
   template <typename U>
   friend class shared_ptr;
@@ -170,7 +171,7 @@ class weak_ptr {
   template <typename U> friend class weak_ptr;
   template<typename X, typename Y>
   friend void sp_enable_shared_from_this(
-      internal::shared_ptr_counter* counter,
+      base::shared_ptr_counter* counter,
       const enable_shared_from_this<X> * pe,
       Y* px);
  public:
@@ -243,7 +244,7 @@ class weak_ptr {
         if (old_refcount == 0)
           break;
       } while (old_refcount !=
-               internal::CompareAndSet(&counter_->refcount_,
+               base::CompareAndSet(&counter_->refcount_,
                                        old_refcount,
                                        old_refcount + 1));
       if (old_refcount > 0) {
@@ -256,7 +257,7 @@ class weak_ptr {
   }
 
  private:
-  void CopyFrom(T* ptr, internal::shared_ptr_counter* control_block) {
+  void CopyFrom(T* ptr, base::shared_ptr_counter* control_block) {
     ptr_ = ptr;
     counter_ = control_block;
     if (counter_ != NULL)
@@ -265,7 +266,7 @@ class weak_ptr {
 
  private:
   element_type* ptr_;
-  internal::shared_ptr_counter* counter_;
+  base::shared_ptr_counter* counter_;
 };
 
 template <typename T> void swap(weak_ptr<T>& r, weak_ptr<T>& s) {
@@ -275,7 +276,7 @@ template <typename T> void swap(weak_ptr<T>& r, weak_ptr<T>& s) {
 template<typename T> class enable_shared_from_this {
   template<typename X, typename Y>
   friend void sp_enable_shared_from_this(
-      internal::shared_ptr_counter* counter,
+      base::shared_ptr_counter* counter,
       const enable_shared_from_this<X> * pe,
       Y* px);
  public:
@@ -307,5 +308,7 @@ template<typename T> class enable_shared_from_this {
   // pointer.
   mutable weak_ptr<T> weak_this_;
 };
+
+}  // namespace base
 
 #endif  // #ifndef NABOO_BASE_SHARED_PTR_H_

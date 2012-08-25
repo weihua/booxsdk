@@ -28,7 +28,7 @@
 namespace boost {}
 
 using base::scoped_ptr;
-
+using base::shared_ptr;
 using std::list;
 using std::map;
 using std::pair;
