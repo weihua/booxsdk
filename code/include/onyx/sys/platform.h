@@ -32,6 +32,8 @@ int batteryPercentageThreshold();
 
 bool isNoTouch();
 
+bool hasGlowLight();
+
 }
 
 #endif  // ONYX_SYSTEM_PLATFORM_H__
