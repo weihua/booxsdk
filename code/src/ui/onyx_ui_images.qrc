@@ -247,5 +247,6 @@
     <file>images/system_volume.png</file>
     <file>images/history.png</file>
     <file>images/mobile_mode.png</file>
+    <file>images/glow_light_switch.png</file>
   </qresource>
 </RCC>
