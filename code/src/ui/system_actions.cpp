@@ -166,7 +166,7 @@ void SystemActions::generateActions(const std::vector<int> & actions)
                 shared_ptr<QAction> glow_light(new QAction(exclusiveGroup()));
                 glow_light->setCheckable(true);
                 glow_light->setFont(actionFont());
-                glow_light->setText(QCoreApplication::tr("Glow Light Switch"));
+                glow_light->setText(QCoreApplication::tr("MOON Light Switch"));
                 glow_light->setIcon(QIcon(QPixmap(":/images/glow_light_switch.png")));
                 glow_light->setData(GLOW_LIGHT_SWITCH);
                 actions_.push_back(glow_light);
