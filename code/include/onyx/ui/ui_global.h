@@ -104,8 +104,7 @@ enum ReadingToolsType
     READING_OPTIONS,
     UNDEFINED_TOOL,
     MARGIN_SETTING,
-    WEB_BROWSER_MODE,
-    BOOK_DATA_SHARE_TOOL,
+    WEB_BROWSER_MODE
 };
 
 enum NetworkType
@@ -174,7 +173,7 @@ enum SketchMiscItem
     SKETCH_MISC_PAGE_MODE = 300,
     SKETCH_MISC_PAN_MODE,
     SKETCH_MISC_TOGGLE_ANNOTATION_VISIBLE, // toggle both annot and sketch's visible
-    SKETCH_MISC_PDF_MERGE,
+    SKETCH_MISC_PDF_MERGE
 };
 
 enum RotateDegree
@@ -198,7 +197,8 @@ enum SystemAction
     EXIT_FULL_SCREEN,
     BACKLIGHT_BRIGHTNESS,
     SYSTEM_VOLUME,
-    BOOK_DATA_SYNC,
+    STORE_BOOK_DATA_SYNC,
+    STORE_USER_DATA_SHARE
 };
 
 enum AnnotationMode
