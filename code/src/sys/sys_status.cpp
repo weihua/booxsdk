@@ -1785,7 +1785,7 @@ unsigned char SysStatus::brightness()
     return 0;
 }
 
-void SysStatus::turnGlowLightOn(bool on)
+void SysStatus::turnGlowLightOn(bool on, bool save)
 {
     QDBusMessage message = QDBusMessage::createMethodCall(
         service,            // destination
@@ -1795,6 +1795,7 @@ void SysStatus::turnGlowLightOn(bool on)
     );
 
     message << on;
+    message << save;
     QDBusMessage reply = connection_.call(message);
     if (reply.type() == QDBusMessage::ErrorMessage)
     {

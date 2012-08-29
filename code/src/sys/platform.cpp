@@ -121,5 +121,10 @@ bool isNoTouch()
     return qgetenv("NO_TOUCH").toInt() > 0;
 }
 
+bool hasGlowLight()
+{
+    return qgetenv("GLOW_LIGHT").toInt() > 0;
+}
+
 }    // namespace sys
 

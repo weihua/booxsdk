@@ -5,18 +5,18 @@ namespace ui
 
 static const QChar RUSSIAN_LEFT[] = {
         QChar(0x0439), QChar(0x0446), QChar(0x0443),
-        QChar(0x044A), QChar(0x0444), QChar(0x044B),
-        QChar(0x044E), QChar(0x044F), QChar(0x0447), };
+        QChar(0x0444), QChar(0x044B), QChar(0x0432),
+        QChar(0x044F), QChar(0x0447), QChar(0x0441), };
 
 static const QChar RUSSIAN_MIDDLE[] = {
         QChar(0x043A), QChar(0x0435), QChar(0x043D),
-        QChar(0x0432), QChar(0x0430), QChar(0x043F),
-        QChar(0x0441), QChar(0x043C), QChar(0x0438), };
+        QChar(0x0430), QChar(0x043F), QChar(0x0440),
+        QChar(0x043C), QChar(0x0438), QChar(0x0442), };
 
 static const QChar RUSSIAN_RIGHT[] = {
         QChar(0x0433), QChar(0x0448), QChar(0x0449),
-        QChar(0x0440), QChar(0x043E), QChar(0x043B),
-        QChar(0x0442), QChar(0x044C), QChar(0x0431), };
+        QChar(0x043E), QChar(0x043B), QChar(0x0434),
+        QChar(0x044C), QChar(0x0431), QChar(0x044E), };
 
 RussianKeyboardData::RussianKeyboardData()
     : KeyboardData()
@@ -82,8 +82,8 @@ void RussianKeyboardData::initRightKeyCode()
 
 void RussianKeyboardData::initBottomKeyCode()
 {
-    const QChar chs[] = {'.', ',', QChar(0x0451), QChar(0x0437), QChar(0x0445),
-            QChar(0x0434)};
+    const QChar chs[] = {',', QChar(0x0445), QChar(0x044A), QChar(0x0451),
+            QChar(0x0437)};
     for (int i=0; i<5; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
@@ -144,8 +144,8 @@ void RussianKeyboardData::initRightKeyShiftCode()
 
 void RussianKeyboardData::initBottomKeyShiftCode()
 {
-    const QChar chs[] = {';', '\'', QChar(0x0451).toUpper(), QChar(0x0437).toUpper(), QChar(0x0445).toUpper(),
-            QChar(0x0434).toUpper()};
+    const QChar chs[] = {'\'', QChar(0x0445).toUpper(), QChar(0x044A).toUpper(),
+                         QChar(0x0451).toUpper(), QChar(0x0437).toUpper()};
     for (int i=0; i<5; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
@@ -169,9 +169,9 @@ void RussianKeyboardData::initBottomKeyShiftCode()
 // for symbol key
 void RussianKeyboardData::initLeftKeySymbolCode()
 {
-    const QChar chs[] = {'[', ']', '\\',
-                         QChar(0x00B5), '/', '`',
-                         QChar(0x00AD), QChar(0x00AF), QChar(0x00B7), };
+    const QChar chs[] = {'[', ']', '{',
+                         '}', '\\', QChar(0x00B5),
+                         '/', '`', QChar(0x00AD), };
     for (int i = 0; i < 9; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
@@ -181,9 +181,9 @@ void RussianKeyboardData::initLeftKeySymbolCode()
 
 void RussianKeyboardData::initMiddleKeySymbolCode()
 {
-    const QChar chs[] = {'+', '-', '?',
-                         ':', '"', '=',
-                         '_', '{', '}', };
+    const QChar chs[] = {'.', ';', '+',
+                         '-', '?', ':',
+                         '"', '=', '_'};
     for (int i = 0; i < 9; i++)
     {
         ODataPtr dd (createData(QString(chs[i])));
