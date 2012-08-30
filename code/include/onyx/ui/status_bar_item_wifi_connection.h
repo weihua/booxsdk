@@ -35,7 +35,6 @@ private:
     QString networkType(int);
 
 private:
-    QString information_;
     int strength_;
 
     int total_;

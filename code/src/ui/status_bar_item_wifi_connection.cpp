@@ -11,7 +11,6 @@ const int MAX = 6;
 
 StatusBarItemWifiConnection::StatusBarItemWifiConnection(QWidget *parent)
     : StatusBarItem(CONNECTION, parent)
-    , information_ ("WIFI")
     , strength_(-1)
     , total_(MAX)
     , text_width_(0)
@@ -42,17 +41,7 @@ bool StatusBarItemWifiConnection::setConnectionInfomation(const int strength,
 {
     bool dirty = false;
 
-    QString text = networkType(type);
-    if (information_ != text)
-    {
-        information_ = text;
-        dirty = true;
-    }
-
-    QFont font("", defaultFontPointSize());
-    QFontMetrics metric(font);
-    text_width_ = metric.width("WIFI");
-    setFixedWidth(30 + SPACING + text_width_);
+    setFixedWidth(30 + SPACING);
 
     if (strength_ != strength || total_ != total)
     {
@@ -74,17 +63,12 @@ void StatusBarItemWifiConnection::paintEvent(QPaintEvent *pe)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    // Draw text at first.
     painter.setPen(QPen(Qt::white));
     QFont font("", defaultFontPointSize());
     painter.setFont(font);
-    QRect rc = rect();
-    rc.setWidth(text_width_);
-    painter.drawText(rc, Qt::AlignVCenter|Qt::AlignRight, information_);
 
     // Paint image now.
-    QFontMetrics metric(font);
-    rc = rect();
+    QRect rc = rect();
     rc.adjust(text_width_ + SPACING, SPACING, 0, -SPACING);
     paintBars(painter, rc, QBrush(QColor(125, 125, 125)), MAX);
     paintBars(painter, rc, QBrush(Qt::white), strength_);

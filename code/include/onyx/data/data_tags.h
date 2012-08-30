@@ -16,6 +16,7 @@ static const QString TAG_ID  = "id";
 static const QString TAG_FS_NAME_FILTERS = "fs_n_filter";
 static const QString TAG_FS_SIZE = "fs_size";
 static const QString TAG_LAST_ACCESS = "l_access";
+static const QString TAG_LAST_MODIFIED = "last_modified";
 static const QString TAG_READ_COUNT = "r_count";
 static const QString TAG_CUSTOM = "custom";
 
