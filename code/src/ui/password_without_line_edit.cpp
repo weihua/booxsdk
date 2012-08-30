@@ -12,8 +12,8 @@ PasswordWithoutLineEdit::PasswordWithoutLineEdit(QWidget *parent)
 
     : OnyxDialog(parent)
     , big_layout_(&content_widget_)
-    , keyboard_(this)
-    , top_layout_(0)
+//    , keyboard_(this)
+//    , top_layout_(0)
 {
     createLayout();
     QRect rc = qApp->desktop()->screenGeometry();
