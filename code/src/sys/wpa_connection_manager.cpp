@@ -696,3 +696,9 @@ bool WpaConnectionManager::isConnectionOnProgress()
     }
     return false;
 }
+
+bool WpaConnectionManager::isConnectionComplete()
+{
+    return internal_state_ == WpaConnection::STATE_COMPLETE
+            || ((internal_state_ == WpaConnection::STATE_SCANNED) && proxy().isComplete());
+}
