@@ -29,6 +29,7 @@ static const LocaleItem LANGUAGES[] =
     {QT_TRANSLATE_NOOP("LocalePage", "French"),  QLocale(QLocale::French)},
     {QT_TRANSLATE_NOOP("LocalePage", "Bulgarian"),  QLocale(QLocale::Bulgarian)},
     {QT_TRANSLATE_NOOP("LocalePage", "Czech"),  QLocale(QLocale::Czech)},
+    {QT_TRANSLATE_NOOP("LocalePage", "Catalan"),  QLocale(QLocale::Catalan)},
 };
 static const int LANGUAGE_COUNT = sizeof(LANGUAGES) / sizeof(LANGUAGES[0]);
 
