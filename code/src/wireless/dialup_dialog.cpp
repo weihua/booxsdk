@@ -81,7 +81,7 @@ static QString address()
     QList<QNetworkInterface> all = QNetworkInterface::allInterfaces();
     foreach(QNetworkInterface ni, all)
     {
-        qDebug("interface name %s", qPrintable(ni.name()));
+        //qDebug("interface name %s", qPrintable(ni.name()));
         QList<QNetworkAddressEntry> addrs = ni.addressEntries();
         foreach(QNetworkAddressEntry entry, addrs)
         {
@@ -89,7 +89,7 @@ static QString address()
             {
                 result = entry.ip().toString();
             }
-            qDebug("ip address %s", qPrintable(entry.ip().toString()));
+          //  qDebug("ip address %s", qPrintable(entry.ip().toString()));
         }
     }
     return result;

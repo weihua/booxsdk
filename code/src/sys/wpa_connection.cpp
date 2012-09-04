@@ -996,7 +996,7 @@ QString WpaConnection::address()
     QList<QNetworkInterface> all = QNetworkInterface::allInterfaces();
     foreach(QNetworkInterface ni, all)
     {
-        qDebug("interface name %s", qPrintable(ni.name()));
+        //qDebug("interface name %s", qPrintable(ni.name()));
         QList<QNetworkAddressEntry> addrs = ni.addressEntries();
         foreach(QNetworkAddressEntry entry, addrs)
         {
@@ -1004,7 +1004,7 @@ QString WpaConnection::address()
             {
                 result = entry.ip().toString();
             }
-            qDebug("ip address %s", qPrintable(entry.ip().toString()));
+            //qDebug("ip address %s", qPrintable(entry.ip().toString()));
         }
     }
     return result;
@@ -1016,7 +1016,7 @@ QString WpaConnection::hardwareAddress()
     QList<QNetworkInterface> all = QNetworkInterface::allInterfaces();
     foreach(QNetworkInterface ni, all)
     {
-        qDebug("interface name %s", qPrintable(ni.name()));
+        //qDebug("interface name %s", qPrintable(ni.name()));
         if (ni.name().compare(ctrl_iface_, Qt::CaseInsensitive) == 0)
         {
             return ni.hardwareAddress();
