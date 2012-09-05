@@ -43,6 +43,8 @@ public:
         STATE_DISCONNECT,
     };
 
+    static QString connectionStateToString(ConnectionState state);
+
 public Q_SLOTS:
     int  openCtrlConnection(const QString & name = QString());
     bool isWpaSupplicantConnected() { return wpa_supplicant_connected_; }

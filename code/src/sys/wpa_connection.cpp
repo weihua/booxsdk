@@ -101,6 +101,49 @@ WpaConnection::~WpaConnection()
 {
 }
 
+QString WpaConnection::connectionStateToString(ConnectionState state)
+{
+    switch (state)
+    {
+    case STATE_UNKNOWN:
+        return "STATE_UNKNOWN";
+    case STATE_DISABLED:
+        return "STATE_DISABLED";
+    case STATE_HARDWARE_ERROR:
+        return "STATE_HARDWARE_ERROR";
+    case STATE_ABORTED:
+        return "STATE_ABORTED";
+    case STATE_SCANNING:
+        return "STATE_SCANNING";
+    case STATE_SCANNED:
+        return "STATE_SCANNED";
+    case STATE_CONNECTING:
+        return "STATE_CONNECTING";
+    case STATE_DISCONNECTED:
+        return "STATE_DISCONNECTED";
+    case STATE_AUTHENTICATION:
+        return "STATE_AUTHENTICATION";
+    case STATE_AUTHENTICATION_FAILED:
+        return "STATE_AUTHENTICATION_FAILED";
+    case STATE_CONNECTED:
+        return "STATE_CONNECTED";
+    case STATE_ACQUIRING_ADDRESS:
+        return "STATE_ACQUIRING_ADDRESS";
+    case STATE_COMPLETE:
+        return "STATE_COMPLETE";
+    case STATE_CONNECT_ERROR:
+        return "STATE_CONNECT_ERROR";
+    case STATE_ACQUIRING_ADDRESS_ERROR:
+        return "STATE_ACQUIRING_ADDRESS_ERROR";
+    case STATE_TIMEOUT:
+        return "STATE_TIMEOUT";
+    case STATE_DISCONNECT:
+        return "STATE_DISCONNECT";
+    default:
+        return "STATE_UNKNOWN";
+    }
+}
+
 QString WpaConnection::defaultInterface()
 {
 #ifdef CONFIG_CTRL_IFACE_UDP
