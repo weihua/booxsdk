@@ -311,4 +311,9 @@ template<typename T> class enable_shared_from_this {
 
 }  // namespace base
 
+// by jim, since namespace was added in shared_ptr, for the backward compatibility,
+// these two lines needs to added to solve the compiling problem.
+using base::shared_ptr;
+using base::weak_ptr;
+
 #endif  // #ifndef NABOO_BASE_SHARED_PTR_H_
