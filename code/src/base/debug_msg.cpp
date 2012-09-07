@@ -6,18 +6,10 @@ QDebug DebugMsg::debug()
 {
     return qDebug();
 }
-void DebugMsg::debug(const QString &msg)
-{
-    qDebug() << msg;
-}
 
 QDebug DebugMsg::warning()
 {
     return qWarning();
-}
-void DebugMsg::warning(const QString &msg)
-{
-    qWarning() << msg;
 }
 
 class DebugMsgForFunc::Impl {
@@ -46,10 +38,10 @@ DebugMsgForFunc::DebugMsgForFunc(const QString &funcName, const QString &enterMs
 DebugMsgForFunc::~DebugMsgForFunc()
 {
     if (d->exit_msg_.isEmpty()) {
-        this->debug("<<<<<< " + d->func_name_);
+        this->debug() << "<<<<<< " << d->func_name_;
     }
     else {
-        this->debug("<<<<<< " + d->func_name_ + ": " + d->exit_msg_);
+        this->debug() << "<<<<<< " << d->func_name_ << ": " << d->exit_msg_;
     }
 
     delete d;

@@ -10,10 +10,8 @@ class DebugMsg
 {
 public:
     QDebug debug();
-    void debug(const QString &msg);
 
     QDebug warning();
-    void warning(const QString &msg);
 };
 
 class DebugMsgForFunc : public DebugMsg
