@@ -9,52 +9,22 @@ namespace base
 class DebugMsg
 {
 public:
-    QDebug debug()
-    {
-        return qDebug();
-    }
-    void debug(const QString &msg)
-    {
-        qDebug() << msg;
-    }
+    QDebug debug();
+    void debug(const QString &msg);
 
-    QDebug warning()
-    {
-        return qWarning();
-    }
-    void warning(const QString &msg)
-    {
-        qWarning() << msg;
-    }
+    QDebug warning();
+    void warning(const QString &msg);
 };
 
 class DebugMsgForFunc : public DebugMsg
 {
 public:
-    DebugMsgForFunc(const QString &funcName, const QString &enterMsg, const QString &exitMsg)
-        : func_name_(funcName), enter_msg_(enterMsg), exit_msg_(exitMsg)
-    {
-        if (enterMsg.isEmpty()) {
-            this->debug(">>>>>> " + funcName);
-        }
-        else {
-            this->debug(">>>>>> " + funcName + ": " + enterMsg);
-        }
-    }
-    ~DebugMsgForFunc()
-    {
-        if (exit_msg_.isEmpty()) {
-            this->debug("<<<<<< " + func_name_);
-        }
-        else {
-            this->debug("<<<<<< " + func_name_ + ": " + exit_msg_);
-        }
-    }
+    DebugMsgForFunc(const QString &funcName, const QString &enterMsg, const QString &exitMsg);
+    ~DebugMsgForFunc();
 
 private:
-    QString func_name_;
-    QString enter_msg_;
-    QString exit_msg_;
+    class Impl;
+    Impl *d;
 };
 
 }
