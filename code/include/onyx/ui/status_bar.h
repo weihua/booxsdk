@@ -59,12 +59,17 @@ public Q_SLOTS:
     void onVolumeClicked();
     void onMusicPlayerClicked();
 
+    void addAppItem(StatusBarItemType before, const int appId, const QImage & image);
+    void removeAppItem(const int appId);
+    void setAppIcon(const int appId, const QImage & image);
+
 Q_SIGNALS:
     void progressClicked(const int percent, const int value);
     void menuClicked();
     void stylusClicked();
     void requestInputUrl();
     void requestInputText();
+    void appClicked(int id);
 
 private Q_SLOTS:
     void onProgressChanging(const int current, const int total);
@@ -73,6 +78,7 @@ private Q_SLOTS:
     void onStylusClicked();
     bool onItemStatusChanged(const StatusBarItemType type, const int state);
     void onViewportChanged(const QRect & parent, const QRect & child);
+    void onAppClicked(int );
 
     // handle the events from system status manager
     void onBatterySignal(int value, int status);

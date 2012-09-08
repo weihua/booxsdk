@@ -24,6 +24,7 @@ enum StatusBarItemType
     VOLUME          = 0x800,
     MUSIC_PLAYER    = 0X1000,
     VIEWPORT        = 0X2000,
+    APP_DEFINED     = 0x4000,
 };
 
 enum StatusBarItemState
