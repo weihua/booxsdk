@@ -16,6 +16,7 @@
 #include "onyx/ui/status_bar_item_connection.h"
 #include "onyx/ui/status_bar_item_3g_connection.h"
 #include "onyx/ui/status_bar_item_volume.h"
+#include "onyx/ui/status_bar_item_app.h"
 #include "onyx/ui/status_bar_item_music_player.h"
 #include "onyx/ui/number_dialog.h"
 #include "onyx/ui/power_management_dialog.h"
@@ -121,7 +122,7 @@ void StatusBar::addItems(StatusBarItemTypes items)
     const StatusBarItemType all[] =
     {
         MENU, PROGRESS, MESSAGE, STYLUS, CLOCK, INPUT_TEXT, VOLUME, SCREEN_REFRESH, INPUT_URL,THREEG_CONNECTION,
-        CONNECTION, VIEWPORT, MUSIC_PLAYER, BATTERY
+        CONNECTION, APP_DEFINED, VIEWPORT, MUSIC_PLAYER, BATTERY
     };
     const int size = sizeof(all)/sizeof(all[0]);
     for(int i = 0; i < size; ++i)
@@ -319,6 +320,11 @@ void StatusBar::onViewportChanged(const QRect & parent,
     }
 }
 
+void StatusBar::onAppClicked(int id)
+{
+    emit appClicked(id);
+}
+
 void StatusBar::onMenuClicked()
 {
     emit menuClicked();
@@ -381,6 +387,63 @@ void StatusBar::onMusicPlayerClicked()
 {
     onyx::screen::instance().flush(this, onyx::screen::ScreenProxy::GU);
     sys::SysStatus::instance().requestMusicPlayer(sys::START_PLAYER);
+}
+
+
+void StatusBar::addAppItem(StatusBarItemType before, const int appId, const QImage & image)
+{
+    size_t index = 0;
+    for(index = 0; index < widgets_.size(); ++index)
+    {
+        StatusBarItemPtr ptr = widgets_.at(index);
+        if (ptr->type() == before)
+        {
+            break;
+        }
+    }
+    if (index >= widgets_.size())
+    {
+        index = 0;
+    }
+
+    StatusBarItemApp * item = new StatusBarItemApp(this);
+    item->setAppId(appId);
+    item->setImage(image);
+    connect(item, SIGNAL(clicked(int)), this, SLOT(onAppClicked(int)));
+    StatusBarItemPtr ptr(item);
+    widgets_.insert(widgets_.begin() + index, ptr);
+    insertPermanentWidget(index, item);
+}
+
+void StatusBar::removeAppItem(const int appId)
+{
+    StatusBarItem * item = 0;
+    size_t index = 0;
+    for(index = 0; index < widgets_.size(); ++index)
+    {
+        item = widgets_.at(index).get();
+        if (item->type() == APP_DEFINED)
+        {
+            StatusBarItemApp * app = (StatusBarItemApp *)item;
+            if (app->appId() == appId)
+            {
+                break;
+            }
+        }
+    }
+    if (index >= widgets_.size())
+    {
+        return;
+    }
+
+    widgets_.erase(widgets_.begin() + index);
+    removeWidget(item);
+}
+
+void StatusBar::setAppIcon(const int appId, const QImage & image)
+{
+    StatusBarItemApp * app = (StatusBarItemApp*)item(ui::APP_DEFINED, false);
+    app->setImage(image);
 }
 
 void StatusBar::onClockClicked()
@@ -831,6 +894,10 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
         break;
     case VIEWPORT:
         item = new StatusBarItemViewport(this);
+        break;
+    case APP_DEFINED:
+        item = new StatusBarItemApp(this);
+        connect(item, SIGNAL(clicked(int)), this, SLOT(onAppClicked(int)));
         break;
     default:
         break;
