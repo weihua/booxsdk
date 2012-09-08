@@ -392,6 +392,20 @@ void StatusBar::onMusicPlayerClicked()
 
 void StatusBar::addAppItem(StatusBarItemType before, const int appId, const QImage & image)
 {
+    // check duplicated or not.
+    for(size_t i = 0; i < widgets_.size(); ++i)
+    {
+        StatusBarItemPtr ptr = widgets_.at(i);
+        if (ptr->type() == APP_DEFINED)
+        {
+            StatusBarItemApp * app = (StatusBarItemApp *)ptr.get();
+            if (app->appId() == appId)
+            {
+                return;
+            }
+        }
+    }
+
     size_t index = 0;
     for(index = 0; index < widgets_.size(); ++index)
     {
