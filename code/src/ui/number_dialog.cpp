@@ -52,14 +52,21 @@ void NumberDialog::setValue(const int value)
     number_edit_.setText(text);
 }
 
-int NumberDialog::popup(const int value, const int total)
+int NumberDialog::popup(const int value, const int total, const QString & title)
 {
     total_ = total;
     QString t = QCoreApplication::tr("Go To Page");
     QString p("  %1/%2");
     p = p.arg(value).arg(total);
     t += p;
-    updateTitle(t);
+    if (title.isEmpty())
+    {
+        updateTitle(t);
+    }
+    else
+    {
+        updateTitle(title);
+    }
 
     validator_.setRange(1, total);
     number_edit_.setValidator(&validator_);

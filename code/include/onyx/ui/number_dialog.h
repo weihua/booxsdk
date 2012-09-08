@@ -24,7 +24,7 @@ public:
 
     /// Show modal dialog. The return value can be
     /// accpeted or rejected.
-    int popup(const int value, const int total);
+    int popup(const int value, const int total, const QString & title = QString());
 
 protected:
     bool event(QEvent * event);
