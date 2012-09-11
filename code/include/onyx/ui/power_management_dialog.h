@@ -34,6 +34,7 @@ private:
 private Q_SLOTS:
     void onButtonChanged(CatalogView *catalog, ContentView *item, int user_data);
     void onOkClicked();
+    int profileIndex();
 
 private:
     SysStatus & status_;
