@@ -388,10 +388,8 @@ void DictWidget::updateSimilarWordsModel(int count)
         item += "\t";
         item += explanation;
 
-        item.replace("<k>", "  ");
-        item.replace("</k>", "  ");
-        item.replace("<tr>", "  ");
-        item.replace("</tr>", "  ");
+        // replace any tags in the similar word item
+        item.replace(QRegExp("<[/a-zA-Z]*>"), " ");
 
         ptr->setText(item);
         parentItem->appendRow(ptr);

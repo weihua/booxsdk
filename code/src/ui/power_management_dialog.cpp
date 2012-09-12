@@ -44,8 +44,20 @@ static const ItemStruct ICARUS_DISPLAY_ITEMS[] =
     {QT_TRANSLATE_NOOP("pm","never"), 0, 0},
 };
 
+static const ItemStruct PROFILE_2_DISPLAY_ITEMS[] =
+{
+    {QT_TRANSLATE_NOOP("pm","Never"), 0, 0},
+    {QT_TRANSLATE_NOOP("pm","5 minutes to standby"), 300 * 1000, 0},
+    {QT_TRANSLATE_NOOP("pm","10 minutes to standby"), 600 * 1000, 0},
+    {QT_TRANSLATE_NOOP("pm","15 minutes to standby"), 900 * 1000, 0},
+    {QT_TRANSLATE_NOOP("pm","5 minutes to standby\n20 minutes to shutdown"), 300 * 1000, 1200 * 1000},
+    {QT_TRANSLATE_NOOP("pm","10 minutes to standby\n25 minutes to shutdown"), 600 * 1000, 1500 * 1000},
+    {QT_TRANSLATE_NOOP("pm","15 minutes to standby\n30 minutes to shutdown"), 900 * 1000, 1800 * 1000},
+};
+
 static const int DISPLAY_COUNT = sizeof(DISPLAY_ITEMS) / sizeof(DISPLAY_ITEMS[0]);
 static const int ICARUS_DISPLAY_COUNT = sizeof(ICARUS_DISPLAY_ITEMS) / sizeof(ICARUS_DISPLAY_ITEMS[0]);
+static const int PROFILE_2_DISPLAY_COUNT = sizeof(PROFILE_2_DISPLAY_ITEMS) / sizeof(PROFILE_2_DISPLAY_ITEMS[0]);
 
 static bool isPmExclusive()
 {
@@ -170,20 +182,25 @@ void PowerManagementDialog::createLayout()
     buttons_.setPreferItemSize(QSize(0, ITEM_HEIGHT));
 
     const ItemStruct *ITEMS;
-    int display_cout;
+    int display_count;
     if ( qgetenv("CUSTOM_PM").toInt() == 1 )
     {
-        display_cout = isPmExclusive() ? 4: ICARUS_DISPLAY_COUNT;
+        display_count = isPmExclusive() ? 4: ICARUS_DISPLAY_COUNT;
         ITEMS = ICARUS_DISPLAY_ITEMS;
+    }
+    else if ( qgetenv("CUSTOM_PM").toInt() == 2 )
+    {
+        display_count = isPmExclusive() ? 4: PROFILE_2_DISPLAY_COUNT;
+        ITEMS = PROFILE_2_DISPLAY_ITEMS;
     }
     else
     {
-        display_cout = isPmExclusive() ? 4: DISPLAY_COUNT;
+        display_count = isPmExclusive() ? 4: DISPLAY_COUNT;
         ITEMS = DISPLAY_ITEMS;
     }
 
     ODatas d;
-    for (int row = 0, btn_idx = 0; row < display_cout; ++row)
+    for (int row = 0, btn_idx = 0; row < display_count; ++row)
     {
         if ( qgetenv("DISABLE_NEVER_STANDBY_SHUTDOWN").toInt() > 0 &&
              ITEMS[row].standby_seconds == 0 &&
@@ -264,9 +281,14 @@ void PowerManagementDialog::onButtonChanged(CatalogView *catalog, ContentView *i
 
 
     const ItemStruct *ITEMS;
-    if ( qgetenv("CUSTOM_PM").toInt() == 1 )
+    int profile_index = profileIndex();
+    if ( profile_index == 1 )
     {
         ITEMS = ICARUS_DISPLAY_ITEMS;
+    }
+    else if ( profile_index == 2 )
+    {
+        ITEMS = PROFILE_2_DISPLAY_ITEMS;
     }
     else
     {
@@ -326,6 +348,11 @@ void PowerManagementDialog::onOkClicked()
 
     accept();
     onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC);
+}
+
+int PowerManagementDialog::profileIndex()
+{
+    return qgetenv("CUSTOM_PM").toInt();
 }
 
 }   // namespace ui
