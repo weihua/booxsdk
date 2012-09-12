@@ -62,6 +62,11 @@ void ZoomSettingActions::generateActions( const std::vector<ZoomFactor> & values
             act->setText(QCoreApplication::tr("Hide Margin"));
             act->setIcon(QIcon(QPixmap(":/images/zoom_hide_margin.png")));
         }
+        else if (*iter == ZOOM_BY_USER)
+        {
+            act->setText(QCoreApplication::tr("Customize Zoom"));
+            act->setIcon(QIcon(QPixmap(":/images/zoom_selection_zoom.png")));
+        }
         else if (*iter == ZOOM_TO_PAGE)
         {
             // zoom to page
