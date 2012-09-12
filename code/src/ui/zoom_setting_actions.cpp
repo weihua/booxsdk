@@ -67,6 +67,16 @@ void ZoomSettingActions::generateActions( const std::vector<ZoomFactor> & values
             act->setText(QCoreApplication::tr("Customize Zoom"));
             act->setIcon(QIcon(QPixmap(":/images/zoom_selection_zoom.png")));
         }
+        else if (*iter == ZOOM_DECREASE)
+        {
+            act->setText(QCoreApplication::tr("Increase Zoom"));
+            act->setIcon(QIcon(QPixmap(":/images/zoom_selection_zoom.png")));
+        }
+        else if (*iter == ZOOM_INCREASE)
+        {
+            act->setText(QCoreApplication::tr("Decrease Zoom"));
+            act->setIcon(QIcon(QPixmap(":/images/zoom_selection_zoom.png")));
+        }
         else if (*iter == ZOOM_TO_PAGE)
         {
             // zoom to page
