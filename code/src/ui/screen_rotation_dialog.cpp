@@ -117,7 +117,7 @@ namespace ui
 
     void ScreenRotationDialog::createLayout()
     {
-        title_text_label_.setText(QApplication::tr("Screen Rotation"));
+        title_text_label_.setText(QApplication::tr("Rotation"));
         vbox_.addWidget(&rotation_widget_);
         vbox_.addStretch();
     }
