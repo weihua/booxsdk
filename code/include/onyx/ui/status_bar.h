@@ -12,6 +12,8 @@
 #include "common_dialogs.h"
 #include "clock_dialog.h"
 #include "volume_control.h"
+#include "legacy_power_management_dialog.h"
+#include "power_management_dialog.h"
 
 namespace ui
 {
@@ -114,6 +116,8 @@ private:
     LowBatteryDialog  * lowBatteryDialog(bool create);
     ClockDialog * clockDialog(bool create, const QDateTime & start);
     VolumeControlDialog *volumeDialog(bool create);
+    LegacyPowerManagementDialog *legacyPMDialog(bool create);
+    PowerManagementDialog *pmDialog(bool create);
 
 private:
     typedef shared_ptr<StatusBarItem>          StatusBarItemPtr;
@@ -128,6 +132,8 @@ private:
     scoped_ptr<LowBatteryDialog> low_battery_dialog_;
     scoped_ptr<ClockDialog> clock_dialog_;
     scoped_ptr<VolumeControlDialog> volume_dialog_;
+    scoped_ptr<LegacyPowerManagementDialog> legacy_pm_dialog_;
+    scoped_ptr<PowerManagementDialog> pm_dialog_;
 
     scoped_ptr<OnyxLabel> right_margin_;
     bool auto_connect_;

@@ -1,5 +1,6 @@
 #include "onyx/sys/sys.h"
 #include "onyx/screen/screen_proxy.h"
+#include "onyx/screen/screen_update_watcher.h"
 #include "onyx/data/network_types.h"
 
 #include "onyx/ui/status_bar.h"
@@ -19,8 +20,6 @@
 #include "onyx/ui/status_bar_item_app.h"
 #include "onyx/ui/status_bar_item_music_player.h"
 #include "onyx/ui/number_dialog.h"
-#include "onyx/ui/power_management_dialog.h"
-#include "onyx/ui/legacy_power_management_dialog.h"
 #include "onyx/ui/clock_dialog.h"
 #include "onyx/ui/ui_utils.h"
 #include "onyx/data/keys.h"
@@ -371,13 +370,13 @@ void StatusBar::onBatteryClicked()
 {
     if (sys::isIMX31L())
     {
-        LegacyPowerManagementDialog dialog(0, sys::SysStatus::instance());
-        dialog.exec();
+        LegacyPowerManagementDialog *legacy = legacyPMDialog(true);
+        legacy->exec();
     }
     else
     {
-        PowerManagementDialog dialog(0, sys::SysStatus::instance());
-        dialog.exec();
+        PowerManagementDialog *pm = pmDialog(true);
+        pm->exec();
     }
 
     onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU);
@@ -613,6 +612,18 @@ void StatusBar::onWakeup()
 void StatusBar::onAboutToShutdown()
 {
     qDebug("Status Bar handles about to shutdown signal");
+    if (legacy_pm_dialog_.get())
+    {
+        legacyPMDialog(false)->reject();
+        onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU,
+                                        onyx::screen::ScreenCommand::WAIT_ALL);
+    }
+    if (pm_dialog_.get())
+    {
+        pmDialog(false)->reject();
+        onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU,
+                                        onyx::screen::ScreenCommand::WAIT_ALL);
+    }
 }
 
 void StatusBar::onWifiDeviceChanged(bool enabled)
@@ -815,6 +826,24 @@ VolumeControlDialog *StatusBar::volumeDialog(bool create)
         volume_dialog_.reset(new VolumeControlDialog(0));
     }
     return volume_dialog_.get();
+}
+
+LegacyPowerManagementDialog *StatusBar::legacyPMDialog(bool create)
+{
+    if (!legacy_pm_dialog_ && create)
+    {
+        legacy_pm_dialog_.reset(new LegacyPowerManagementDialog(0, sys::SysStatus::instance()));
+    }
+    return legacy_pm_dialog_.get();
+}
+
+PowerManagementDialog *StatusBar::pmDialog(bool create)
+{
+    if (!pm_dialog_ && create)
+    {
+        pm_dialog_.reset(new PowerManagementDialog(0, sys::SysStatus::instance()));
+    }
+    return pm_dialog_.get();
 }
 
 void StatusBar::createLayout()
