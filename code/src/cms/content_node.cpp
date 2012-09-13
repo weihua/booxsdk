@@ -3,6 +3,8 @@
 #include "onyx/cms/cms_utils.h"
 #include "onyx/cms/content_node.h"
 
+#include "onyx/base/debug_msg.h"
+
 namespace cms
 {
 // TODO: Move to global header file.
@@ -212,6 +214,8 @@ ContentNode::getContentNode(QSqlDatabase &database,
                             const QString & absolute_path,
                             bool create)
 {
+    base::DebugMsgForFunc dmsg(Q_FUNC_INFO, "", "");
+
     // Initialize query parameters and initialize all stuff
     // that does not rely on the database.
     QFileInfo info(absolute_path);
@@ -219,7 +223,7 @@ ContentNode::getContentNode(QSqlDatabase &database,
     node.mutable_size() = info.size();
     node.mutable_location() = info.path();
     node.mutable_name() = info.fileName();
-    qDebug() << "ContentNode::getContentNode, enter, size: " << info.size()
+    dmsg.debug() << "ContentNode::getContentNode, enter, size: " << info.size()
              << ", location: " << info.path()
              << ", name: " << info.fileName();
 
@@ -236,7 +240,7 @@ ContentNode::getContentNode(QSqlDatabase &database,
 
     bool res = query.exec();
     if (!res) {
-        qDebug() << "query failed: " << query.lastError().text();
+        dmsg.debug() << "query failed: " << query.lastError().text();
     }
     if (res && query.next())
     {
@@ -253,10 +257,10 @@ ContentNode::getContentNode(QSqlDatabase &database,
         node.mutable_read_count() = query.value(index++).toInt();
         node.mutable_progress() = query.value(index++).toString();
         node.mutable_attributes() = query.value(index++).toByteArray();
-        qDebug() << "query ok";
+        dmsg.debug() << "query success";
         return true;
     }
-    qDebug() << "query failed";
+    dmsg.debug() << "empty query result";
 
     // File has been moved, check the name and size.
     /*
@@ -328,9 +332,8 @@ ContentNode::getContentNode(QSqlDatabase &database,
 bool ContentNode::getContentNode(QSqlDatabase & database,
                                  ContentNode &node)
 {
-    qDebug() << "ContentNode::getContentNode enter, size: " << node.size()
-             << ", location: " << node.location()
-             << ", name: " << node.name();
+    base::DebugMsgForFunc dmsg(Q_FUNC_INFO, QString("location: %1, name: %2, size: %3")
+                               .arg(node.location()).arg(node.name()).arg(node.size()), "");
 
     QSqlQuery query(database);
     query.prepare( "select id, title, authors, description, "
@@ -342,7 +345,11 @@ bool ContentNode::getContentNode(QSqlDatabase & database,
     query.bindValue(":location", node.location());
     query.bindValue(":size", node.size());
 
-    if (query.exec() && query.next())
+    bool res = query.exec();
+    if (!res) {
+        dmsg.debug() << "query failed: " << query.lastError().text();
+    }
+    if (res && query.next())
     {
         int index = 0;
         node.id_ = query.value(index++).toInt();
@@ -361,11 +368,11 @@ bool ContentNode::getContentNode(QSqlDatabase & database,
         QVariantMap attributes;
         node.attributes(attributes);
 
-        qDebug() << "query success";
+        dmsg.debug() << "query success";
         return true;
     }
 
-    qDebug() << "query failed";
+    dmsg.debug() << "empty query result";
     return false;
 }
 

@@ -48,6 +48,9 @@ public:
     const QDateTime &update_time() const { return update_time_; }
     QDateTime &mutable_update_time() { return update_time_; }
 
+    const bool is_public_access() const { return is_public_access_; }
+    bool &mutable_is_public_access() { return is_public_access_; }
+
     inline bool operator == (const Annotation & right) const;
     inline Annotation & operator = (const Annotation & right);
 
@@ -64,6 +67,8 @@ private:
     int page_;
     /// last create/update time
     QDateTime update_time_;
+    /// is online public accessible to others
+    bool is_public_access_;
 };
 
 /// Compare this annotation with right. Returns true if they are identical.
@@ -75,7 +80,8 @@ bool Annotation::operator == (const Annotation & right) const
                 data_ == right.data_ &&
                 rect_list_ == right.rect_list_ &&
                 page_ == right.page_ &&
-                update_time_ == right.update_time_);
+                update_time_ == right.update_time_ &&
+                is_public_access_ == right.is_public_access_);
     }
     return true;
 }
@@ -90,6 +96,7 @@ Annotation & Annotation::operator = (const Annotation & right)
         rect_list_ = right.rect_list_;
         page_ = right.page_;
         update_time_ = right.update_time_;
+        is_public_access_ = right.is_public_access_;
     }
     return *this;
 }
