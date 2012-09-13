@@ -71,7 +71,7 @@ QDataStream & operator >> ( QDataStream & in, Annotation & annotation )
         in >> annotation.mutable_page();
         in >> annotation.mutable_update_time();
     }
-    else if (ver = V_1001) {
+    else if (ver == V_1001) {
         in >> annotation.mutable_data();
         in >> annotation.mutable_title();
         in >> annotation.mutable_rect_list();
