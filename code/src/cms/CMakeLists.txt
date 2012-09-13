@@ -18,6 +18,7 @@ set(SRCS
 
 add_library(onyx_cms ${SRCS})
 TARGET_LINK_LIBRARIES(onyx_cms
+    onyx_base
     ${QT_LIBRARIES}
     ${ADD_LIB})
 
