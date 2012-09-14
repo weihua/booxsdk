@@ -261,7 +261,7 @@ bool SketchStroke::loadAttributes(QDataStream & in, int & num_points)
 {
     qint16 c = 0;
     in >> c;
-    color_ = static_cast<SketchColor>(c);
+    color_ = static_cast<SketchMode>(c);
 
     qint16 s = 0;
     in >> s;

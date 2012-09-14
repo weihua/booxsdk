@@ -603,7 +603,7 @@ void SketchProxy::setShape(const SketchShape s)
     sketch_ctx_.shape_ = s;
 }
 
-void SketchProxy::setColor(const SketchColor c)
+void SketchProxy::setColor(const SketchMode c)
 {
     sketch_ctx_.color_ = c;
 }

@@ -16,8 +16,8 @@ public:
     SketchStroke(SketchContext & ctx);
     ~SketchStroke(void);
 
-    void setColor(const SketchColor c) { color_ = c; }
-    SketchColor color() const { return color_; }
+    void setColor(const SketchMode c) { color_ = c; }
+    SketchMode color() const { return color_; }
 
     void setShape(const SketchShape s) { shape_ = s; }
     SketchShape shape() const { return shape_; }
@@ -59,7 +59,7 @@ private:
 
 private:
     // attributes that need to be saved
-    SketchColor   color_;         /// color of the sketch
+    SketchMode   color_;         /// color of the sketch
     SketchShape   shape_;         /// shape of the sketch
     ZoomFactor    zoom_;          /// zoom factor
     int           draw_layer_;    /// the drawing layer

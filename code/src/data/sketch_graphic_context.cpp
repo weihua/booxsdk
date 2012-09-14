@@ -13,18 +13,18 @@
 namespace sketch
 {
 
-int getPenColor(const SketchColor c)
+int getPenColor(const SketchMode c)
 {
     int pen_color = 0xFF;
     switch (c)
     {
     case SKETCH_COLOR_WHITE:
         break;
-    case SKETCH_COLOR_LIGHT_GRAY:
-        pen_color = 0x20;
-        break;
-    case SKETCH_COLOR_DARK_GRAY:
-        pen_color = 0x10;
+//    case SKETCH_COLOR_LIGHT_GRAY:
+//        pen_color = 0x20;
+//        break;
+//    case SKETCH_COLOR_DARK_GRAY:
+//        pen_color = 0x10;
         break;
     case SKETCH_COLOR_BLACK:
         pen_color = 0x00;
