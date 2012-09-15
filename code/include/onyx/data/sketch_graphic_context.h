@@ -41,7 +41,7 @@ private:
     QWidget         *drawing_area_;
     RotateDegree    content_orient_;
     RotateDegree    widget_orient_;
-    SketchColor     color_;
+    SketchMode     color_;
     SketchShape     shape_;
     unsigned char   *img_;
 

@@ -279,6 +279,26 @@ void SketchActions::generateSketchMode(const SketchModes & modes,
                 act->setIcon(QIcon(QPixmap(":/images/sketch_mode_erase.png")));
             }
             break;
+        case SKETCH_COLOR_WHITE:
+            {
+                act->setText(QCoreApplication::tr("White"));
+//                connect(sketch_modes_.get(),
+//                        SIGNAL(triggered(QAction*)),
+//                        this,
+//                        SLOT(onColorTriggered(QAction*)));
+                act->setIcon(QIcon(QPixmap(":/images/sketch_color_white.png")));
+            }
+            break;
+        case SKETCH_COLOR_BLACK:
+            {
+                act->setText(QCoreApplication::tr("Black"));
+//                connect(sketch_modes_.get(),
+//                        SIGNAL(triggered(QAction*)),
+//                        this,
+//                        SLOT(onColorTriggered(QAction*)));
+                act->setIcon(QIcon(QPixmap(":/images/sketch_color_black.png")));
+            }
+            break;
         default:
             break;
         }
@@ -290,77 +310,80 @@ void SketchActions::generateSketchMode(const SketchModes & modes,
         }
         actions_.push_back(act);
     }
-
-    // add separator
-    shared_ptr<QAction> separator(new QAction(sketch_modes_.get()));
-    separator->setSeparator(true);
-    actions_.push_back(separator);
-}
-
-void SketchActions::generateSketchColors(const SketchColors & colors,
-                                         const SketchColor selected_color)
-{
-    colors_.reset(new QActionGroup(0));
-    colors_->setExclusive(true);
-
-    SketchColors::const_iterator begin = colors.begin();
-    SketchColors::const_iterator end   = colors.end();
-    for(SketchColors::const_iterator iter = begin; iter != end; ++iter)
-    {
-        // Add to group automatically.
-        shared_ptr<QAction> act(new QAction(colors_.get()));
-
-        // Change font and make it as checkable.
-        act->setCheckable(true);
-        act->setData(*iter);
-        act->setFont(actionFont());
-        switch (*iter)
-        {
-        case SKETCH_COLOR_WHITE:
-            {
-                act->setText(QCoreApplication::tr("White"));
-                act->setIcon(QIcon(QPixmap(":/images/sketch_color_white.png")));
-            }
-            break;
-        case SKETCH_COLOR_LIGHT_GRAY:
-            {
-                act->setText(QCoreApplication::tr("Light Gray"));
-                act->setIcon(QIcon(QPixmap(":/images/sketch_color_light_grey.png")));
-            }
-            break;
-        case SKETCH_COLOR_DARK_GRAY:
-            {
-                act->setText(QCoreApplication::tr("Dark Gray"));
-                act->setIcon(QIcon(QPixmap(":/images/sketch_color_dark_grey.png")));
-            }
-            break;
-        case SKETCH_COLOR_BLACK:
-            {
-                act->setText(QCoreApplication::tr("Black"));
-                act->setIcon(QIcon(QPixmap(":/images/sketch_color_black.png")));
-            }
-        default:
-            break;
-        }
-
-        // Set current mode
-        if (*iter == selected_color)
-        {
-            act->setChecked(true);
-        }
-        actions_.push_back(act);
-    }
-
-    // add separator
     shared_ptr<QAction> separator(new QAction(colors_.get()));
     separator->setSeparator(true);
     actions_.push_back(separator);
 
-    connect(colors_.get(),
+    connect(sketch_modes_.get(),
             SIGNAL(triggered(QAction*)),
             this,
             SLOT(onColorTriggered(QAction*)));
 }
+
+//void SketchActions::generateSketchColors(const SketchColors & colors,
+//                                         const SketchColor selected_color)
+//{
+//    colors_.reset(new QActionGroup(0));
+//    colors_->setExclusive(true);
+//
+//    SketchColors::const_iterator begin = colors.begin();
+//    SketchColors::const_iterator end   = colors.end();
+//    for(SketchColors::const_iterator iter = begin; iter != end; ++iter)
+//    {
+//        // Add to group automatically.
+//        shared_ptr<QAction> act(new QAction(colors_.get()));
+//
+//        // Change font and make it as checkable.
+//        act->setCheckable(true);
+//        act->setData(*iter);
+//        act->setFont(actionFont());
+//        switch (*iter)
+//        {
+////        case SKETCH_COLOR_WHITE:
+////            {
+////                act->setText(QCoreApplication::tr("White"));
+////                act->setIcon(QIcon(QPixmap(":/images/sketch_color_white.png")));
+////            }
+////            break;
+//        case SKETCH_COLOR_LIGHT_GRAY:
+//            {
+//                act->setText(QCoreApplication::tr("Light Gray"));
+//                act->setIcon(QIcon(QPixmap(":/images/sketch_color_light_grey.png")));
+//            }
+//            break;
+//        case SKETCH_COLOR_DARK_GRAY:
+//            {
+//                act->setText(QCoreApplication::tr("Dark Gray"));
+//                act->setIcon(QIcon(QPixmap(":/images/sketch_color_dark_grey.png")));
+//            }
+//            break;
+////        case SKETCH_COLOR_BLACK:
+////            {
+////                act->setText(QCoreApplication::tr("Black"));
+////                act->setIcon(QIcon(QPixmap(":/images/sketch_color_black.png")));
+////            }
+//        default:
+//            break;
+//        }
+//
+//        // Set current mode
+//        if (*iter == selected_color)
+//        {
+//            act->setChecked(true);
+//        }
+//        actions_.push_back(act);
+//    }
+//
+//    // add separator
+//    shared_ptr<QAction> separator(new QAction(colors_.get()));
+//    separator->setSeparator(true);
+//    actions_.push_back(separator);
+//
+//    connect(colors_.get(),
+//            SIGNAL(triggered(QAction*)),
+//            this,
+//            SLOT(onColorTriggered(QAction*)));
+//}
 
 void SketchActions::generateSketchShapes(const SketchShapes & shapes,
                                          const SketchShape selected_shape)
@@ -544,7 +567,7 @@ void SketchActions::setSketchShape(const SketchShape shape)
     }
 }
 
-void SketchActions::setSketchColor(const SketchColor color)
+void SketchActions::setSketchColor(const SketchMode color)
 {
     vector< shared_ptr<QAction> >::const_iterator begin = actions_.begin();
     vector< shared_ptr<QAction> >::const_iterator end   = actions_.end();

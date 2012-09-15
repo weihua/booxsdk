@@ -284,6 +284,7 @@ bool Section::activate()
     if (index >= 0)
     {
         items_.at(index)->click();
+        current_focus_ = index;
         return true;
     }
     return false;
@@ -321,6 +322,7 @@ int Section::currentFocusItem()
 {
     return current_focus_;
 }
+
 MenuItem *Section::createItem(QWidget *parent, QAction *action)
 {
     MenuItem * item = new MenuItem(parent, action);
@@ -437,6 +439,12 @@ MenuItem *Section::addItem(QWidget *parent, QAction *action, int row, int col)
     items_.push_back(item);
     layout_.setVerticalSpacing(17);
     layout_.addWidget(item, row, col);
+
+    if (action && action->isChecked())
+    {
+        current_focus_ = row;
+    }
+
     return item;
 }
 
