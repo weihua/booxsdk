@@ -281,16 +281,19 @@ bool WpaConnection::status(QVariantMap & info, bool broadcast)
         if (broadcast)
         {
             broadcastState(WpaConnection::STATE_CONNECTED);
+
+            broadcastState(STATE_ACQUIRING_ADDRESS);
+            acquireAddress(true);
         }
     }
 
     return true;
 }
 
-bool WpaConnection::isComplete()
+bool WpaConnection::isComplete(bool auto_connect)
 {
     QVariantMap info;
-    if (!status(info, true))
+    if (!status(info, auto_connect))
     {
         return false;
     }
@@ -759,7 +762,7 @@ void WpaConnection::receiveMessages()
 
 void WpaConnection::parseMessage(QByteArray & data)
 {
-    qDebug("message received %s.", data.constData());
+    qDebug() << "message received: " << data;
 
     if (data.contains(WPA_EVENT_SCAN_RESULTS))
     {

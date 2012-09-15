@@ -95,7 +95,7 @@ void WpaConnectionManager::onScanReturned(WifiProfiles & list)
     scan_timer_.stop();
     setState(dummy, WpaConnection::STATE_SCANNED);
 
-    if (proxy().isComplete())
+    if (proxy().isComplete(auto_connect_))
     {
         qDebug("Complete, don't connect again.");
         return;

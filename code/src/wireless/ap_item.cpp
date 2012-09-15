@@ -36,7 +36,8 @@ WifiTitleItem::WifiTitleItem(QWidget *parent)
 , title_label_(tr("Starting Wifi Device..."), 0)
 , dash_board_(0, 0)
 {
-    setAutoFillBackground(false);
+    setAutoFillBackground(true);
+    setBackgroundRole(QPalette::Base);
     setFixedHeight(80);
     createLayout();
 }
@@ -206,7 +207,7 @@ void WifiAPItem::paintEvent(QPaintEvent *e)
     QPainterPath path;
     path.addRoundedRect(rect().adjusted(2, 2, -2, -2), 8, 8, Qt::AbsoluteSize);
 
-    if (isSelected())
+    if (isSelected() || isAPChecked())
     {
         painter.fillPath(path, QBrush(SELECTED_BK_COLOR));
     }
@@ -367,6 +368,15 @@ void WifiAPItem::updateByProfile(WifiProfile & profile)
 bool WifiAPItem::isSelected()
 {
     return (selected_bssid == profile_.bssid() && selected_item_ == this);
+}
+
+bool WifiAPItem::isAPChecked()
+{
+    if (data()->contains(TAG_CHECKED))
+    {
+        return data()->value(TAG_CHECKED).toBool();
+    }
+    return false;
 }
 
 void WifiAPItem::onConfigButtonClicked()
