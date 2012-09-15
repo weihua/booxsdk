@@ -147,6 +147,12 @@ void ViewActions::generatePageLayoutActions(const PageLayouts & layouts,
                 act->setIcon(QIcon(QPixmap(":/images/thumbnail.png")));
             }
             break;
+        case PAGE_MARGIN_LAYOUT:
+            {
+                act->setText(QCoreApplication::tr("Page Margin"));
+                act->setIcon(QIcon(QPixmap(":/images/zoom_hide_margin.png")));
+            }
+            break;
         default:
             break;
         }
