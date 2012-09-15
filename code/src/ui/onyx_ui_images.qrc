@@ -248,7 +248,7 @@
     <file>images/history.png</file>
     <file>images/mobile_mode.png</file>
     <file>images/glow_light_switch.png</file>
-    <file>images/app_default.png</file>
+    <file>images/app_close.png</file>
     <file>images/toolbar_url_input.png</file>
 
   </qresource>
