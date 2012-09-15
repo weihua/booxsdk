@@ -109,6 +109,7 @@ void WifiDialog::runBackGround()
 int WifiDialog::popup(bool scan, bool auto_connect)
 {
     scanned_once_ = false;
+    clicked_ssid_.clear();
 
     proxy_.enableAutoConnect(auto_connect);
 
