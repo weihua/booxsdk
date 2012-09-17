@@ -177,7 +177,7 @@ bool StatusManager::isAddHighlight() const
 bool StatusManager::isDeleteHighlight() const
 {
     return ( annotation_group_.getStatus(ID_DELETE_HIGHLIGHT) == FUNC_SELECTED &&
-             stylus_group_.getStatus(ID_FREE_PEN) == FUNC_SELECTED  );
+             stylus_group_.getStatus(ID_DELETE_HIGHLIGHT) == FUNC_SELECTED  );
 }
 
 inline bool StatusManager::isComicMode() const

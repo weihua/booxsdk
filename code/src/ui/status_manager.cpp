@@ -211,6 +211,10 @@ void StatusManager::initStylus()
     StatusActionPtr delete_annotation_action( new QAction(0) );
     delete_annotation_action->setData(ID_DELETE_ANNOTATION);
     stylus_group_.addAction(delete_annotation_action);
+
+    StatusActionPtr delete_highlight_action( new QAction(0) );
+    delete_highlight_action->setData(ID_DELETE_HIGHLIGHT);
+    stylus_group_.addAction(delete_highlight_action);
 }
 
 void StatusManager::initAnnotation()
