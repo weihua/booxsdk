@@ -55,6 +55,13 @@ void SketchActions::onExportAnnotationsTriggered(bool checked)
     ctx_.active_checked_status = checked;
 }
 
+void SketchActions::onEditAnnotationTriggered(bool checked)
+{
+    ctx_.active_type           = ANNOTATION_MODE;
+    ctx_.cur_anno_mode         = EDIT_ANNOTATIONS;
+    ctx_.active_checked_status = checked;
+}
+
 void SketchActions::onColorTriggered(QAction *action)
 {
     ctx_.active_type           = SKETCH_COLOR;
@@ -132,6 +139,16 @@ void SketchActions::generateAnnotationMode(const AnnotationModes & modes,
                         SIGNAL(toggled(bool)),
                         this,
                         SLOT(onExportAnnotationsTriggered(bool)));
+                act->setIcon(QIcon(QPixmap(":/images/show_all_annotations.png")));
+            }
+            break;
+        case EDIT_ANNOTATIONS:
+            {
+                act->setText(QCoreApplication::tr("Edit Annotations"));
+                connect(act.get(),
+                        SIGNAL(toggled(bool)),
+                        this,
+                        SLOT(onEditAnnotationTriggered(bool)));
                 act->setIcon(QIcon(QPixmap(":/images/show_all_annotations.png")));
             }
             break;
