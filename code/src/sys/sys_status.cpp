@@ -1926,6 +1926,47 @@ unsigned char SysStatus::brightness()
     return 0;
 }
 
+void SysStatus::turnGlowLightOn(bool on, bool save)
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "turnGlowLightOn"   // method.
+    );
+
+    message << on;
+    message << save;
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+}
+
+bool SysStatus::glowLightOn()
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "glowLightOn"       // method.
+    );
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        if (reply.arguments().size() > 0)
+        {
+            return reply.arguments().at(0).toInt() > 0;
+        }
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+    return false;
+}
+
 /// Report user behavior. This function is used
 /// by reader apps to notify user behavior to listeners.
 void SysStatus::reportUserBehavior(const onyx::data::UserBehavior &behavior)
