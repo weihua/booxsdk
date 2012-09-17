@@ -54,8 +54,6 @@ const char * const CONFIG_IS_COMIC_MODE_ACTIVATED = "comic_mode_activated";
 
 const char * const CONFIG_IMAGE_EMBOLDEN_LEVEL = "image_embolden_level";
 
-const char * const CONFIG_DOC_PAGE_MARGIN = "document_page_margin";
-
 struct Configuration
 {
     QVariantMap options;        ///< Document related options.
