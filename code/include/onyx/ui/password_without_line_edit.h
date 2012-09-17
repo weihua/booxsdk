@@ -12,7 +12,7 @@ namespace ui
 {
 
 // Dialog for getting input with soft keyboard support.
-class PasswordWithoutLineEdit: public OnyxDialog
+class PasswordWithoutLineEdit: public QWidget
 {
     Q_OBJECT
 
@@ -26,7 +26,7 @@ public:
     void selectedItem(bool value);
 
 public:
-    int popup(const QString &text, const int &y);
+    void popup(const QString &text, const int &y);
 
 Q_SIGNALS:
         void sendKeyToTatget(QKeyEvent *);
@@ -34,17 +34,23 @@ Q_SIGNALS:
 
 protected Q_SLOTS:
     void onItemActivated(CatalogView *catalog, ContentView *item, int user_data);
+    void closeKeyboard();
 
 private:
 
     void createShowPlainText();
     void keyPressEvent(QKeyEvent *event);
+    void paintEvent(QPaintEvent *event);
+    void keyReleaseEvent(QKeyEvent *ke);
 
 private:
     QVBoxLayout big_layout_;
+    QHBoxLayout plain_layout_;
     QHBoxLayout top_layout_;
 
     OnyxLineEdit *line_edit_;
+    OnyxPushButton close_;
+    OnyxLabel title_;
 
     OnyxKeyboard keyboard_;
     CatalogView show_plain_text_;
