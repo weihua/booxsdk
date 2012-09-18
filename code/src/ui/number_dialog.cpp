@@ -103,7 +103,7 @@ void NumberDialog::createLayout()
 void NumberDialog::onOKClicked()
 {
     value_ = number_edit_.text().toInt();
-    if (value_ > 0 && value_ <= total_)
+    if (value_ >= 0 && value_ <= total_)
     {
         done(QDialog::Accepted);
     }
