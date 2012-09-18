@@ -8,12 +8,19 @@
 namespace ui
 {
 
-PasswordWithoutLineEdit::PasswordWithoutLineEdit(QWidget *parent)
+const QString LABEL_STYLE = "           \
+QLabel                                  \
+{                                       \
+     padding: 0px;                      \
+     background: black;                 \
+     font: 24px ;                       \
+     color: white;                      \
+ }";
 
-    : OnyxDialog(parent)
-    , big_layout_(&content_widget_)
-//    , keyboard_(this)
-//    , top_layout_(0)
+PasswordWithoutLineEdit::PasswordWithoutLineEdit(QWidget *parent)
+    : QWidget(parent, Qt::WindowStaysOnTopHint|Qt::FramelessWindowHint)
+    , big_layout_(this)
+    , close_("", 0)
 {
     createLayout();
     QRect rc = qApp->desktop()->screenGeometry();
@@ -28,25 +35,39 @@ PasswordWithoutLineEdit::~PasswordWithoutLineEdit()
 
 void PasswordWithoutLineEdit::createLayout()
 {
-    vbox_.setSpacing(0);
-    content_widget_.setBackgroundRole(QPalette::Button);
-    content_widget_.setContentsMargins(0, 0, 0, 0);
+    setBackgroundRole(QPalette::Button);
+    setContentsMargins(0, 0, 0, 0);
+
+    title_.setStyleSheet(LABEL_STYLE);
+    title_.setAlignment(Qt::AlignLeft|Qt::AlignVCenter);
+    title_.setFixedHeight(36);
+
+    QPixmap close_pixmap(":/images/close.png");
+    close_.setIconSize(close_pixmap.size());
+    close_.setIcon(QIcon(close_pixmap));
+    close_.setFocusPolicy(Qt::NoFocus);
+
+    top_layout_.addWidget(&title_, 500);
+    top_layout_.addWidget(&close_, 72, Qt::AlignVCenter);
+    top_layout_.setContentsMargins(10, 0, 10, 0);
+
     createShowPlainText();
 
-    top_layout_.setStretch(0, 0);
-    top_layout_.addWidget(&show_plain_text_);
+    plain_layout_.setStretch(0, 0);
+    plain_layout_.addWidget(&show_plain_text_);
 
     big_layout_.setContentsMargins(2, 2, 2, 2);
     big_layout_.setSpacing(0);
     big_layout_.setStretch(0, 0);
     big_layout_.addLayout(&top_layout_);
+    big_layout_.addLayout(&plain_layout_);
     big_layout_.addWidget(&keyboard_);
 
     onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC);
 
     connect(&show_plain_text_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)),
             this, SLOT(onItemActivated(CatalogView *, ContentView *, int)));
-
+    connect(&close_, SIGNAL(clicked()), this, SLOT(closeKeyboard()));
 }
 
 void PasswordWithoutLineEdit::setPlainTextVisible(bool value)
@@ -54,9 +75,15 @@ void PasswordWithoutLineEdit::setPlainTextVisible(bool value)
     show_plain_text_.setVisible(value);
 }
 
+void PasswordWithoutLineEdit::closeKeyboard()
+{
+    setVisible(false);
+}
+
 void PasswordWithoutLineEdit::updateKeyBoardTitle(QString title)
 {
-    updateTitle(title);
+    title_.setText(title);
+    onyx::screen::watcher().enqueue(&title_, onyx::screen::ScreenProxy::GU);
 }
 
 void PasswordWithoutLineEdit::selectedItem(bool value)
@@ -89,7 +116,7 @@ void PasswordWithoutLineEdit::onItemActivated(CatalogView *catalog,
 
 void PasswordWithoutLineEdit::createShowPlainText()
 {
-    const int height = defaultItemHeight();
+    const int height = 36;
     show_plain_text_.setSubItemType(CheckBoxView::type());
     show_plain_text_.setPreferItemSize(QSize(height, height));
 
@@ -100,12 +127,12 @@ void PasswordWithoutLineEdit::createShowPlainText()
 
     show_plain_text_.setFixedGrid(1, 1);
     show_plain_text_.setMargin(OnyxKeyboard::CATALOG_MARGIN);
-    show_plain_text_.setFixedHeight(defaultItemHeight()+2*SPACING);
+    show_plain_text_.setFixedHeight(height+4);
     show_plain_text_.setData(show_plain_text_datas_);
     show_plain_text_.setNeighbor(keyboard_.top(), CatalogView::DOWN);
 }
 
-int PasswordWithoutLineEdit::popup(const QString &text, const int &y)
+void PasswordWithoutLineEdit::popup(const QString &text, const int &y)
 {
     QRect rc = qApp->desktop()->screenGeometry();
     setFixedSize(rc.width(), height());
@@ -126,9 +153,19 @@ int PasswordWithoutLineEdit::popup(const QString &text, const int &y)
     }
     update();
     onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
+}
 
-    int ret = exec();
-    return ret;
+void PasswordWithoutLineEdit::paintEvent(QPaintEvent *event)
+{
+    QWidget::paintEvent(event);
+    QPainter painter(this);
+
+    QBrush brush(QColor(Qt::black));
+    painter.setBrush(brush);
+    QRectF rect(2, 0, width()-2, 38);
+    QPainterPath p_path;
+    p_path.addRect(rect);
+    painter.drawPath(p_path);
 }
 
 void PasswordWithoutLineEdit::keyPressEvent(QKeyEvent *event)
@@ -140,8 +177,14 @@ void PasswordWithoutLineEdit::keyPressEvent(QKeyEvent *event)
             && Qt::Key_Right != key)
     {
         emit sendKeyToTatget(event);
+    }
+}
 
-        qDebug() << "11111111111;keyPressEvent";
+void PasswordWithoutLineEdit::keyReleaseEvent(QKeyEvent *ke)
+{
+    if (ke->key() == Qt::Key_Escape)
+    {
+        setVisible(false);
     }
 }
 
