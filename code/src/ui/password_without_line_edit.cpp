@@ -63,6 +63,9 @@ void PasswordWithoutLineEdit::createLayout()
     big_layout_.addLayout(&plain_layout_);
     big_layout_.addWidget(&keyboard_);
 
+    keyboard_.menu()->setNeighbor(&show_plain_text_, CatalogView::RECYCLE_UP);
+    show_plain_text_.setNeighbor(keyboard_.menu(), CatalogView::RECYCLE_DOWN);
+
     onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC);
 
     connect(&show_plain_text_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)),

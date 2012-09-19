@@ -75,6 +75,9 @@ void KeyboardWithoutLineEdit::createLayout()
 
     big_layout_.addLayout(&top_layout_);
     big_layout_.addWidget(&keyboard_);
+    keyboard_.menu()->setNeighbor(keyboard_.top(), CatalogView::RECYCLE_UP);
+    keyboard_.top()->setNeighbor(keyboard_.menu(), CatalogView::RECYCLE_DOWN);
+
 
     connect(&close_, SIGNAL(clicked()), this, SLOT(closeKeyboard()));
 
