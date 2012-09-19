@@ -31,10 +31,10 @@ QPushButton                             \
 KeyboardWithoutLineEdit::KeyboardWithoutLineEdit(QWidget *parent)
     : QWidget(parent, Qt::WindowStaysOnTopHint|Qt::FramelessWindowHint)
     , big_layout_(this)
+    , top_layout_(0)
     , keyboard_(this)
     , close_("" ,0)
     , title_(0)
-    , top_layout_(0)
 {
     setAutoFillBackground(true);
     setBackgroundRole(QPalette::Base);
