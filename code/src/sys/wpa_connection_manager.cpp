@@ -93,10 +93,9 @@ void WpaConnectionManager::onScanReturned(WifiProfiles & list)
     scan_timer_.stop();
     setState(dummy, WpaConnection::STATE_SCANNED);
 
-    if (proxy().isComplete())
+    if (proxy().isComplete(auto_connect_))
     {
         qDebug("Complete, don't connect again.");
-        emit connectionChanged(dummy, WpaConnection::STATE_SCANNED);
         return;
     }
     connectToBestAP();
@@ -700,5 +699,5 @@ bool WpaConnectionManager::isConnectionOnProgress()
 bool WpaConnectionManager::isConnectionComplete()
 {
     return internal_state_ == WpaConnection::STATE_COMPLETE
-            || ((internal_state_ == WpaConnection::STATE_SCANNED) && proxy().isComplete());
+            || ((internal_state_ == WpaConnection::STATE_SCANNED) && proxy().isConnectionEstablished());
 }

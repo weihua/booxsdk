@@ -14,6 +14,15 @@ QLabel                                  \
      color: black;                      \
  }";
 
+const QString LABEL_STYLE_WITH_SMALLER_TEXT = " \
+QLabel                                  \
+{                                       \
+     padding: 0px;                      \
+     background: transparent;           \
+     font: 22px ;                       \
+     color: black;                      \
+ }";
+
 /// Compiler issue.
 #ifndef _WINDOWS
 const int WifiAPItem::SIGNAL_ICONS;
@@ -36,7 +45,8 @@ WifiTitleItem::WifiTitleItem(QWidget *parent)
 , title_label_(tr("Starting Wifi Device..."), 0)
 , dash_board_(0, 0)
 {
-    setAutoFillBackground(false);
+    setAutoFillBackground(true);
+    setBackgroundRole(QPalette::Base);
     setFixedHeight(80);
     createLayout();
 }
@@ -50,9 +60,10 @@ void WifiTitleItem::createLayout()
     layout_.setContentsMargins(SPACING, SPACING / 5, SPACING, SPACING / 5);
     layout_.setSpacing(10);
 
+    title_label_.setStyleSheet(LABEL_STYLE_WITH_SMALLER_TEXT);
+
     layout_.addWidget(&title_label_, 0, Qt::AlignVCenter);
     layout_.addStretch(0);
-
 
     // dash board
     dash_board_.setFixedWidth(75 * 2);
@@ -206,7 +217,7 @@ void WifiAPItem::paintEvent(QPaintEvent *e)
     QPainterPath path;
     path.addRoundedRect(rect().adjusted(2, 2, -2, -2), 8, 8, Qt::AbsoluteSize);
 
-    if (isSelected())
+    if (isSelected() || isAPChecked())
     {
         painter.fillPath(path, QBrush(SELECTED_BK_COLOR));
     }
@@ -367,6 +378,15 @@ void WifiAPItem::updateByProfile(WifiProfile & profile)
 bool WifiAPItem::isSelected()
 {
     return (selected_bssid == profile_.bssid() && selected_item_ == this);
+}
+
+bool WifiAPItem::isAPChecked()
+{
+    if (data()->contains(TAG_CHECKED))
+    {
+        return data()->value(TAG_CHECKED).toBool();
+    }
+    return false;
 }
 
 void WifiAPItem::onConfigButtonClicked()
