@@ -20,17 +20,19 @@ public:
     WifiDialog(QWidget *parent, SysStatus & sys);
     ~WifiDialog();
 
-public:
-    int  popup(bool start_scan = true);
+public Q_SLOTS:
     void triggerScan();
+
+public:
+    int  popup(bool start_scan = true, bool auto_connect = true);
     void connect(const QString & ssid, const QString &password);
     bool connectToBestAP();
     bool connectToDefaultAP();
+    QString connectingAccessPoint();
 
 protected:
     virtual void keyPressEvent(QKeyEvent *);
     virtual void keyReleaseEvent(QKeyEvent *);
-    virtual bool event(QEvent * event);
     virtual void paintEvent(QPaintEvent *e);
     virtual void resizeEvent(QResizeEvent *);
     virtual void mousePressEvent(QMouseEvent *);
@@ -71,7 +73,7 @@ private:
     void setPassword(WifiProfile & profile, const QString & password);
     void storeAp(WifiProfile & profile);
 
-    void updateStateLable(WpaConnection::ConnectionState state);
+    void updateStateLabel(WpaConnection::ConnectionState state);
 
     void enableAutoConnect(bool e) { auto_connect_to_best_ap_ = e; }
     bool allowAutoConnect() { return auto_connect_to_best_ap_; }
@@ -88,19 +90,20 @@ private:
 private:
     QVBoxLayout  big_box_;
     QHBoxLayout  title_hbox_;
+    QHBoxLayout state_widget_layout_;
     QVBoxLayout content_layout_;
     QVBoxLayout ap_layout_;
     QHBoxLayout buttons_layout_;
 
     OnyxLabel title_icon_label_;
     OnyxLabel title_text_label_;
+    OnyxLabel hardware_address_;
     OnyxPushButton close_button_;
 
     WifiTitleItem state_widget_;
     OnyxPushButton prev_button_;
     OnyxPushButton next_button_;
     ui::CatalogView ap_view_;
-    OnyxLabel hardware_address_;
 
     const SysStatus & sys_;
     WpaConnectionManager& proxy_;
@@ -110,6 +113,8 @@ private:
 
     WifiProfiles scan_results_;
     ODatas datas_;
+    QString clicked_ssid_;
+    bool scanned_once_;
 
 };
 

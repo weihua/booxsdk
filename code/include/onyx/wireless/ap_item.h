@@ -77,6 +77,7 @@ private:
     void createLayout();
     void updateByProfile(WifiProfile & profile);
     bool isSelected();
+    bool isAPChecked();
 
 private Q_SLOTS:
     void onConfigButtonClicked();

@@ -51,7 +51,8 @@ public Q_SLOTS:
 
     bool update();
     bool status(QVariantMap &info, bool broadcast = true);
-    bool isComplete();
+    bool isComplete(bool auto_connect = true);
+    bool isConnectionEstablished();
     bool listNetworks(WifiProfiles &networks);
     bool scan();
     bool scanResults(WifiProfiles & aps);
