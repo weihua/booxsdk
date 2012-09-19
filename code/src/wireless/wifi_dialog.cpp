@@ -115,6 +115,8 @@ int WifiDialog::popup(bool scan, bool auto_connect)
         triggerScan();
     }
     bool ret = exec();
+    update();
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
     onyx::screen::watcher().removeWatcher(this);
     return ret;
 }
