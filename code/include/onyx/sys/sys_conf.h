@@ -159,6 +159,13 @@ public:
 
     static QString defaultAccessPoint();
 
+    // Firware Update
+    void askMeForUpdate(bool askme);
+    bool askMeForUpdate();
+
+    void installUpdate(bool install);
+    bool installUpdate();
+
 private:
     scoped_ptr<QSqlDatabase> database_;
 };

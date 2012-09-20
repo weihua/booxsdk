@@ -15,6 +15,7 @@
 #include "onyx/sys/misc_conf.h"
 #include "onyx/sys/platform.h"
 #include "device_conf.h"
+#include "onyx/sys/firmware_conf.h"
 
 namespace sys
 {
@@ -684,7 +685,7 @@ QString SystemConfig::cpuInfo()
         return cpu;
     QTextStream in(&file);
     QString line = in.readLine();
-    while (!line.isNull()) 
+    while (!line.isNull())
     {
         if(line.contains(key1))
         {
@@ -695,7 +696,7 @@ QString SystemConfig::cpuInfo()
         if(line.contains(key2))
         {
             int i;
-            tmp.append( line.right( line.length() - line.indexOf(':') - 1 ).trimmed() ); 
+            tmp.append( line.right( line.length() - line.indexOf(':') - 1 ).trimmed() );
             if ( (i=tmp.indexOf(QChar('.'))) != -1)
             {
                 tmp= tmp.left(i);
@@ -724,7 +725,7 @@ QString SystemConfig::flashInfo()
     QString mount_point("/media/flash");
     QString flash("%1/%2 MB");
     flash=flash.arg(freeSpace(mount_point)/1024/1024).arg(diskSpace(mount_point)/1024/1024);
-    return flash; 
+    return flash;
 }
 
 bool SystemConfig::showBrowsingHistory()
@@ -776,6 +777,27 @@ int SystemConfig::screenUpdateGrayScaleSetting()
         gray_scale_setting = DEFAULT_GRAY_SCALE_SETTING;
     }
     return gray_scale_setting;
+}
+
+void SystemConfig::askMeForUpdate(bool ask)
+{
+    FirmwareConfig::askMeForUpdate(*database_, ask);
+}
+
+bool SystemConfig::askMeForUpdate()
+{
+    return FirmwareConfig::askMeForUpdate(*database_);
+}
+
+
+void SystemConfig::installUpdate(bool install)
+{
+    FirmwareConfig::installUpdate(*database_, install);
+}
+
+bool SystemConfig::installUpdate()
+{
+    return FirmwareConfig::installUpdate(*database_);
 }
 
 }

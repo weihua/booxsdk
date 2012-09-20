@@ -47,6 +47,13 @@ QPushButton:disabled                    \
     background-color: white;            \
 }";
 
+static const QString LEVEL_TAG = "level";
+
+bool greaterBySignalLevel(ODataPtr a,  ODataPtr b)
+{
+    return (a->value(LEVEL_TAG).toInt() > b->value(LEVEL_TAG).toInt());
+}
+
 class WifiViewFactory : public ui::Factory
 {
 public:
@@ -115,6 +122,8 @@ int WifiDialog::popup(bool scan, bool auto_connect)
         triggerScan();
     }
     bool ret = exec();
+    update();
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
     onyx::screen::watcher().removeWatcher(this);
     return ret;
 }
@@ -304,6 +313,8 @@ void WifiDialog::arrangeAPItems(WifiProfiles & profiles)
             datas_.push_back(d);
         }
     }
+
+    sort(datas_);
 
     appendStoredAPs(profiles);
 
@@ -648,6 +659,12 @@ void WifiDialog::onAPConfig(WifiProfile &profile)
     {
         onAPItemClicked(profile);
     }
+}
+
+void WifiDialog::sort(ODatas &list)
+{
+    // DescendingOrder
+    qSort(list.begin(), list.end(), greaterBySignalLevel);
 }
 
 void WifiDialog::setPassword(WifiProfile & profile,
