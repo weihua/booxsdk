@@ -2,15 +2,16 @@
 #define DEBUG_MSG_H
 
 #include <QDebug>
+#include <QTime>
 
 namespace base
 {
 
 class DebugMsg
 {
+
 public:
     QDebug debug();
-
     QDebug warning();
 };
 
@@ -23,6 +24,22 @@ public:
 private:
     class Impl;
     Impl *d;
+};
+
+class ProfileUtil
+{
+private:
+    ProfileUtil();
+
+public:
+    static void log(const QString &msg);
+
+    /// prety printing methods to profile a task's start and end time
+    static void start(const QString &msg);
+    static void end(const QString &msg);
+
+private:
+    class Impl;
 };
 
 }

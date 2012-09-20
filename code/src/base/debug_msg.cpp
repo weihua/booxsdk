@@ -46,3 +46,28 @@ DebugMsgForFunc::~DebugMsgForFunc()
 
     delete d;
 }
+
+class ProfileUtil::Impl {
+public:
+    static qint64 last_timestamp_;
+};
+
+qint64 ProfileUtil::Impl::last_timestamp_ = 0;
+
+void ProfileUtil::log(const QString &msg)
+{
+    QDateTime now =  QDateTime::currentDateTime();
+    qint64 t = now.toMSecsSinceEpoch();
+    qDebug() << QString("TIMING: %1, %2, (%3ms)").arg(msg).arg(now.toString()).arg(t - ProfileUtil::Impl::last_timestamp_);
+    ProfileUtil::Impl::last_timestamp_ = t;
+}
+
+void ProfileUtil::start(const QString &msg)
+{
+    log(">>>>>> " + msg);
+}
+
+void ProfileUtil::end(const QString &msg)
+{
+    log("<<<<<< " + msg);
+}
