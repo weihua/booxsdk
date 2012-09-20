@@ -84,6 +84,7 @@ private Q_SLOTS:
     void onAddAnnotationTriggered(bool checked);
     void onDeleteAnnotationTriggered(bool checked);
     void onDisplayAnnotationsTriggered(bool checked);
+    void onEditAnnotationTriggered(bool checked);
     void onExportAnnotationsTriggered(bool checked);
 
     void onColorTriggered(QAction *action);
