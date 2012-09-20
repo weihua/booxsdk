@@ -90,6 +90,8 @@ private:
 
     void checkAndRestorePassword(WifiProfile &profile);
 
+    void sort(ODatas &list);
+
 private:
     QVBoxLayout  big_box_;
     QHBoxLayout  title_hbox_;
