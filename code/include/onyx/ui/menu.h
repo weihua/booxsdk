@@ -82,6 +82,10 @@ private:
 
     QLabel separator_;
     QLabel system_separator_;
+
+    int close_x_;
+    QSize close_size_;
+    bool close_pressed_;
 };
 
 }
