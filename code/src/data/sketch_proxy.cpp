@@ -493,7 +493,7 @@ void SketchProxy::onReceivedTouchData(TouchData & data)
 {
     if (attached_widget_ == 0)
     {
-        qDebug("Not attached to any widget");
+        // qDebug("Not attached to any widget");
         return;
     }
 
