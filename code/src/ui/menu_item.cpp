@@ -6,7 +6,7 @@
 namespace ui
 {
 
-static const int SPACING = 5;
+static const int SPACING = 3;
 
 static const QBrush SELECTED_BRUSH(QColor(0, 0, 0, 255));
 static const QBrush NORMAL_BRUSH(QColor(128, 128, 128, 128));
@@ -75,7 +75,7 @@ void MenuItem::paintEvent(QPaintEvent *e)
     static const int OFFSET = 1;
     static const int ROUNDED = 8;
     QPainterPath path;
-    QRect rc = rect();
+    QRect rc = QRect(0, 0, 80, 88); // focus range
     rc.adjust(OFFSET, OFFSET, -OFFSET, -OFFSET);
     path.addRoundedRect(rc, ROUNDED, ROUNDED, Qt::AbsoluteSize);
 
@@ -205,13 +205,13 @@ bool MenuItem::updateLayout()
             }
 
             line.setPosition(QPointF((rect().width() - layout_width_) >> 1, h));
-            h += line.height();
+            h += line.height()-1;
             line = title_layout_.createLine();
         }
         title_layout_.endLayout();
     }
 
-    title_layout_.setPosition(QPoint(0, iconActualSize().height() + SPACING));
+    title_layout_.setPosition(QPoint(0, iconActualSize().height() + 2));
 
     // icon.
     icon_pos_.rx() = ((rect().width() - iconActualSize().width()) >> 1);

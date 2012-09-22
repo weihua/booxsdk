@@ -256,5 +256,8 @@
     <file>images/menu_background_2.png</file>
     <file>images/menu_background_3.png</file>
     <file>images/menu_background_4.png</file>
+
+    <file>images/close_menu.png</file>
+    <file>images/close_menu_pressed.png</file>
   </qresource>
 </RCC>

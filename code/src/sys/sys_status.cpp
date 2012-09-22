@@ -313,6 +313,14 @@ void SysStatus::installSlots()
     }
 
     if (!connection_.connect(service, object, iface,
+                             "activationFinished",
+                             this,
+                             SLOT(onActivationFinished(bool))))
+    {
+        qDebug("\nCan not connect the activationFinished signal\n");
+    }
+
+    if (!connection_.connect(service, object, iface,
                              "loanReturnFinished",
                              this,
                              SLOT(onLoanReturnFinished(const QString &))))
@@ -2229,6 +2237,12 @@ void SysStatus::onRequestDRMUserInfo(const QString &string, const QString & para
 void SysStatus::onFulfillmentFinished(const QString & string)
 {
     emit fulfillmentFinished(string);
+}
+
+void SysStatus::onActivationFinished(bool succeed)
+{
+    qDebug() << "    SysStatus::onActivationFinished";
+    emit activationFinished(succeed);
 }
 
 void SysStatus::onLoanReturnFinished(const QString & string)

@@ -34,6 +34,7 @@ PopupMenu::PopupMenu(QWidget *parent, bool load_translator)
 , system_section_()
 , separator_(this)
 , system_separator_(this)
+, close_pressed_(false)
 {
     createMenuLayout();
     onyx::screen::watcher().flush(this, onyx::screen::ScreenProxy::GU);
@@ -47,7 +48,7 @@ PopupMenu::~PopupMenu()
 // Create menu.
 void PopupMenu::createMenuLayout()
 {
-    big_layout_.setContentsMargins(2, 16, 5, 5);
+    big_layout_.setContentsMargins(2, 28, 5, 5);
 
     big_layout_.addLayout(&menu_layout_);
 
@@ -178,8 +179,16 @@ void PopupMenu::paintEvent(QPaintEvent *pe)
 //    onyx::screen::instance().enableUpdate(true);
 //    onyx::screen::watcher().flush(this, onyx::screen::ScreenProxy::GU);
 
+    QPixmap pixmap(":/images/close_menu.png");
+    if(close_pressed_)
+    {
+        pixmap = QPixmap(":/images/close_menu_pressed.png");
+    }
+    close_x_ = QPixmap(image_path).width()-pixmap.width()-8;
+    close_size_ = pixmap.size();
+    p.drawPixmap(close_x_, 2, pixmap);
 
-
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU, onyx::screen::ScreenCommand::WAIT_NONE);
 }
 
 void PopupMenu::resizeEvent(QResizeEvent *)
@@ -189,6 +198,14 @@ void PopupMenu::resizeEvent(QResizeEvent *)
 
 void PopupMenu::mousePressEvent(QMouseEvent *me)
 {
+    QRect close_button_rect(close_x_, 2, close_size_.width(), close_size_.height());
+    if(close_button_rect.contains(me->pos()))
+    {
+        close_pressed_ = true;
+        update();
+        onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::A2, onyx::screen::ScreenCommand::WAIT_NONE);
+    }
+
     me->accept();
 }
 
@@ -205,6 +222,18 @@ void PopupMenu::mouseReleaseEvent(QMouseEvent *me)
         reject();
         return;
     }
+
+    QRect close_button_rect(close_x_, 2, close_size_.width(), close_size_.height());
+    if(close_button_rect.contains(me->pos()))
+    {
+        close_pressed_= false;
+        update();
+        me->accept();
+        this->accept();
+        onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU);
+        return;
+    }
+
     return QDialog::mouseReleaseEvent(me);
 }
 
@@ -322,6 +351,10 @@ int PopupMenu::popup(const QString &)
         QCoreApplication::processEvents();
     }
     QCoreApplication::removePostedEvents(0);
+
+    QRect rect = QApplication::desktop()->rect();
+    QPixmap pixmap(":/images/menu_background_1.png");
+    move((rect.width()-pixmap.width())/2, (rect.height()-pixmap.height())/2);
 
     int ret = exec();
 

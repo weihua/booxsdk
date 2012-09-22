@@ -691,7 +691,9 @@ bool WpaConnection::detailInfo(WifiProfile & profile)
             // Update nosie, qual and level
             // qDebug("profile ssid %s", qPrintable(profile.ssid()));
             // qDebug("ap ssid %s", qPrintable(ap.ssid()));
-            profile.insert("qual", ap.quality());
+            profile.setQuality(ap.quality());
+            profile.setLevel(ap.level());
+            profile.setNoise(ap.noise());
 
             if (sys::isImx508())
             {
