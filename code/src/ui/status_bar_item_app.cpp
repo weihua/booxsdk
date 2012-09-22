@@ -40,6 +40,10 @@ void StatusBarItemApp::createLayout()
 void StatusBarItemApp::paintEvent(QPaintEvent *pe)
 {
     QPainter painter(this);
+    if (image_.size() != rect().size())
+    {
+        image_ = image_.scaled(rect().width(), rect().height(), Qt::KeepAspectRatio);
+    }
 
     QPoint point;
     point.rx() = ((rect().width() - image_.width()) >> 1);
