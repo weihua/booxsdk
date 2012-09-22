@@ -3,6 +3,7 @@
 #include "onyx/ui/content_view.h"
 #include "onyx/screen/screen_update_watcher.h"
 #include "onyx/ui/ui_utils.h"
+#include "onyx/ui/message_dialog.h"
 
 namespace ui
 {
@@ -21,7 +22,7 @@ static const int LABEL_WIDTH = 150;
 // Insert TAG_DEFAULT_VALUE/value ("123456") to specify default text for line edit.
 
 OnyxPasswordDialog::OnyxPasswordDialog(QWidget *parent, const ODatas &ds,
-        const QString &title, const QString &default_passwd_label)
+        const QString &title, const QString &default_passwd_label, bool is_edit_email)
     : OnyxDialog(parent)
     , big_layout_(&content_widget_)
     , line_edit_layout_(0)
@@ -31,6 +32,7 @@ OnyxPasswordDialog::OnyxPasswordDialog(QWidget *parent, const ODatas &ds,
     , title_(title)
     , default_passwd_label_(default_passwd_label)
     , edit_list_(ds)
+    , is_edit_email_(is_edit_email)
 {
     appendDefaultPasswordEdit();
 
@@ -378,6 +380,34 @@ void OnyxPasswordDialog::onItemActivated(CatalogView *catalog,
         int menu_type = item->data()->value(TAG_MENU_TYPE).toInt();
         if(OnyxKeyboard::KEYBOARD_MENU_OK == menu_type)
         {
+            if(is_edit_email_)
+            {
+                QString info;
+                if(value(edit_list_.at(0)).isEmpty() ||
+                        value(edit_list_.at(1)).isEmpty())
+                {
+                    info = tr("User ID or password is empty !");
+                }
+                else
+                {
+                    if(!value(edit_list_.at(0)).contains("@"))
+                    {
+                        info = tr("Invalid User ID.");
+                    }
+                }
+
+                if(!info.isEmpty())
+                {
+                    MessageDialog dialog(QMessageBox::Information,
+                            tr("Warning"),
+                            info,
+                            QMessageBox::Ok);
+
+                    dialog.exec();
+                    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
+                    return ;
+                }
+            }
             accept();
         }
         else if(OnyxKeyboard::KEYBOARD_MENU_CLEAR == menu_type)

@@ -17,7 +17,8 @@ class OnyxPasswordDialog: public OnyxDialog
 public:
     OnyxPasswordDialog(QWidget *parent = 0, const ODatas &ds = ODatas(),
             const QString &title = QString(),
-            const QString &default_passwd_label = tr("Password "));
+            const QString &default_passwd_label = tr("Password "),
+            bool is_edit_email = false);
     ~OnyxPasswordDialog();
 
 public:
@@ -64,6 +65,8 @@ private:
     QString title_;
     QString default_passwd_label_;
     ODatas edit_list_;
+
+    bool is_edit_email_;
 
 };
 
