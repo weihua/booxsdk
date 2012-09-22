@@ -30,6 +30,7 @@ public:
         KEYBOARD_MENU_WRITE = 4,
         KEYBOARD_MENU_OK = 5,
         KEYBOARD_MENU_CLEAR = 6,
+        KEYBOARD_MENU_CANCEL = 7
     };
     static const int CATALOG_MARGIN = 1;
 
