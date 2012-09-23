@@ -1684,6 +1684,21 @@ void SysStatus::addDRMEnvironment()
     }
 }
 
+void SysStatus::initDRMService()
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "initDRMService"      // method.
+    );
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+}
+
 // TODO, implement in system manager later.
 bool SysStatus::setAsScreensaver(const QString & path)
 {
