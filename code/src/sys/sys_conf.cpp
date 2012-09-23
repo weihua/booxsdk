@@ -10,6 +10,7 @@
 #include "onyx/sys/page_turning_conf.h"
 #include "onyx/sys/pm_conf.h"
 #include "onyx/sys/volume_conf.h"
+#include "onyx/sys/sys.h"
 #include "onyx/sys/sys_utils.h"
 #include "onyx/sys/font_conf.h"
 #include "onyx/sys/misc_conf.h"
@@ -307,6 +308,51 @@ const QString & SystemConfig::homePageName()
 {
     static QString name;
     return name;
+}
+
+QString SystemConfig::getServerHost()
+{
+    const QString HOST = "192.168.0.188";
+
+    const QString SERVER_CONF = "cdl-server-conf";
+    const QString TAG_SERVER_HOST = "cdl-server-host";
+
+    QString server_host;
+    QString flash_server_conf(LIBRARY_ROOT);
+    flash_server_conf.append("/").append(SERVER_CONF);
+
+    if(sys::SysStatus::instance().isSDMounted())
+    {
+        QString sd_server_conf(SDMMC_ROOT);
+        sd_server_conf.append("/").append(SERVER_CONF);
+        if (QFileInfo(sd_server_conf).exists())
+        {
+            QSettings settings(sd_server_conf, QSettings::IniFormat);
+            server_host = settings.value(TAG_SERVER_HOST).toString();
+            if (!server_host.isEmpty())
+            {
+                QFile::remove(flash_server_conf);
+                QFile::copy(sd_server_conf, flash_server_conf);
+            }
+        }
+    }
+
+    if(server_host.isEmpty())
+    {
+        if (QFileInfo(flash_server_conf).exists())
+        {
+            QSettings settings(flash_server_conf, QSettings::IniFormat);
+            server_host = settings.value(TAG_SERVER_HOST).toString();
+        }
+    }
+
+    if (server_host.isEmpty())
+    {
+        server_host =  HOST;
+    }
+
+    qDebug() << "using server host " << server_host;
+    return server_host;
 }
 
 QString SystemConfig::homeUrl()
