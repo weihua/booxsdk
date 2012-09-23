@@ -130,6 +130,7 @@ class SysStatus : public QObject
     bool startDRMService(const QStringList &strings);
     bool stopDRMService();
     static void addDRMEnvironment();
+    void initDRMService();
 
     bool startMessenger();
     bool stopMessenger();
