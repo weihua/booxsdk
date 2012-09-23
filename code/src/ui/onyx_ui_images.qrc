@@ -262,7 +262,6 @@
     <file>images/app_glyph_embolden.png</file>
     <file>images/app_reflow.png</file>
     <file>images/app_annotation.png</file>
-    <file>images/app_screen_rotation.png</file>
 
 
   </qresource>
