@@ -110,7 +110,7 @@ void CatalanKeyboardData::initBottomKeyCode()
         bottom_codes_.push_back(dd);
     }
 
-    bottom_codes_.push_back(ODataPtr(createEnterData()));
+    bottom_codes_.push_back(createData(QString('@')));
 }
 
 // for shift key
