@@ -142,6 +142,7 @@ void OnyxPasswordDialog::createLayout()
         ODataPtr data = edit_list_.at(i);
         QString label_text = data->value(TAG_TITLE).toString();
         OnyxLabel *label = new OnyxLabel(label_text);
+        label->setStyleSheet(OnyxLabel::LABEL_STYLE_SMALLER_TEXT);
         QFont font;
         font.setPointSize(16);
         font.setBold(true);

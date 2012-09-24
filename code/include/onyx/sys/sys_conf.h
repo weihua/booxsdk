@@ -142,6 +142,7 @@ public:
     static bool hasHomePage();
     static const QString & homePageName();
     static QString homeUrl();
+    static QString getServerHost();
 
     // Notes.
     static bool isImage(const QString& suffix);
