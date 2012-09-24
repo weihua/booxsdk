@@ -10,6 +10,8 @@ namespace ui
 class OnyxLabel : public QLabel
 {
 public:
+    static const QString LABEL_STYLE_SMALLER_TEXT;
+
     OnyxLabel(QWidget * parent = 0);
     OnyxLabel(const QString & text, QWidget *parent = 0);
     ~OnyxLabel();
