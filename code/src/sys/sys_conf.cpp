@@ -312,7 +312,7 @@ const QString & SystemConfig::homePageName()
 
 QString SystemConfig::getServerHost()
 {
-    const QString HOST = "192.168.0.188";
+    const QString HOST = "image.casadellibro.com";
 
     const QString SERVER_CONF = "cdl-server-conf";
     const QString TAG_SERVER_HOST = "cdl-server-host";
