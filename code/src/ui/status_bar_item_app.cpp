@@ -6,7 +6,7 @@ namespace ui
 
 StatusBarItemApp::StatusBarItemApp(QWidget *parent)
     : StatusBarItem(APP_DEFINED, parent)
-    , image_(":/images/app_default.png")
+    , image_(":/images/app_status_bar_setting.png")
 {
     id_ = -1;
     createLayout();

@@ -120,8 +120,8 @@ void StatusBar::addItems(StatusBarItemTypes items)
     // Adjust the order if necessary.
     const StatusBarItemType all[] =
     {
-        MENU, PROGRESS, MESSAGE, STYLUS, CLOCK, INPUT_TEXT, VOLUME, SCREEN_REFRESH, INPUT_URL,THREEG_CONNECTION,
-        CONNECTION, APP_DEFINED, VIEWPORT, MUSIC_PLAYER, BATTERY
+        MENU, APP_CONFIG, PROGRESS, MESSAGE, STYLUS, INPUT_TEXT, VOLUME, INPUT_URL,THREEG_CONNECTION,
+        CONNECTION, APP_DEFINED, VIEWPORT, MUSIC_PLAYER, SCREEN_REFRESH, CLOCK, BATTERY
     };
     const int size = sizeof(all)/sizeof(all[0]);
     for(int i = 0; i < size; ++i)
@@ -938,6 +938,7 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
     case VIEWPORT:
         item = new StatusBarItemViewport(this);
         break;
+    case APP_CONFIG:
     case APP_DEFINED:
         item = new StatusBarItemApp(this);
         connect(item, SIGNAL(clicked(int)), this, SLOT(onAppClicked(int)));
@@ -958,6 +959,10 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
     if (type == PROGRESS)
     {
         addWidget(ptr.get(), 1);
+    }
+    else if (type == APP_CONFIG)
+    {
+        addWidget(ptr.get(), 0);
     }
     else if (type == MENU &&
              sys::isIRTouch())
