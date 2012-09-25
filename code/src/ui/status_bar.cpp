@@ -459,6 +459,24 @@ void StatusBar::setAppIcon(const int appId, const QImage & image)
     app->setImage(image);
 }
 
+void StatusBar::setAppItemState(const int appId, const int state)
+{
+    for(size_t i = 0; i < widgets_.size(); ++i)
+    {
+        StatusBarItem * item = widgets_.at(i).get();
+        if (item->type() == ui::APP_DEFINED)
+        {
+            StatusBarItemApp * app = (StatusBarItemApp*)item;
+            if (app->appId() == appId)
+            {
+                app->setState(state);
+                update();
+                return;
+            }
+        }
+    }
+}
+
 void StatusBar::onClockClicked()
 {
     StatusBarItem *ptr = item(CLOCK, false);

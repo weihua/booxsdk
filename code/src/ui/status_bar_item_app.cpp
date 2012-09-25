@@ -49,6 +49,11 @@ void StatusBarItemApp::paintEvent(QPaintEvent *pe)
     point.rx() = ((rect().width() - image_.width()) >> 1);
     point.ry() = ((rect().height() - image_.height()) >> 1);
     painter.drawImage(point, image_);
+
+    if (state() == STATE_SELECTED)
+    {
+        painter.fillRect(rect(), QBrush(QColor(228, 228, 228, 128)));
+    }
 }
 
 void StatusBarItemApp::mousePressEvent(QMouseEvent *me)
