@@ -45,6 +45,7 @@ public:
 Q_SIGNALS:
     void keyReleaseSignal(int);
     void closeClicked();
+    void positionAdjusted();
 
 private:
     void createLayout();
@@ -82,10 +83,12 @@ private Q_SLOTS:
     void onDetailsClicked(bool);
     void onWordListClicked(bool);
     void onDictListClicked(bool);
+    void onPositionClicked(bool);
     void onRetrieveWordClicked(bool);
     void onOpenDictionaryToolClicked(bool);
     void onCloseClicked();
     void moreSimilarWords(bool);
+    void adjustPosition(int);
 
 private:
     DictionaryManager&      dict_;
@@ -99,6 +102,7 @@ private:
     OnyxPushButton explanation_button_;
     OnyxPushButton similar_words_button_;
     OnyxPushButton dictionaries_button_;
+    OnyxPushButton position_button_;
     OnyxPushButton close_button_;
 //    OnyxPushButton open_dictionary_tool_button_;
     QButtonGroup    button_group_;
