@@ -15,7 +15,6 @@ StatusBarItemWifiConnection::StatusBarItemWifiConnection(QWidget *parent)
     , total_(MAX)
     , text_width_(0)
 {
-    //TODO 
     setConnectionInfomation(-1, MAX, NO_SERVICE);
     queryWifiStatus();
 
@@ -63,24 +62,18 @@ void StatusBarItemWifiConnection::paintEvent(QPaintEvent *pe)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    painter.setPen(QPen(Qt::white));
-    QFont font("", defaultFontPointSize());
-    painter.setFont(font);
-
     // Paint image now.
     QRect rc = rect();
-    rc.adjust(text_width_ + SPACING, SPACING, 0, -SPACING);
-    paintBars(painter, rc, QBrush(QColor(125, 125, 125)), MAX);
-    paintBars(painter, rc, QBrush(Qt::white), strength_);
+    rc.adjust(text_width_ + SPACING, 0, 0, 0);
 
+    QString image_path(":/images/wifi_%1.png");
+    int level = strength_;
     if (strength_ < 0)
     {
-        painter.setPen(QPen(QBrush(QColor(125, 125, 125)), 3));
-        QPoint start(rc.topLeft());
-        start.rx() += 3;
-        start.ry() += rc.height() / 3;
-        painter.drawLine(start, rc.bottomRight());
+        level = 0;
     }
+    image_path = image_path.arg(level);
+    painter.drawImage(rc, QImage(image_path));
 }
 
 void StatusBarItemWifiConnection::paintBars(QPainter & p,
