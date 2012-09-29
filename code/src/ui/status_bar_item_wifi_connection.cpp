@@ -62,10 +62,6 @@ void StatusBarItemWifiConnection::paintEvent(QPaintEvent *pe)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    // Paint image now.
-    QRect rc = rect();
-    rc.adjust(text_width_ + SPACING, 0, 0, 0);
-
     QString image_path(":/images/wifi_%1.png");
     int level = strength_;
     if (strength_ < 0)
@@ -73,7 +69,7 @@ void StatusBarItemWifiConnection::paintEvent(QPaintEvent *pe)
         level = 0;
     }
     image_path = image_path.arg(level);
-    painter.drawImage(rc, QImage(image_path));
+    painter.drawImage(QPoint(SPACING, 1), QImage(image_path));
 }
 
 void StatusBarItemWifiConnection::paintBars(QPainter & p,

@@ -50,6 +50,9 @@ public Q_SLOTS:
 
     void queryStatus();
 
+    void enableSuspendPeriod();
+    void disableSuspendPeriod();
+
 private Q_SLOTS:
     bool enableSdio(bool enable = true) const;
     bool sdioState() const ;
@@ -122,6 +125,9 @@ private:
 
     WifiProfiles scan_results_;     ///< Also serves as connect list.
     scoped_ptr<WifiProfiles> records_;  ///< All profiles that stored in database.
+
+    bool suspend_period_;
+
 };
 
 #endif      // WAP_CONNECTION_MANAGER_H_

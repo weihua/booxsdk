@@ -19,6 +19,7 @@ WpaConnectionManager::WpaConnectionManager()
 , auto_connect_(true)
 , auto_reconnect_(true)
 , wifi_enabled_(true)
+, suspend_period_(false)
 {
     setupConnections();
     scan_timer_.setInterval(1500);
@@ -56,11 +57,15 @@ void WpaConnectionManager::onSdioChanged(bool on)
 {
     if (on)
     {
+        auto_connect_ = true;
         start();
     }
     else
     {
-        stop();
+        if (!suspend_period_)
+        {
+            stop();
+        }
     }
 }
 
@@ -293,6 +298,8 @@ void WpaConnectionManager::scan()
             // Hardware issue, but user can try to turn off and turn on the
             // wifi switcher again.
             setState(dummy, WpaConnection::STATE_HARDWARE_ERROR);
+            SysStatus::instance().enableSdio(false);
+            SysStatus::instance().enableSdio(true);
         }
     }
 }
@@ -683,6 +690,16 @@ void WpaConnectionManager::queryStatus()
 {
     QVariantMap info;
     proxy().status(info);
+}
+
+void WpaConnectionManager::enableSuspendPeriod()
+{
+    suspend_period_ = true;
+}
+
+void WpaConnectionManager::disableSuspendPeriod()
+{
+    suspend_period_ = false;
 }
 
 bool WpaConnectionManager::isConnectionOnProgress()

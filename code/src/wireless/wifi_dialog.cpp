@@ -108,6 +108,8 @@ WifiDialog::~WifiDialog()
 
 int WifiDialog::popup(bool scan, bool auto_connect)
 {
+    sys::SysStatus::instance().setSystemBusy(true);
+
     scanned_once_ = false;
     clicked_ssid_.clear();
 
@@ -116,11 +118,16 @@ int WifiDialog::popup(bool scan, bool auto_connect)
     showMaximized();
     scanResults(scan_results_);
     arrangeAPItems(scan_results_);
+
     onyx::screen::watcher().addWatcher(this);
+    update();
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
+
     if (scan)
     {
         triggerScan();
     }
+    sys::SysStatus::instance().setSystemBusy(false);
     bool ret = exec();
     update();
     onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
