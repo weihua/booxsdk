@@ -1,5 +1,5 @@
-#ifndef ONYX_BRIGHTNESS_DIALOG_H_
-#define ONYX_BRIGHTNESS_DIALOG_H_
+#ifndef GLOW_LIGHT_CONTROL_DIALOG_H_
+#define GLOW_LIGHT_CONTROL_DIALOG_H_
 
 #include "onyx/ui/onyx_dialog.h"
 #include "onyx/sys/sys.h"
@@ -53,4 +53,4 @@ private:
 }  // namespace ui
 
 
-#endif  // ONYX_BRIGHTNESS_DIALOG_H_
+#endif  // GLOW_LIGHT_CONTROL_DIALOG_H_
