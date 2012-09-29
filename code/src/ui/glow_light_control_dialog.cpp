@@ -1,7 +1,7 @@
 
 #include "onyx/sys/sys.h"
 #include "onyx/ui/ui_utils.h"
-#include "glow_light_control_dialog.h"
+#include "onyx/ui/glow_light_control_dialog.h"
 #include "onyx/data/data_tags.h"
 #include "onyx/screen/screen_update_watcher.h"
 
