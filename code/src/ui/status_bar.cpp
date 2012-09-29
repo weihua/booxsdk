@@ -120,8 +120,8 @@ void StatusBar::addItems(StatusBarItemTypes items)
     // Adjust the order if necessary.
     const StatusBarItemType all[] =
     {
-        MENU, APP_CONFIG, PROGRESS, MESSAGE, STYLUS, INPUT_TEXT, VOLUME, INPUT_URL,THREEG_CONNECTION,
-        CONNECTION, APP_DEFINED, VIEWPORT, MUSIC_PLAYER, SCREEN_REFRESH, CLOCK, BATTERY
+        MENU, SCREEN_REFRESH, PROGRESS, MESSAGE, STYLUS, INPUT_TEXT, VOLUME, INPUT_URL,THREEG_CONNECTION,
+        CONNECTION, VIEWPORT, MUSIC_PLAYER, APP_DEFINED, APP_CONFIG, CLOCK, BATTERY
     };
     const int size = sizeof(all)/sizeof(all[0]);
     for(int i = 0; i < size; ++i)
@@ -957,8 +957,11 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
         item = new StatusBarItemViewport(this);
         break;
     case APP_CONFIG:
+        item = new StatusBarItemApp(this, APP_CONFIG);
+        connect(item, SIGNAL(clicked(int)), this, SLOT(onAppClicked(int)));
+        break;
     case APP_DEFINED:
-        item = new StatusBarItemApp(this);
+        item = new StatusBarItemApp(this, APP_DEFINED);
         connect(item, SIGNAL(clicked(int)), this, SLOT(onAppClicked(int)));
         break;
     default:
@@ -978,7 +981,7 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
     {
         addWidget(ptr.get(), 1);
     }
-    else if (type == APP_CONFIG)
+    else if (type == SCREEN_REFRESH)
     {
         addWidget(ptr.get(), 0);
     }

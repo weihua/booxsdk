@@ -4,8 +4,8 @@
 namespace ui
 {
 
-StatusBarItemApp::StatusBarItemApp(QWidget *parent)
-    : StatusBarItem(APP_DEFINED, parent)
+StatusBarItemApp::StatusBarItemApp(QWidget *parent,  StatusBarItemType type)
+    : StatusBarItem(type, parent)
     , image_(":/images/app_status_bar_setting.png")
 {
     id_ = -1;
