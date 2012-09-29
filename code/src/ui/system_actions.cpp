@@ -156,7 +156,7 @@ void SystemActions::generateActions(const std::vector<int> & actions)
                 actions_.push_back(br);
                 break;
             }
-        case GLOW_LIGHT_SWITCH:
+        case GLOW_LIGHT_CONTROL:
             {
                 if (!sys::hasGlowLight())
                 {
@@ -168,7 +168,7 @@ void SystemActions::generateActions(const std::vector<int> & actions)
                 glow_light->setFont(actionFont());
                 glow_light->setText(QCoreApplication::tr("MOON Light Control"));
                 glow_light->setIcon(QIcon(QPixmap(":/images/glow_light_switch.png")));
-                glow_light->setData(GLOW_LIGHT_SWITCH);
+                glow_light->setData(GLOW_LIGHT_CONTROL);
                 actions_.push_back(glow_light);
                 break;
             }
