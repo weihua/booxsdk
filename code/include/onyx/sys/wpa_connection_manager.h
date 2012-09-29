@@ -28,6 +28,8 @@ public:
     bool isConnectionOnProgress();
     bool isConnectionComplete();
 
+    bool isConnecting();
+
 public Q_SLOTS:
     void enableAutoConnect(bool e) { auto_connect_ = e; }
     bool allowAutoConnect() { return auto_connect_; }
@@ -100,7 +102,7 @@ private:
     bool canRetryConnect();
 
     bool connectToBestAP();
-    bool isConnecting();
+
     void setConnecting(bool c);
     void stopAllTimers();
     void setState(WifiProfile profile, WpaConnection::ConnectionState s);

@@ -93,7 +93,7 @@ WifiDialog::WifiDialog(QWidget *parent,
     , sys_(sys)
     , proxy_(sys.connectionManager())
     , ap_dialog_visible_(false)
-    , scanned_once_(false)
+    , is_connecting_(false)
 {
     setAutoFillBackground(true);
     setBackgroundRole(QPalette::Base);
@@ -110,7 +110,6 @@ int WifiDialog::popup(bool scan, bool auto_connect)
 {
     sys::SysStatus::instance().setSystemBusy(true);
 
-    scanned_once_ = false;
     clicked_ssid_.clear();
 
     proxy_.enableAutoConnect(auto_connect);
@@ -547,7 +546,11 @@ void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
     case WpaConnection::STATE_SCANNED:
         //if (!isConnecting())
         {
-            state_widget_.setState(tr("Ready"));
+            qDebug() << "WifiDialog>>>>>>>>>>>>>>is connecting? " << proxy_.isConnecting();
+            if (!proxy_.isConnecting())
+            {
+                state_widget_.setState(tr("Ready"));
+            }
             onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU);
         }
         break;
@@ -590,6 +593,16 @@ void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
         break;
     }
 
+    if (WpaConnection::STATE_CONNECTING == state)
+    {
+        is_connecting_ = true;
+    }
+    else if (WpaConnection::STATE_COMPLETE == state || WpaConnection::STATE_ABORTED == state
+             || WpaConnection::STATE_HARDWARE_ERROR == state)
+    {
+        is_connecting_ = false;
+    }
+
     update();
     onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU,
                                     onyx::screen::ScreenCommand::WAIT_ALL);
@@ -626,17 +639,7 @@ void WifiDialog::onNeedPassword(WifiProfile profile)
 void WifiDialog::onNoMatchedAP()
 {
     proxy_.scanResults(scan_results_);
-
-    // trigger scan again if no match ap found
-    if (!scanned_once_)
-    {
-        scanned_once_ = true;
-        QTimer::singleShot(500, this, SLOT(triggerScan()));
-    }
-    else
-    {
-        arrangeAPItems(scan_results_);
-    }
+    arrangeAPItems(scan_results_);
 }
 
 void WifiDialog::onComplete()

@@ -89,6 +89,8 @@ private:
 
     void sort(ODatas &list);
 
+    inline bool isConnecting() { return is_connecting_; }
+
 private:
     QVBoxLayout  big_box_;
     QHBoxLayout  title_hbox_;
@@ -116,7 +118,8 @@ private:
     WifiProfiles scan_results_;
     ODatas datas_;
     QString clicked_ssid_;
-    bool scanned_once_;
+
+    bool is_connecting_;
 
 };
 
