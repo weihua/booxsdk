@@ -6,7 +6,7 @@ namespace ui
 
 StatusBarItemApp::StatusBarItemApp(QWidget *parent)
     : StatusBarItem(APP_DEFINED, parent)
-    , image_(":/images/app_default.png")
+    , image_(":/images/app_status_bar_setting.png")
 {
     id_ = -1;
     createLayout();
@@ -40,11 +40,20 @@ void StatusBarItemApp::createLayout()
 void StatusBarItemApp::paintEvent(QPaintEvent *pe)
 {
     QPainter painter(this);
+    if (image_.size() != rect().size())
+    {
+        image_ = image_.scaled(rect().width(), rect().height(), Qt::KeepAspectRatio);
+    }
 
     QPoint point;
     point.rx() = ((rect().width() - image_.width()) >> 1);
     point.ry() = ((rect().height() - image_.height()) >> 1);
     painter.drawImage(point, image_);
+
+    if (state() == STATE_SELECTED)
+    {
+        painter.fillRect(rect(), QBrush(QColor(228, 228, 228, 128)));
+    }
 }
 
 void StatusBarItemApp::mousePressEvent(QMouseEvent *me)

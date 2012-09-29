@@ -64,6 +64,7 @@ public Q_SLOTS:
     void addAppItem(StatusBarItemType before, const int appId, const QImage & image);
     void removeAppItem(const int appId);
     void setAppIcon(const int appId, const QImage & image);
+    void setAppItemState(const int appId, const int state);
 
 Q_SIGNALS:
     void progressClicked(const int percent, const int value);
