@@ -140,6 +140,7 @@ void WpaConnectionManager::onConnectionChanged(WifiProfile profile,
                                                WpaConnection::ConnectionState state)
 {
     qDebug("state changed %d", state);
+    bool update_internal_state = true;
     switch (state)
     {
     case WpaConnection::STATE_SCANNING:
@@ -170,11 +171,17 @@ void WpaConnectionManager::onConnectionChanged(WifiProfile profile,
 
     case WpaConnection::STATE_AUTHENTICATION_FAILED:
         {
+            update_internal_state = false;
             onNeedPassword(profile);
         }
         break;
     default:
         break;
+    }
+
+    if (update_internal_state)
+    {
+        internal_state_ = state;
     }
 }
 

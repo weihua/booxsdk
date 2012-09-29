@@ -69,7 +69,7 @@ void StatusBarItemWifiConnection::paintEvent(QPaintEvent *pe)
         level = 0;
     }
     image_path = image_path.arg(level);
-    painter.drawImage(QPoint(SPACING, 1), QImage(image_path));
+    painter.drawImage(QPoint(SPACING, 2), QImage(image_path));
 }
 
 void StatusBarItemWifiConnection::paintBars(QPainter & p,
