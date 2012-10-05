@@ -631,8 +631,7 @@ void WifiDialog::onNeedPassword(WifiProfile profile)
     }
     else
     {
-        proxy_.stop();
-        updateStateLabel(WpaConnection::STATE_ABORTED);
+        clicked_ssid_.clear();
     }
 }
 
