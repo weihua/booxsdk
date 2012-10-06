@@ -129,6 +129,7 @@ private:
     scoped_ptr<WifiProfiles> records_;  ///< All profiles that stored in database.
 
     bool suspend_period_;
+    bool disable_idle_called_;
 
 };
 
