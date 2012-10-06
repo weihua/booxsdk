@@ -544,13 +544,10 @@ void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
         state_widget_.setState(tr("Scanning..."));
         break;
     case WpaConnection::STATE_SCANNED:
-        //if (!isConnecting())
+        qDebug() << "WifiDialog>>>>>>>>>>>>>>is isConnecting?  " << isConnecting();
+        if (!isConnecting())
         {
-            qDebug() << "WifiDialog>>>>>>>>>>>>>>is connecting? " << proxy_.isConnecting();
-            if (!proxy_.isConnecting())
-            {
-                state_widget_.setState(tr("Ready"));
-            }
+            state_widget_.setState(tr("Ready"));
             onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU);
         }
         break;
@@ -598,7 +595,8 @@ void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
         is_connecting_ = true;
     }
     else if (WpaConnection::STATE_COMPLETE == state || WpaConnection::STATE_ABORTED == state
-             || WpaConnection::STATE_HARDWARE_ERROR == state)
+             || WpaConnection::STATE_HARDWARE_ERROR == state
+             || WpaConnection::STATE_ACQUIRING_ADDRESS_ERROR == state)
     {
         is_connecting_ = false;
     }
