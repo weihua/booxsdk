@@ -617,8 +617,13 @@ void WifiDialog::onNeedPassword(WifiProfile profile)
     }
     qDebug("Need password now, password incorrect or not available.");
 
+    // reserve the signal level value
+    int level = profile.level();
+
     // No password remembered or incorrect.
     bool ok = showConfigurationDialog(profile);
+    profile.setLevel(level);
+
     if (ok)
     {
         // We can store the AP here as user already updated password.
