@@ -1023,7 +1023,7 @@ void SysStatus::resetIdle()
     connection_.call(message);
 }
 
-void SysStatus::enableIdle(bool enable)
+void SysStatus::enableIdle(bool enable, bool force_disable_suspend)
 {
     QDBusMessage message = QDBusMessage::createMethodCall(
         service,            // destination
@@ -1033,6 +1033,7 @@ void SysStatus::enableIdle(bool enable)
     );
 
     message << enable;
+    message << force_disable_suspend;
     connection_.call(message);
 }
 

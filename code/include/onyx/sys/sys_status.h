@@ -88,7 +88,7 @@ class SysStatus : public QObject
     void shutdown(int reason = SHUTDOWN_REASON_USER_REQUEST);
 
     void resetIdle();
-    void enableIdle(bool enable);
+    void enableIdle(bool enable, bool force_disable_suspend = false);
     bool isIdleEnabled();
 
     int volume();
