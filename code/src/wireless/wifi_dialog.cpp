@@ -106,6 +106,17 @@ WifiDialog::~WifiDialog()
 {
 }
 
+void WifiDialog::updateTr()
+{
+    title_text_label_.setText(tr("Wireless Connections"));
+    update();
+}
+
+void WifiDialog::updateFonts()
+{
+
+}
+
 int WifiDialog::popup(bool scan, bool auto_connect)
 {
     sys::SysStatus::instance().setSystemBusy(true);

@@ -19,6 +19,8 @@ class WifiDialog : public QDialog
 public:
     WifiDialog(QWidget *parent, SysStatus & sys);
     ~WifiDialog();
+    void updateTr();
+    void updateFonts();
 
 public Q_SLOTS:
     void triggerScan();
