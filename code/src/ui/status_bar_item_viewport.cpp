@@ -16,7 +16,9 @@ StatusBarItemViewport::~StatusBarItemViewport(void)
 }
 
 void StatusBarItemViewport::setViewport(const QRect & parent,
-                                        const QRect & child)
+                                        const QRect & child,
+                                        int current_column,
+                                        int total)
 {
     parent_ = parent;
     child_ = child;

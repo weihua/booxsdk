@@ -80,7 +80,7 @@ private Q_SLOTS:
     void onMenuClicked();
     void onStylusClicked();
     bool onItemStatusChanged(const StatusBarItemType type, const int state);
-    void onViewportChanged(const QRect & parent, const QRect & child);
+    void onViewportChanged(const QRect & parent, const QRect & child, int current_column, int total);
     void onAppClicked(int );
 
     // handle the events from system status manager

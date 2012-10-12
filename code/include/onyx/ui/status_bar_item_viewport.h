@@ -15,7 +15,7 @@ public:
     virtual ~StatusBarItemViewport(void);
 
 public Q_SLOTS:
-    void setViewport(const QRect & parent, const QRect & child);
+    void setViewport(const QRect & parent, const QRect & child, int current_column, int total);
 
 private:
     virtual void paintEvent(QPaintEvent *);

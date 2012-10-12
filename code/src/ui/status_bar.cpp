@@ -308,13 +308,15 @@ void StatusBar::onProgressChanged(const int percent,
 }
 
 void StatusBar::onViewportChanged(const QRect & parent,
-                                  const QRect & child)
+                                  const QRect & child,
+                                  int column,
+                                  int total)
 {
     StatusBarItem *ptr = item(VIEWPORT, false);
     if (ptr)
     {
         StatusBarItemViewport *wnd = static_cast<StatusBarItemViewport*>(ptr);
-        wnd->setViewport(parent, child);
+        wnd->setViewport(parent, child, column, total);
         wnd->repaint();
     }
 }
