@@ -152,6 +152,7 @@ bool DictWidget::lookup(const QString &word)
     // Always stop timer as the screen can be updated later.
     launchTimer(false);
 
+    update_parent_ = false;
     updateVisibleWidgets();
     onDetailsClicked(true);
     return ret;
