@@ -23,6 +23,8 @@ private:
 private:
     QRect parent_;
     QRect child_;
+    int total_;
+    int current_;
 };
 
 };  // namespace ui
