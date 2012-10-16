@@ -91,6 +91,7 @@ private:
     void checkAndRestorePassword(WifiProfile &profile);
 
     void sort(ODatas &list);
+    inline bool isConnecting() { return is_connecting_; }
 
 private:
     QVBoxLayout  big_box_;
@@ -121,6 +122,7 @@ private:
     ODatas datas_;
     QString clicked_ssid_;
     bool scanned_once_;
+    bool is_connecting_;
 
 };
 

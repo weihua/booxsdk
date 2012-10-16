@@ -94,6 +94,7 @@ WifiDialog::WifiDialog(QWidget *parent,
     , ap_dialog_visible_(false)
     , enable_keyboard_(true)
     , scanned_once_(false)
+    , is_connecting_(false)
 {
     setAutoFillBackground(true);
     setBackgroundRole(QPalette::Base);
@@ -543,7 +544,7 @@ void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
         state_widget_.setState(tr("Scanning..."));
         break;
     case WpaConnection::STATE_SCANNED:
-        //if (!isConnecting())
+        if (!isConnecting())
         {
             state_widget_.setState(tr("Ready"));
             onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU);
@@ -588,6 +589,17 @@ void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
         break;
     }
 
+    if (WpaConnection::STATE_CONNECTING == state)
+    {
+        is_connecting_ = true;
+    }
+    else if (WpaConnection::STATE_COMPLETE == state || WpaConnection::STATE_ABORTED == state
+             || WpaConnection::STATE_HARDWARE_ERROR == state
+             || WpaConnection::STATE_ACQUIRING_ADDRESS_ERROR == state)
+    {
+        is_connecting_ = false;
+    }
+
     update();
     onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU,
                                     onyx::screen::ScreenCommand::WAIT_ALL);
@@ -604,8 +616,13 @@ void WifiDialog::onNeedPassword(WifiProfile profile)
     }
     qDebug("Need password now, password incorrect or not available.");
 
+    // reserve the signal level value
+    int level = profile.level();
+
     // No password remembered or incorrect.
     bool ok = showConfigurationDialog(profile);
+    profile.setLevel(level);
+
     if (ok)
     {
         // We can store the AP here as user already updated password.

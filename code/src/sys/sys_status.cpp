@@ -1,6 +1,7 @@
 
 #include "onyx/base/device.h"
 #include <QtGui/QtGui>
+#include <QNetworkInterface>
 #ifdef BUILD_FOR_ARM
 #include <QtGui/qwsdisplay_qws.h>
 #include <QtGui/qscreen_qws.h>
@@ -336,6 +337,30 @@ void SysStatus::installSlots()
     }
 
     if (!connection_.connect(service, object, iface,
+                               "connectToWifi",
+                               this,
+                               SLOT(onConnectToWifi())))
+      {
+          qDebug("\nCan not connect the connectToWifi signal\n");
+      }
+
+      if (!connection_.connect(service, object, iface,
+                               "wifiConnectionChanged",
+                               this,
+                               SLOT(onReportWifiNetwork(const int, const int, const int))))
+      {
+          qDebug("\nCan not connect the signalStrengthChanged signal\n");
+      }
+
+      if (!connection_.connect(service, object, iface,
+                               "updateWifiStatus",
+                               this,
+                               SLOT(onUpdateWifiStatus())))
+      {
+          qDebug("\nCan not connect the signalStrengthChanged signal\n");
+      }
+
+    if (!connection_.connect(service, object, iface,
                              "volumeUpPressed",
                              this,
                              SLOT(onVolumeUpPressed())))
@@ -405,6 +430,14 @@ void SysStatus::installSlots()
                              SLOT(onLedSignal(const QByteArray &, const QByteArray &))))
     {
         qDebug("\nCan not connect the ledSignal signal\n");
+    }
+
+    if (!connection_.connect(service, object, iface,
+                             "wifiDialogNeeded",
+                             this,
+                             SLOT(onWifiDialogNeeded())))
+    {
+        qDebug("\nCan not connect the WifiDialogNeeded signal\n");
     }
 
     if (!connection_.connect(service, object, iface,
@@ -1368,6 +1401,79 @@ void SysStatus::reportDownloadState(const QString &path,
     }
 }
 
+bool SysStatus::connectToNetwork(const QString & chat_file,
+                                 const QString & username,
+                                 const QString & password)
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "connectToNetwork"      // method.
+    );
+
+    message << chat_file;
+    message << username;
+    message << password;
+
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        return checkAndReturnBool(reply.arguments());;
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+    return false;
+}
+
+void SysStatus::disconnectFromNetwork()
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "disconnectFromNetwork"      // method.
+    );
+
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        return;
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+}
+
+
+void SysStatus::wifiNetworkSignal(const int signal, const int total, const int network)
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "wifiNetworkSignal"      // method.
+    );
+
+    message << signal;
+    message << total;
+    message << network;
+
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        return ;
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
+    return ;
+}
+
 void SysStatus::triggerOnlineService()
 {
     QDBusMessage message = QDBusMessage::createMethodCall(
@@ -1468,6 +1574,26 @@ bool SysStatus::stopDRMService()
         qWarning("%s", qPrintable(reply.errorMessage()));
     }
     return false;
+}
+
+void SysStatus::queryWifiStatus()
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "queryWifiStatus"      // method.
+    );
+
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        return;
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
 }
 
 bool SysStatus::startMessenger()
@@ -1930,6 +2056,22 @@ void SysStatus::dump()
     qDebug("Bettery %d %d", left, status);
 }
 
+QString SysStatus::networkType()
+{
+    QString network(qgetenv("NETWORK_TYPE").constData());
+    if (network.compare("3g",Qt::CaseInsensitive) == 0)
+    {
+        return "3g";
+    }
+    else if (network.compare("wifi",Qt::CaseInsensitive) == 0)
+    {
+        return "wifi";
+    }
+
+    qWarning("unknown NETWORK_TYPE:%s",qPrintable(network));
+    return QString();
+}
+
 /// Handle mount tree signal.
 void SysStatus::onMountTreeChanged(bool inserted, const QString &mount_point)
 {
@@ -2090,6 +2232,21 @@ void SysStatus::onReport3GNetwork(const int signal, const int total, const int n
     emit report3GNetwork(signal, total, network);
 }
 
+void SysStatus::onReportWifiNetwork(const int signal, const int total, const int network)
+{
+    emit reportWifiNetwork(signal, total, network);
+}
+
+void SysStatus::onConnectToWifi()
+{
+    emit connectToWifi();
+}
+
+void SysStatus::onUpdateWifiStatus()
+{
+    emit updateWifiStatus();
+}
+
 void SysStatus::onHardwareTimerTimeout()
 {
     emit hardwareTimerTimeout();
@@ -2133,6 +2290,31 @@ void SysStatus::onConfigKeyboard()
 void SysStatus::onUserBehaviorSignal(const QByteArray &data)
 {
     emit userBehaviorSignal(data);
+}
+
+void SysStatus::onWifiDialogNeeded()
+{
+    emit wifiDialogNeeded();
+}
+
+void SysStatus::popupWifiDialog()
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "popupWifiDialog"      // method.
+    );
+
+    QDBusMessage reply = connection_.call(message);
+    if (reply.type() == QDBusMessage::ReplyMessage)
+    {
+        return;
+    }
+    else if (reply.type() == QDBusMessage::ErrorMessage)
+    {
+        qWarning("%s", qPrintable(reply.errorMessage()));
+    }
 }
 
 }   // namespace sys

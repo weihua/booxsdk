@@ -16,6 +16,7 @@
 #include "onyx/ui/status_bar_item_input.h"
 #include "onyx/ui/status_bar_item_connection.h"
 #include "onyx/ui/status_bar_item_3g_connection.h"
+#include "onyx/ui/status_bar_item_wifi_connection.h"
 #include "onyx/ui/status_bar_item_volume.h"
 #include "onyx/ui/status_bar_item_app.h"
 #include "onyx/ui/status_bar_item_music_player.h"
@@ -103,6 +104,11 @@ void StatusBar::setupConnections()
             SIGNAL(configKeyboard()),
             this,
             SLOT(onConfigKeyboard()));
+
+    connect(&sys_status,
+            SIGNAL(reportWifiNetwork(const int, const int, const int)),
+            this,
+            SLOT(onReportWifiNetwork(const int, const int, const int)));
 }
 
 /// Update some status when it's created.
@@ -388,6 +394,10 @@ void StatusBar::onMusicPlayerClicked()
     sys::SysStatus::instance().requestMusicPlayer(sys::START_PLAYER);
 }
 
+void StatusBar::onConnectionClicked()
+{
+    sys::SysStatus::instance().popupWifiDialog();
+}
 
 void StatusBar::addAppItem(StatusBarItemType before, const int appId, const QImage & image)
 {
@@ -427,6 +437,8 @@ void StatusBar::addAppItem(StatusBarItemType before, const int appId, const QIma
     widgets_.insert(widgets_.begin() + index, ptr);
     insertPermanentWidget(index, item);
 }
+
+
 
 void StatusBar::removeAppItem(const int appId)
 {
@@ -625,6 +637,34 @@ void StatusBar::onAboutToSuspend()
 void StatusBar::onWakeup()
 {
     qDebug("Status Bar handles wake up signal");
+}
+
+
+void StatusBar::onReportWifiNetwork(const int signal, const int total, const int network)
+{
+    static int count = 0;
+    StatusBarItem *ptr = item(CONNECTION, false);
+    if (ptr)
+    {
+        StatusBarItemWifiConnection *conn_ptr = static_cast<StatusBarItemWifiConnection*>(ptr);
+        bool update = conn_ptr->setConnectionInfomation(signal, total, network);
+        onyx::screen::instance().enableUpdate(false);
+        QApplication::processEvents();
+        onyx::screen::instance().enableUpdate(true);
+        if (isVisible() && update)
+        {
+            if (++count % 2)
+            {
+                onyx::screen::instance().updateWidget(ptr,
+                        onyx::screen::ScreenProxy::GC, false);
+            }
+            else
+            {
+                onyx::screen::instance().updateWidget(0,
+                        onyx::screen::ScreenProxy::GC, false);
+            }
+        }
+    }
 }
 
 void StatusBar::onAboutToShutdown()
@@ -937,7 +977,8 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
         connect(item, SIGNAL(clicked()), this, SLOT(onInputTextClicked()));
         break;
     case CONNECTION:
-        item = new StatusBarItemConnection(this);
+        item = new StatusBarItemWifiConnection(this);
+        connect(item, SIGNAL(clicked()), this, SLOT(onConnectionClicked()));
         break;
     case THREEG_CONNECTION:
         item = new StatusBarItem3GConnection(this);

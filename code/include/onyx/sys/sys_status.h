@@ -111,8 +111,11 @@ class SysStatus : public QObject
     bool isPowerSwitchOn();
 
     QString currentConnection();
+    QString networkType();
     QString connectionType();
-
+    bool connectToNetwork(const QString & chat_file, const QString & username, const QString & password);
+    void disconnectFromNetwork();
+    void wifiNetworkSignal(const int signal, const int total, const int network);
     void setSystemBusy(bool busy = true, bool show_indicator = true);
     inline bool isSystemBusy() { return system_busy_; }
 
@@ -131,6 +134,8 @@ class SysStatus : public QObject
 
     bool setAsScreensaver(const QString & path);
     void snapshot(const QString &path);
+
+    void popupWifiDialog();
 
     bool hasTouchScreen();
     bool isTTSEnabled();
@@ -156,6 +161,7 @@ class SysStatus : public QObject
     bool enableMultiTouch(bool enable = true);
     bool requestMultiTouch();
     bool queryLedSignal();
+    void queryWifiStatus();
 
     // The following signals must be the same with system manager.
     // Need a better way to sync them.
@@ -202,6 +208,12 @@ class SysStatus : public QObject
     void reportWorkflowError(const QString & workflow, const QString & error_code);
 
     void report3GNetwork(const int signal, const int total, const int network);
+    void reportWifiNetwork(const int signal, const int total, const int network);
+
+    void connectToWifi();
+    void updateWifiStatus();
+
+    void wifiDialogNeeded();
 
     void hardwareTimerTimeout();
     void lowBatterySignal();
@@ -249,6 +261,12 @@ class SysStatus : public QObject
     void onLoanReturnFinished(const QString & string);
     void onReportWorkflowError(const QString & workflow, const QString & error_code);
     void onReport3GNetwork(const int signal, const int total, const int network);
+    void onReportWifiNetwork(const int signal, const int total, const int network);
+
+    void onConnectToWifi();
+    void onUpdateWifiStatus();
+
+    void onWifiDialogNeeded();
 
     void onHardwareTimerTimeout();
     void onLowBatterySignal();
