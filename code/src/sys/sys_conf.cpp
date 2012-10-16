@@ -719,6 +719,11 @@ QString SystemConfig::version()
     return DeviceConfig::version();
 }
 
+QString SystemConfig::otaPathName()
+{
+    return DeviceConfig::otaPathName();
+}
+
 QString SystemConfig::cpuInfo()
 {
 

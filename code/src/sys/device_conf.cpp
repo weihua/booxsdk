@@ -46,6 +46,17 @@ QString DeviceConfig::version()
     return version;
 }
 
+QString DeviceConfig::otaPathName()
+{
+    // Always use the version defined in application.
+    static QString OTA_path_name;
+    if (OTA_path_name.isEmpty())
+    {
+        OTA_path_name = qgetenv("OTA_PATH_NAME");
+    }
+    return OTA_path_name;
+}
+
 QString DeviceConfig::deviceIdFromDatabase(QSqlDatabase &db)
 {
     QString ret;
