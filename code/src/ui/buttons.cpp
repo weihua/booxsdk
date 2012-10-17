@@ -139,6 +139,21 @@ QPushButton:disabled                    \
     background-color: white;            \
 }";
 
+static const QString BUTTON_WITH_TEXT_STYLE = "     \
+QPushButton:!focus {                                \
+    background-image: url(%1);                      \
+    background-position: center center;             \
+    border: none;                                   \
+    font: 20px;                                     \
+}                                                   \
+QPushButton:focus {                                 \
+    background-image: url(%2);                      \
+    background-position: center center;             \
+    border: none;                                   \
+    font: 20px;                                     \
+}                                                   \
+";
+
 namespace ui
 {
 
@@ -257,6 +272,30 @@ OnyxPushButton::OnyxPushButton(const QIcon & icon, const QString & text, QWidget
     setFocusPolicy(Qt::TabFocus);
     setIconSize(icon.actualSize(QSize(50, 50)));
     setFixedWidth(icon.actualSize(QSize(50, 50)).width() + 8);
+}
+
+OnyxPushButton::OnyxPushButton(const QString &title, const QString &normal_url,\
+                               const QString &selected_url, QWidget *parent)
+: QPushButton(title, parent)
+, screen_update_(true)
+{
+    QPixmap normal_pix(normal_url);
+    QPixmap selected_pix(selected_url);
+    int button_width, button_height;
+    if(normal_pix.width() > selected_pix.width()) {
+        button_width = normal_pix.width();
+    }
+    else {
+        button_width = selected_pix.width();
+    }
+    if(normal_pix.height() > selected_pix.height())
+        button_height = normal_pix.height();
+    else
+        button_height = selected_pix.height();
+    setFixedSize(button_width ,button_height);
+    QString button_style(BUTTON_WITH_TEXT_STYLE.arg(normal_url, selected_url));
+    setStyleSheet(button_style);
+    setFocusPolicy(Qt::TabFocus);
 }
 
 OnyxPushButton::~OnyxPushButton()

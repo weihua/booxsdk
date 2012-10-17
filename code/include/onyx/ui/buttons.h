@@ -36,6 +36,8 @@ class OnyxPushButton : public QPushButton
 public:
     OnyxPushButton(const QString & title, QWidget *parent);
     OnyxPushButton( const QIcon & icon, const QString & text, QWidget * parent = 0 );
+    OnyxPushButton( const QString & title, const QString & normal_url,
+                    const QString & selected_url, QWidget * parent = 0 );
     ~OnyxPushButton();
 
 public:
