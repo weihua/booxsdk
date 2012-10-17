@@ -130,6 +130,7 @@ public:
     QString serialNumber();
     QString deviceId();
     static QString version();
+    static QString otaPathName();
 
     QString cpuInfo();
     QString memInfo();

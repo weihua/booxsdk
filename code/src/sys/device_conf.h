@@ -19,6 +19,7 @@ class DeviceConfig
     static QString deviceId(QSqlDatabase& db);
     static QString serialNumber(QSqlDatabase& db);
     static QString version();
+    static QString otaPathName();
 
     static QString deviceIdFromDatabase(QSqlDatabase &db);
     static QString serialNumberFromDatabase(QSqlDatabase& db);
