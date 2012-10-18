@@ -53,6 +53,10 @@ QString DeviceConfig::otaPathName()
     if (OTA_path_name.isEmpty())
     {
         OTA_path_name = qgetenv("OTA_PATH_NAME");
+        if(OTA_path_name.isEmpty())
+        {
+            OTA_path_name="tactil";
+        }
     }
     return OTA_path_name;
 }
