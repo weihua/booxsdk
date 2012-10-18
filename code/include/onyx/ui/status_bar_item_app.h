@@ -11,7 +11,7 @@ class StatusBarItemApp : public StatusBarItem
     Q_OBJECT
 
 public:
-    StatusBarItemApp(QWidget *parent);
+    StatusBarItemApp(QWidget *parent, StatusBarItemType type = APP_DEFINED);
     virtual ~StatusBarItemApp(void);
 
     void setAppId(const int id);

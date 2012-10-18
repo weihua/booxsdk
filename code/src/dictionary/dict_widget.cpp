@@ -11,7 +11,7 @@ static const int SIMILAR_WORDS = 2;
 static const int DICTIONARY_LIST = 3;
 static const int RETRIEVING_WORD = 4;
 static const int OPEN_DICTIONARY_TOOL = 5;
-
+static const int ADJUST_POSITION = 5;
 static const char* SCOPE = "dict_widget";
 
 /// Define all descriptions
@@ -21,6 +21,8 @@ const DictWidget::FunctionDescription DictWidget::DICT_FUNC_DESCRIPTION[] =
     { QT_TRANSLATE_NOOP("dict_widget", "Explanation"), EXPLANATION},
     { QT_TRANSLATE_NOOP("dict_widget", "Similar Words"), SIMILAR_WORDS},
     { QT_TRANSLATE_NOOP("dict_widget", "Dictionary List"), DICTIONARY_LIST},
+    { QT_TRANSLATE_NOOP("dict_widget", "Adjust Position"), ADJUST_POSITION},
+
 //    {tr("Open Dictionary Tool"), OPEN_DICTIONARY_TOOL},
 };
 const int DictWidget::DESCRIPTION_COUNT = sizeof(DictWidget::DICT_FUNC_DESCRIPTION)/
@@ -40,6 +42,7 @@ DictWidget::DictWidget(QWidget *parent, DictionaryManager & dict, tts::TTS *tts)
     , explanation_button_(QIcon(":/images/explanation.png"), 0)
     , similar_words_button_(QIcon(":/images/similar_words.png"), 0)
     , dictionaries_button_(QIcon(":/images/dictionary_list.png"), 0)
+    , position_button_(QIcon(":/images/navigation.png"), 0)
     , close_button_(QIcon(":/images/close.png"), 0)
 //    , open_dictionary_tool_button_(QIcon(":/images/open_dictionary_tool.png"), 0)
     , button_group_(0)
@@ -149,6 +152,7 @@ bool DictWidget::lookup(const QString &word)
     // Always stop timer as the screen can be updated later.
     launchTimer(false);
 
+    update_parent_ = false;
     updateVisibleWidgets();
     onDetailsClicked(true);
     return ret;
@@ -547,31 +551,37 @@ void DictWidget::createLayout()
     func_description_label_.setFixedHeight(defaultItemHeight()-SPACING*2);
     func_description_label_.setFixedHeight(defaultItemHeight()-SPACING*2);
 
-    top_hbox_.setContentsMargins(0, 0, SPACING*4, 0);
-    top_hbox_.setSpacing(SPACING*2);
+    top_hbox_.setContentsMargins(0, 0, SPACING*2, 0);
+    top_hbox_.setSpacing(SPACING);
     top_hbox_.addWidget(&retrieve_words_button_);
     top_hbox_.addWidget(&explanation_button_);
     top_hbox_.addWidget(&similar_words_button_);
     top_hbox_.addWidget(&dictionaries_button_);
+    top_hbox_.addWidget(&position_button_);
 //    top_hbox_.addWidget(&open_dictionary_tool_button_);
 
     top_hbox_.addWidget(&func_description_label_, 0, Qt::AlignRight);
 
-    retrieve_words_button_.setFixedWidth(80);
-    explanation_button_.setFixedWidth(80);
-    similar_words_button_.setFixedWidth(80);
-    dictionaries_button_.setFixedWidth(80);
+    const int WIDTH = 60;
+    retrieve_words_button_.setFixedWidth(WIDTH);
+    explanation_button_.setFixedWidth(WIDTH);
+    similar_words_button_.setFixedWidth(WIDTH);
+    dictionaries_button_.setFixedWidth(WIDTH);
+    position_button_.setFixedWidth(WIDTH);
 
     retrieve_words_button_.useDefaultHeight();
     explanation_button_.useDefaultHeight();
     similar_words_button_.useDefaultHeight();
     dictionaries_button_.useDefaultHeight();
+    position_button_.useDefaultHeight();
+
 //    open_dictionary_tool_button_.useDefaultHeight();
     button_group_.setExclusive(true);
     button_group_.addButton(&retrieve_words_button_, RETRIEVING_WORD);
     button_group_.addButton(&explanation_button_, EXPLANATION);
     button_group_.addButton(&similar_words_button_, SIMILAR_WORDS);
     button_group_.addButton(&dictionaries_button_, DICTIONARY_LIST);
+    button_group_.addButton(&position_button_, ADJUST_POSITION);
 //    button_group_.addButton(&open_dictionary_tool_button_, OPEN_DICTIONARY_TOOL);
 
     content_vbox_.setContentsMargins(SPACING, SPACING, SPACING, SPACING);
@@ -593,6 +603,9 @@ void DictWidget::createLayout()
 
     connect(&dictionaries_button_, SIGNAL(clicked(bool)), this,
             SLOT(onDictListClicked(bool)), Qt::QueuedConnection);
+
+    connect(&position_button_, SIGNAL(clicked(bool)), this,
+        SLOT(onPositionClicked(bool)), Qt::QueuedConnection);
 
 //    connect(&open_dictionary_tool_button_, SIGNAL(clicked(bool)), this,
 //                SLOT(onOpenDictionaryToolClicked(bool)), Qt::QueuedConnection);
@@ -673,6 +686,30 @@ void DictWidget::onItemClicked(const QModelIndex & index)
     }
 }
 
+void DictWidget::adjustPosition(int position)
+{
+    QRect parent_rect = parentWidget()->rect();
+    int border = (frameGeometry().width() - geometry().width());
+    if (border == 0)
+    {
+        border = Shadows::PIXELS;
+    }
+    int width = parent_rect.width();
+    if (size().width() != width)
+    {
+        resize(width, height());
+    }
+
+    // Check position.
+    QPoint new_pos(0, 0);
+    if (frameGeometry().bottom() < parent_rect.height() / 2)
+    {
+        new_pos.ry() = parent_rect.height() - height();
+    }
+
+    move(new_pos);
+    emit positionAdjusted();
+}
 
 void DictWidget::moreSimilarWords(bool begin)
 {
@@ -752,6 +789,13 @@ void DictWidget::onOpenDictionaryToolClicked(bool)
 {
     changeInternalState(OPEN_DICTIONARY_TOOL);
     checkSelectedButton();
+}
+
+void DictWidget::onPositionClicked(bool)
+{
+    changeInternalState(ADJUST_POSITION);
+    checkSelectedButton();
+    adjustPosition(0);
 }
 
 void DictWidget::onCloseClicked()
