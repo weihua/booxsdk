@@ -62,6 +62,7 @@ class SysStatus : public QObject
     bool isMusicPlayerRunning();
     bool isProcessRunning(const QString & proc_name);
 
+    bool isUSBConnected();
     bool umountUSB();
     bool umountSD();
 
@@ -275,7 +276,7 @@ class SysStatus : public QObject
     void onHardwareTimerTimeout();
     void onLowBatterySignal();
 
-    void onMouseLongPress(int, int, int, int);    
+    void onMouseLongPress(int, int, int, int);
     void onMultiTouchPressDetected(int, int, int, int, int, int, int, int);
     void onMultiTouchReleaseDetected(int, int, int, int, int, int, int, int);
     void onMultiTouchHoldDetected(int, int, int, int, int, int, int, int, int, int);
