@@ -2,6 +2,7 @@
 #include "onyx/ui/onyx_keyboard.h"
 #include "onyx/sys/sys.h"
 #include "onyx/sys/platform.h"
+#include "onyx/ui/languages.h"
 
 namespace ui
 {
@@ -11,6 +12,7 @@ const QString KeyboardData::ENTER_TEXT = "enter";
 
 KeyboardData::KeyboardData()
 {
+    ui::loadTranslator(QLocale::system().name());
     initTopKeySymbolCode();
     initMenuKeyCode();
 }
