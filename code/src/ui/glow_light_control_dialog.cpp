@@ -128,8 +128,8 @@ void GlowLightControlDialog::createLayout()
     // TODO may need different range
     slider_.setAutoFillBackground(true);
     slider_.setBackgroundRole(QPalette::Base);
-    slider_.setRange(10, 255);
-    slider_.setSingleStep(30);
+    slider_.setRange(1, 130);
+    slider_.setSingleStep(3);
     slider_.setOrientation(Qt::Horizontal);
     slider_.setFixedHeight(55);
     slider_.setStyleSheet(FANCY_STYLE);
