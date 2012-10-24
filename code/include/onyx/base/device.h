@@ -35,6 +35,5 @@ static const int BATTERY_STATUS_DANGEROUS   = 0x10;    ///< Shutdown now.
 static const int SHUTDOWN_REASON_NONE        = 0;
 static const int SHUTDOWN_REASON_LOW_BATTERY = 1;
 static const int SHUTDOWN_REASON_USER_REQUEST = 2;
-static const int SHUTDOWN_REASON_FW_UPDATE = 3;
 
 #endif  // BASE_DEVICE_H__

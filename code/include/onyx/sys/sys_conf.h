@@ -123,8 +123,6 @@ public:
     static int distance();
     static int whichArea(const QPoint & old_position, const QPoint & new_position);
 
-    static QString getServerHost();
-
     // Internet settings.
     QString downloadFolder();
 
@@ -160,9 +158,6 @@ public:
     static bool showBrowsingHistory();
 
     static QString defaultAccessPoint();
-
-    void askMeForUpdate(bool askme);
-    bool askMeForUpdate();
 
 private:
     scoped_ptr<QSqlDatabase> database_;
