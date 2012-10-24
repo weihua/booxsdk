@@ -2,6 +2,7 @@
 #define ONYX_STATUS_BAR_ITEM_PROGRESS_H_
 
 #include "status_bar_item.h"
+#include "label.h"
 
 namespace ui
 {
@@ -41,6 +42,8 @@ private:
     void updatefgPath(int value);
     void updatePath(QPainterPath & path, const QRect & rect);
 
+    void updateProgressPositionRect(int value);
+
     void drawMessage(QPainter &painter);
 
 private:
@@ -53,6 +56,9 @@ private:
 
     QPainterPath bk_path_;
     QPainterPath fg_path_;
+
+    QPixmap progress_position_pixmap_;
+    QRect progress_position_rect_;
 };
 
 };  // namespace ui

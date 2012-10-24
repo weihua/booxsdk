@@ -18,6 +18,8 @@ StatusBarItemProgress::StatusBarItemProgress(QWidget *parent)
     , show_message_(true)
     , message_("")
 {
+    progress_position_pixmap_ = QPixmap(":/images/progress_position.png");
+
     createLayout();
 
     timer_.setSingleShot(true);
@@ -41,6 +43,7 @@ void StatusBarItemProgress::setProgress(const int current, const int total,
     total_ = total;
 
     updatefgPath(current_);
+    updateProgressPositionRect(current_);
     update();
 }
 
@@ -56,7 +59,8 @@ void StatusBarItemProgress::paintEvent(QPaintEvent *pe)
     QPainter p(this);
     p.setRenderHint(QPainter::Antialiasing);
     p.fillPath(bk_path_, Qt::white);
-    p.fillPath(fg_path_, Qt::black);
+    p.fillPath(fg_path_, QBrush(QColor(194, 194, 194)));
+    p.drawPixmap(progress_position_rect_, progress_position_pixmap_);
 
     if (show_message_)
     {
@@ -92,6 +96,9 @@ void StatusBarItemProgress::drawMessage(QPainter &painter)
     painter.setPen(Qt::white);
     painter.drawText(QRect(x, y, text_width, text_height),
             Qt::AlignCenter, message);
+
+    QPixmap pixmap(":/images/progress_point.png");
+    painter.drawPixmap(x, y, 16, 16, pixmap);
 }
 
 void StatusBarItemProgress::resizeEvent(QResizeEvent * event)
@@ -108,10 +115,12 @@ void StatusBarItemProgress::resizeEvent(QResizeEvent * event)
     if (pressing_value_ > 0)
     {
         updatefgPath(pressing_value_);
+        updateProgressPositionRect(pressing_value_);
     }
     else
     {
         updatefgPath(current_);
+        updateProgressPositionRect(current_);
     }
 }
 
@@ -131,6 +140,7 @@ void StatusBarItemProgress::mousePressEvent(QMouseEvent *me)
     {
         pressing_value_ = value;
         updatefgPath(pressing_value_);
+        updateProgressPositionRect(pressing_value_);
         onyx::screen::instance().enableUpdate(false);
         repaint();
         onyx::screen::instance().updateWidget(
@@ -158,6 +168,7 @@ void StatusBarItemProgress::mouseMoveEvent(QMouseEvent *me)
     {
         pressing_value_ = value;
         updatefgPath(pressing_value_);
+        updateProgressPositionRect(pressing_value_);
         onyx::screen::instance().enableUpdate(false);
         repaint();
         onyx::screen::instance().updateWidget(
@@ -242,6 +253,20 @@ void StatusBarItemProgress::updatePath(QPainterPath & result,
     path.closeSubpath();
 
     result = path;
+}
+
+void StatusBarItemProgress::updateProgressPositionRect(int value)
+{
+    int w = progress_position_pixmap_.width();
+    int h = progress_position_pixmap_.height();
+
+    int x = width() * value / total_ - w;
+    int y = Y_POS + HEIGHT / 2 - h / 2;
+
+    progress_position_rect_.setX(x);
+    progress_position_rect_.setY(y);
+    progress_position_rect_.setWidth(w);
+    progress_position_rect_.setHeight(h);
 }
 
 }   // namespace ui

@@ -126,8 +126,8 @@ void StatusBar::addItems(StatusBarItemTypes items)
     // Adjust the order if necessary.
     const StatusBarItemType all[] =
     {
-        MENU, PROGRESS, MESSAGE, STYLUS, CLOCK, INPUT_TEXT, VOLUME, SCREEN_REFRESH, INPUT_URL,THREEG_CONNECTION,
-        CONNECTION, VIEWPORT, MUSIC_PLAYER, BATTERY
+        MENU, PROGRESS, MESSAGE, STYLUS, INPUT_TEXT, SCREEN_REFRESH, VOLUME, INPUT_URL,THREEG_CONNECTION,
+        CONNECTION, VIEWPORT, MUSIC_PLAYER, BATTERY, CLOCK
     };
     const int size = sizeof(all)/sizeof(all[0]);
     for(int i = 0; i < size; ++i)
@@ -271,18 +271,7 @@ void StatusBar::mouseMoveEvent(QMouseEvent *me)
 void StatusBar::paintEvent(QPaintEvent *pe)
 {
     QPainter painter(this);
-
-    painter.fillRect(rect(), QBrush(QColor(100, 100, 100)));
-
-    QPen pen(QColor(0, 0, 0));
-    pen.setWidth(1);
-
-    painter.setPen(pen);
-    painter.drawLine(QPoint(0, 0), QPoint(width(), 0));
-
-    pen.setColor(QColor(255, 255, 255));
-    painter.setPen(pen);
-    painter.drawLine(QPoint(0, 1), QPoint(width(), 1));
+    painter.fillRect(rect(), QBrush(QColor(0, 0, 0)));
 }
 
 void StatusBar::onProgressChanging(const int current,
