@@ -27,7 +27,7 @@ class StatusBar : public QStatusBar
 {
     Q_OBJECT
 public:
-    StatusBar(QWidget *parent, StatusBarItemTypes items = MENU|PROGRESS|MESSAGE|MUSIC_PLAYER);
+    StatusBar(QWidget *parent, StatusBarItemTypes items = MENU|PROGRESS|MESSAGE|BATTERY|MUSIC_PLAYER);
     ~StatusBar(void);
 
 public:
@@ -82,7 +82,6 @@ private Q_SLOTS:
     bool onItemStatusChanged(const StatusBarItemType type, const int state);
     void onViewportChanged(const QRect & parent, const QRect & child, int current_column, int total);
     void onAppClicked(int );
-    void onConnectionClicked();
 
     // handle the events from system status manager
     void onBatterySignal(int value, int status);
@@ -92,7 +91,6 @@ private Q_SLOTS:
     void onAboutToShutdown();
     void onWifiDeviceChanged(bool enabled);
     void onReport3GNetwork(const int signal, const int total, const int network);
-    void onReportWifiNetwork(const int signal, const int total, const int network);
     void onPppConnectionChanged(const QString &message, int value);
     void onStylusChanged(bool inserted);
     void onConnectToPC(bool);

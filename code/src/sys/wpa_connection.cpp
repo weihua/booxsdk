@@ -304,11 +304,6 @@ bool WpaConnection::isComplete(bool auto_connect)
     return false;
 }
 
-bool WpaConnection::isConnectionEstablished()
-{
-    return isComplete(false);
-}
-
 /// List all available networks.
 /// \networks The returned network list.
 /// \return This function returns true if network list
