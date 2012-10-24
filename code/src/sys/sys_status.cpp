@@ -383,7 +383,7 @@ void SysStatus::installSlots()
     {
         qDebug("\nCan not connect the volumeDownPressed signal\n");
     }
-   
+
     if (!connection_.connect(service, object, iface,
                              "hardwareTimerTimeout",
                              this,
@@ -579,6 +579,27 @@ bool SysStatus::isProcessRunning(const QString & proc_name)
         qWarning("%s", qPrintable(reply.errorMessage()));
     }
     return false;
+}
+
+bool SysStatus::isUSBConnected()
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+           service,            // destination
+           object,             // path
+           iface,              // interface
+           "isUSBConnected"      // method.
+       );
+       QDBusMessage reply = connection_.call(message);
+
+       if (reply.type() == QDBusMessage::ReplyMessage)
+       {
+           return checkAndReturnBool(reply.arguments());
+       }
+       else if (reply.type() == QDBusMessage::ErrorMessage)
+       {
+           qWarning("%s", qPrintable(reply.errorMessage()));
+       }
+       return false;
 }
 
 bool SysStatus::umountUSB()
@@ -795,7 +816,7 @@ bool SysStatus::setScreenTransformation(int degree)
         {
             data = QString("export QWS_DISPLAY=Transformed:Rot%1:OnyxScreen:/dev/mem");
 #ifdef BUILD_WITH_TFT
-            data = QString("export QWS_DISPLAY=Transformed:Rot%1:LinuxFb:/dev/fb0:depth=all"); 
+            data = QString("export QWS_DISPLAY=Transformed:Rot%1:LinuxFb:/dev/fb0:depth=all");
 #endif
             data = data.arg(degree);
         }
