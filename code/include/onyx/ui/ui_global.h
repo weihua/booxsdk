@@ -27,7 +27,8 @@ enum ViewType
     LIST_VIEW = 1,
     DETAILS_VIEW = 2,
     THUMBNAIL_VIEW = 3,
-    FANCY_THUMBNAIL_VIEW=4
+    FANCY_THUMBNAIL_VIEW=4,
+    LIBRARY_THUMBNAIL_VIEW=5
 };
 
 enum LibraryFilterType
