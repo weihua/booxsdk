@@ -132,6 +132,7 @@ void PopupMenu::createMenuLayout()
 
     // Left category section.
 
+    menu_layout_.setSpacing(0);
     categroy_section_.layout().setContentsMargins(3, 0, 0, 0);
     menu_layout_.addLayout(&categroy_section_.layout());
 
