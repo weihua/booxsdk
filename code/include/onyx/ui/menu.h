@@ -17,6 +17,8 @@
 #include "system_actions.h"
 #include "view_actions.h"
 #include "onyx/ui/sketch_actions.h"
+#include "onyx/ui/label.h"
+#include "onyx/ui/buttons.h"
 
 namespace ui
 {
@@ -44,8 +46,6 @@ protected:
     virtual void paintEvent(QPaintEvent *);
     virtual bool event(QEvent * event);
     virtual void resizeEvent(QResizeEvent *);
-    virtual void mousePressEvent(QMouseEvent *);
-    virtual void mouseReleaseEvent(QMouseEvent *);
     virtual void showEvent(QShowEvent * event);
 
 private:
@@ -61,10 +61,17 @@ private:
     void updateClickedItem(QWidget *wnd);
     bool loadTranslator();
 
+    void resizeRoundRectDialog();
+
+public Q_SLOTS:
+    virtual void done(int);
+
 private Q_SLOTS:
     void onItemClicked(MenuItem* wnd, QAction *action);
     void onGroupClicked(MenuItem* wnd, QAction *action);
     void onSystemActionClicked(MenuItem* wnd, QAction *action);
+    void onClosePressed();
+    void onCloseClicked();
 
 private:
     QAction * selected_category_;
@@ -74,18 +81,24 @@ private:
     BaseActions* system_actions_;
 
     QVBoxLayout big_layout_;
+
+    QWidget menu_title_widget_;
+    QWidget system_title_widget_;
+
     QHBoxLayout menu_layout_;
 
     Section categroy_section_;
     Section children_section_;
     Section system_section_;
 
-    QLabel separator_;
-    QLabel system_separator_;
+    QHBoxLayout system_title_layout_;
+    QHBoxLayout menu_title_layout_;
 
-    int close_x_;
-    QSize close_size_;
-    bool close_pressed_;
+    OnyxLabel system_title_label_;
+    OnyxLabel menu_title_label_;
+    OnyxLabel system_icon_label_;
+    OnyxLabel menu_icon_label_;
+    OnyxPushButton close_button_;
 };
 
 }
