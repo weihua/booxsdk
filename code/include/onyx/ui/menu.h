@@ -87,6 +87,10 @@ private:
 
     QHBoxLayout menu_layout_;
 
+    Section categroy_section_;
+    Section children_section_;
+    Section system_section_;
+
     QHBoxLayout system_title_layout_;
     QHBoxLayout menu_title_layout_;
 
@@ -95,13 +99,6 @@ private:
     OnyxLabel system_icon_label_;
     OnyxLabel menu_icon_label_;
     OnyxPushButton close_button_;
-
-    Section categroy_section_;
-    Section children_section_;
-    Section system_section_;
-
-    QLabel separator_;
-    QLabel system_separator_;
 };
 
 }
