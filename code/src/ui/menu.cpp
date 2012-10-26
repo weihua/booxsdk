@@ -12,6 +12,56 @@ namespace ui
 {
 
 using namespace std;
+
+static const QString BUTTON_STYLE =    "\
+QPushButton                             \
+{                                       \
+    background: transparent;            \
+    font-size: 14px;                    \
+    border-width: 1px;                  \
+    border-color: transparent;          \
+    border-style: solid;                \
+    color: black;                       \
+    padding: 0px;                       \
+}                                       \
+QPushButton:pressed                     \
+{                                       \
+    padding-left: 0px;                  \
+    padding-top: 0px;                   \
+    border-color: black;                \
+    background-color: black;            \
+}                                       \
+QPushButton:checked                     \
+{                                       \
+    padding-left: 0px;                  \
+    padding-top: 0px;                   \
+    color: white;                       \
+    border-color: black;                \
+    background-color: black;            \
+}                                       \
+QPushButton:disabled                    \
+{                                       \
+    padding-left: 0px;                  \
+    padding-top: 0px;                   \
+    border-color: dark;                 \
+    color: dark;                        \
+    background-color: white;            \
+}";
+
+const QString TITLE_STYLE = "           \
+QLabel                                  \
+{                                       \
+     padding: 0px;                      \
+     background: transparent;           \
+     font: 24px ;                       \
+     color: white;                      \
+ }";
+
+const static int MARGIN = 2;
+const static int RND = 25;
+const static int PEN_WIDTH = 2;
+const static int OUT_WIDTH = 6;
+
 static QTime popup_time;
 
 const int MIN_ELAPSED = 800;
@@ -19,8 +69,6 @@ const int STATE_HIDE = 0;
 const int STATE_INITIAL_VISIBLE = 1;
 const int STATE_IGNORE = 2;
 static int state = STATE_HIDE;
-
-
 
 PopupMenu::PopupMenu(QWidget *parent, bool load_translator)
 : QDialog(parent, Qt::Popup|Qt::FramelessWindowHint)
@@ -34,7 +82,13 @@ PopupMenu::PopupMenu(QWidget *parent, bool load_translator)
 , system_section_()
 , separator_(this)
 , system_separator_(this)
-, close_pressed_(false)
+, close_button_("", this)
+, menu_title_layout_(this)
+, system_title_layout_(this)
+, menu_title_label_(tr("Option"), this)
+, system_title_label_(tr("Menu"), this)
+, menu_title_widget_(this)
+, system_title_widget_(this)
 {
     createMenuLayout();
     onyx::screen::watcher().flush(this, onyx::screen::ScreenProxy::GU);
@@ -48,21 +102,64 @@ PopupMenu::~PopupMenu()
 // Create menu.
 void PopupMenu::createMenuLayout()
 {
-    big_layout_.setContentsMargins(2, 28, 5, 5);
+    QString background_sytle("background-color: black");
+
+    big_layout_.setContentsMargins(0, 0, 0, 0);
+
+    big_layout_.addWidget(&menu_title_widget_);
+    menu_title_widget_.setStyleSheet(background_sytle);
+    menu_title_widget_.setLayout(&menu_title_layout_);
+
+    menu_title_layout_.setContentsMargins(8, 0, 4, 0);
+    menu_title_layout_.addWidget(&menu_icon_label_, 0, Qt::AlignLeft);
+    menu_title_layout_.addWidget(&menu_title_label_, 0, Qt::AlignLeft);
+    menu_title_layout_.addStretch();
+    menu_title_layout_.addWidget(&close_button_);
+
+    menu_icon_label_.setPixmap(QPixmap(":/images/option_icon.png"));
+
+    menu_title_label_.setAlignment(Qt::AlignLeft|Qt::AlignVCenter);
+    menu_title_label_.setStyleSheet(TITLE_STYLE);
+
+    close_button_.setStyleSheet(BUTTON_STYLE);
+    QPixmap close_pixmap(":/images/close.png");
+    close_pixmap.scaled(close_pixmap.width() / 2, close_pixmap.height() / 2);
+    close_button_.setIcon(QIcon(close_pixmap));
+    close_button_.setIconSize(close_pixmap.size());
+    close_button_.setFocusPolicy(Qt::NoFocus);
+    connect(&close_button_, SIGNAL(clicked()), this, SLOT(onCloseClicked()), Qt::QueuedConnection);
+    connect(&close_button_, SIGNAL(pressed()), this, SLOT(onClosePressed()), Qt::QueuedConnection);
 
     big_layout_.addLayout(&menu_layout_);
 
     // Left category section.
 
+    categroy_section_.layout().setContentsMargins(3, 0, 0, 0);
     menu_layout_.addLayout(&categroy_section_.layout());
-    menu_layout_.setSpacing(2);
-
 
     // Childrent section.
+    children_section_.layout().setContentsMargins(0, 0, 4, 0);
     menu_layout_.addLayout(&children_section_.layout());
-    big_layout_.addSpacing(30);
-//    big_layout_.addWidget(&system_separator_);
+
+    big_layout_.addWidget(&system_title_widget_);
+
+    system_title_widget_.setStyleSheet(background_sytle);
+    system_title_widget_.setLayout(&system_title_layout_);
+
+    system_title_layout_.setContentsMargins(8, 0, 4, 0);
+    system_title_layout_.addWidget(&system_icon_label_, 0, Qt::AlignLeft);
+    system_title_layout_.addWidget(&system_title_label_, 0, Qt::AlignLeft);
+    system_title_layout_.addStretch();
+
+    system_icon_label_.setPixmap(QPixmap(":/images/menu_icon.png"));
+
+    system_title_label_.setAlignment(Qt::AlignLeft|Qt::AlignVCenter);
+    system_title_label_.setStyleSheet(TITLE_STYLE);
+
+    system_section_.layout().setContentsMargins(2, 0, 2, 0);
     big_layout_.addLayout(&system_section_.layout());
+
+    resizeRoundRectDialog();
 
     // Setup connection.
     connect(&categroy_section_, SIGNAL(clicked(MenuItem *, QAction *)),
@@ -71,6 +168,19 @@ void PopupMenu::createMenuLayout()
             this, SLOT(onItemClicked(MenuItem *, QAction *)));
     connect(&system_section_, SIGNAL(clicked(MenuItem *, QAction *)),
             this, SLOT(onSystemActionClicked(MenuItem *, QAction *)));
+}
+
+void PopupMenu::resizeRoundRectDialog(void)
+{
+    QPainterPath path;
+    QPixmap pixmap(":/images/menu_background.png");
+    int dialog_width = pixmap.width();
+    int dialog_height = pixmap.height();
+    QRectF rect = QRectF(0,0,dialog_width,dialog_height);
+    path.addRoundRect(rect,3,3);
+    QPolygon polygon= path.toFillPolygon().toPolygon();
+    QRegion region(polygon);
+    setMask(region);
 }
 
 void PopupMenu::addCategory(QAction *category)
@@ -172,23 +282,38 @@ void PopupMenu::activate()
 void PopupMenu::paintEvent(QPaintEvent *pe)
 {
     QPainter p(this);
-    int index = categroy_section_.currentFocusItem();
-    QString image_path(":/images/menu_background_%1.png");
-    image_path = image_path.arg(index);
+
+    QString image_path(":/images/menu_background.png");
     p.drawPixmap(rect(), QPixmap(image_path));
-//    onyx::screen::instance().enableUpdate(true);
-//    onyx::screen::watcher().flush(this, onyx::screen::ScreenProxy::GU);
 
-    QPixmap pixmap(":/images/close_menu.png");
-    if(close_pressed_)
-    {
-        pixmap = QPixmap(":/images/close_menu_pressed.png");
-    }
-    close_x_ = QPixmap(image_path).width()-pixmap.width()-8;
-    close_size_ = pixmap.size();
-    p.drawPixmap(close_x_, 2, pixmap);
+    int index = categroy_section_.currentFocusItem();
+    MenuItem * item = categroy_section_.items()[index];
+    QPoint item_point = item->mapToParent(QPoint(0, 0));
 
-    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU, onyx::screen::ScreenCommand::WAIT_NONE);
+    int w = item->rect().width() + OUT_WIDTH;
+    int h = item->rect().height();
+    int x = item_point.x() - MARGIN;
+    int y = item_point.y() - MARGIN;
+    int rw = float(w) * float(RND) / 100.0;
+    int rh = float(h) * float(RND) / 100.0;
+
+    p.setBrush(Qt::white);
+    p.setPen(QPen(Qt::white, PEN_WIDTH, Qt::SolidLine));
+    p.drawRoundRect(x, y, w, h, RND, RND);
+    p.setBrush(Qt::white);
+    p.setPen(QPen(Qt::black, PEN_WIDTH, Qt::SolidLine));
+    int start_angle_up = 90* 16;
+    int span_angle_up = 90 * 16;
+    p.drawArc(x, y, rw, rh, start_angle_up, span_angle_up);
+    int start_angle_down = 180 * 16;
+    int span_angle_down = 90 * 16;
+    p.drawArc(x, y + h - rh, rw, rh, start_angle_down, span_angle_down);
+
+    p.drawLine(x + rw / 2, y, x + w - MARGIN * 3, y);
+    p.drawLine(x + rw / 2, y + h, x + w - MARGIN * 3, y + h);
+    p.drawLine(x, y + rh / 2, x, y + h - rh / 2);
+
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU);
 }
 
 void PopupMenu::resizeEvent(QResizeEvent *)
@@ -196,45 +321,22 @@ void PopupMenu::resizeEvent(QResizeEvent *)
 
 }
 
-void PopupMenu::mousePressEvent(QMouseEvent *me)
+void PopupMenu::onClosePressed()
 {
-    QRect close_button_rect(close_x_, 2, close_size_.width(), close_size_.height());
-    if(close_button_rect.contains(me->pos()))
-    {
-        close_pressed_ = true;
-        update();
-        onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::A2, onyx::screen::ScreenCommand::WAIT_NONE);
-    }
-
-    me->accept();
+    QPixmap close_pressed_pixmap(":/images/close_pressed.png");
+    close_button_.setIcon(QIcon(close_pressed_pixmap));
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::A2, onyx::screen::ScreenCommand::WAIT_NONE);
 }
 
-void PopupMenu::mouseReleaseEvent(QMouseEvent *me)
+void PopupMenu::done(int r)
 {
-    if (popup_time.elapsed() < MIN_ELAPSED)
-    {
-        return;
-    }
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU);
+    return QDialog::done(r);
+}
 
-    if (!rect().contains(me->pos()))
-    {
-        me->accept();
-        reject();
-        return;
-    }
-
-    QRect close_button_rect(close_x_, 2, close_size_.width(), close_size_.height());
-    if(close_button_rect.contains(me->pos()))
-    {
-        close_pressed_= false;
-        update();
-        me->accept();
-        this->accept();
-        onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU);
-        return;
-    }
-
-    return QDialog::mouseReleaseEvent(me);
+void PopupMenu::onCloseClicked()
+{
+    done(QDialog::Rejected);
 }
 
 void PopupMenu::showEvent(QShowEvent * event)
@@ -324,7 +426,8 @@ int PopupMenu::popup(const QString &)
 
     QAction *group = selectedCategory();
     QGridLayout & layout = categroy_section_.layout();
-    layout.setRowStretch(layout.rowCount(), 100);
+    layout.setVerticalSpacing(5);
+    layout.setRowStretch(layout.rowCount(), 20);
 
     // Disable the screen update now. Most applications will
     // update the screen when popup menu is shown. The reason is

@@ -474,7 +474,7 @@ bool Section::arrangeItems(QWidget *parent, BaseActions *base_actions, int rows,
             {
                 MenuItem *wnd = createItem(parent, 0);
                 items_.push_back(wnd);
-                layout_.setVerticalSpacing(17);
+                layout_.setVerticalSpacing(5);
                 layout_.addWidget(wnd, r, c);
             }
         }
