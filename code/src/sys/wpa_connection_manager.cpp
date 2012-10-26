@@ -295,6 +295,8 @@ void WpaConnectionManager::scan()
             // Hardware issue, but user can try to turn off and turn on the
             // wifi switcher again.
             setState(dummy, WpaConnection::STATE_HARDWARE_ERROR);
+            SysStatus::instance().enableSdio(false);
+            SysStatus::instance().enableSdio(true);
         }
     }
 }
@@ -696,10 +698,4 @@ bool WpaConnectionManager::isConnectionOnProgress()
         return true;
     }
     return false;
-}
-
-bool WpaConnectionManager::isConnectionComplete()
-{
-    return internal_state_ == WpaConnection::STATE_COMPLETE
-            || ((internal_state_ == WpaConnection::STATE_SCANNED) && proxy().isConnectionEstablished());
 }

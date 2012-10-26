@@ -26,7 +26,6 @@ public:
     ~WpaConnectionManager();
 
     bool isConnectionOnProgress();
-    bool isConnectionComplete();
 
 public Q_SLOTS:
     void enableAutoConnect(bool e) { auto_connect_ = e; }

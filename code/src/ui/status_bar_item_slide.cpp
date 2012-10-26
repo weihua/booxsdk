@@ -214,8 +214,8 @@ void StatusBarItemProgress::updatePath(QPainterPath & result,
                                        const QRect & rect)
 {
     int height = rect.height();
-    int x_start = rect.left()+4;
-    int x_end = rect.right()-4;
+    int x_start = rect.left();
+    int x_end = rect.right();
     int y = rect.top();
 
     if (sys::isIRTouch())
