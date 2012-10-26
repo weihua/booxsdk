@@ -234,7 +234,7 @@ AnnotationDocumentPtr AnnotationAgent::getDocument( const QString & doc_path )
         {
             AnnotationPagePtr page = doc->getPage( iter.value() );
             page->setGlobalID( iter.key() );
-            qDebug("Load Annotation Page:%d, Global ID:%d", iter.value(), iter.key());
+            // qDebug("Load Annotation Page:%d, Global ID:%d", iter.value(), iter.key());
         }
     }
     return doc;
