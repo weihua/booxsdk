@@ -158,6 +158,46 @@ bool DictWidget::lookup(const QString &word)
     return ret;
 }
 
+bool DictWidget::lookup(const QString &word, bool update_screen)
+{
+    if (word.isEmpty() || word_ == word.trimmed())
+    {
+        return false;
+    }
+
+    resetSimilarWordsOffset();
+
+    // Clean the word.
+    word_ = word.trimmed();
+
+    // Title
+    QString result;
+    QString fuzzy_word("");
+    bool ret = dict_.fuzzyTranslate(word_, result, fuzzy_word);
+
+    formatResult(result, fuzzy_word);
+
+    // Result
+    doc_.setHtml(result);
+
+    // Always stop timer as the screen can be updated later.
+    launchTimer(false);
+
+    updateVisibleWidgets();
+
+    changeInternalState(EXPLANATION);
+    checkSelectedButton();
+
+    explanation_text_.show();
+    explanation_text_.setFocus();
+    similar_words_view_.hide();
+    if (update_screen)
+    {
+        onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC, true);
+    }
+    return ret;
+}
+
 int DictWidget::getPreviousFocusButtonId(const int current_checked)
 {
     int array_index = 0;
