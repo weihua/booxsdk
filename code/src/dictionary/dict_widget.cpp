@@ -13,6 +13,7 @@ static const int RETRIEVING_WORD = 4;
 static const int OPEN_DICTIONARY_TOOL = 5;
 static const int ADJUST_POSITION = 5;
 static const char* SCOPE = "dict_widget";
+static bool s_enable_update = true;
 
 /// Define all descriptions
 const DictWidget::FunctionDescription DictWidget::DICT_FUNC_DESCRIPTION[] =
@@ -191,10 +192,7 @@ bool DictWidget::lookup(const QString &word, bool update_screen)
     explanation_text_.show();
     explanation_text_.setFocus();
     similar_words_view_.hide();
-    if (update_screen)
-    {
-        update_parent_ = true;
-    }
+    s_enable_update = update_screen;
     return ret;
 }
 
@@ -546,17 +544,21 @@ bool DictWidget::event(QEvent *e)
     int ret = QDialog::event(e);
     if (e->type() == QEvent::UpdateRequest || e->type() == QEvent::Hide)
     {
-        if (update_parent_)
+        if (s_enable_update)
         {
-            onyx::screen::instance().updateWidget(0, onyx::screen::ScreenProxy::GC, true);
-            update_parent_ = false;
+            if (update_parent_)
+            {
+                onyx::screen::instance().updateWidget(0, onyx::screen::ScreenProxy::GC, true);
+                update_parent_ = false;
+            }
+            else
+            {
+                onyx::screen::instance().updateWidget(this, onyx::screen::ScreenProxy::GU, false, onyx::screen::ScreenCommand::WAIT_NONE);
+            }
+            launchTimer(false);
+            e->accept();
         }
-        else
-        {
-            onyx::screen::instance().updateWidget(this, onyx::screen::ScreenProxy::GU, false, onyx::screen::ScreenCommand::WAIT_NONE);
-        }
-        launchTimer(false);
-        e->accept();
+        s_enable_update = true;
     }
 
     return ret;
