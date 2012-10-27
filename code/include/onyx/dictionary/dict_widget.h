@@ -26,6 +26,7 @@ public:
 
 public slots:
     bool lookup(const QString &word);
+    bool lookup(const QString &word, bool update_screen);
 
 protected:
     virtual void keyReleaseEvent(QKeyEvent *);
