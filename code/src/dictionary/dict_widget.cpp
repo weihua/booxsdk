@@ -193,7 +193,7 @@ bool DictWidget::lookup(const QString &word, bool update_screen)
     similar_words_view_.hide();
     if (update_screen)
     {
-        onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC, true);
+        update_parent_ = true;
     }
     return ret;
 }
