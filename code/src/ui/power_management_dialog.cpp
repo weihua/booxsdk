@@ -62,11 +62,11 @@ PowerManagementDialog::PowerManagementDialog(QWidget *parent, SysStatus & ref)
     setModal(true);
     if(isPmExclusive())
     {
-        resize(500, 360);
+        setFixedSize(500, 360);
     }
     else
     {
-        resize(500, 500);
+        setFixedSize(500, 500);
     }
     interval_selected_ = NULL;
     createLayout();
@@ -79,7 +79,7 @@ PowerManagementDialog::~PowerManagementDialog(void)
 
 int PowerManagementDialog::exec()
 {
-    shadows_.show(true);
+    shadows_.show(false);
     show();
     if(interval_selected_)
     {
@@ -237,6 +237,15 @@ void PowerManagementDialog::createLayout()
     ver_layout_.addStretch(0);
     ver_layout_.addLayout(&hor_layout_);
     ver_layout_.addSpacing(8);
+
+    QPainterPath path;
+    int dialog_width = size().width();
+    int dialog_height = size().height();
+    QRectF rect = QRectF(0, 0, dialog_width, dialog_height);
+    path.addRoundRect(rect, 3, 3);
+    QPolygon polygon= path.toFillPolygon().toPolygon();
+    QRegion region(polygon);
+    setMask(region);
 }
 
 void PowerManagementDialog::onButtonChanged(CatalogView *catalog, ContentView *item, int user_data)
