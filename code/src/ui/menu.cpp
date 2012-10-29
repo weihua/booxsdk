@@ -291,7 +291,7 @@ void PopupMenu::paintEvent(QPaintEvent *pe)
 
     int w = item->rect().width() + OUT_WIDTH;
     int h = item->rect().height();
-    int x = item_point.x() - MARGIN;
+    int x = MARGIN;
     int y = item_point.y() - MARGIN;
     int rw = float(w) * float(RND) / 100.0;
     int rh = float(h) * float(RND) / 100.0;
