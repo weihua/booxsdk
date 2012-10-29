@@ -41,6 +41,10 @@ private:
 
     QSize iconActualSize() const;
 
+public:
+    void setRequireBackground(bool require);
+    bool getRequereBackground();
+
 private:
     QAction *action_;
     mutable QPoint icon_pos_;
@@ -48,6 +52,7 @@ private:
     mutable int layout_width_;
     mutable int layout_height_;
     bool is_layout_dirty_;
+    bool require_background_;
 
 };
 typedef std::vector<MenuItem *> MenuItems;
