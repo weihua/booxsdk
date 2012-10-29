@@ -16,7 +16,7 @@ class OnyxDictFrame: public OnyxDialog
     Q_OBJECT
 
 public:
-    OnyxDictFrame(QWidget *parent, DictionaryManager & dict, tts::TTS *tts = 0);
+    OnyxDictFrame(QWidget *parent, DictionaryManager & dict, tts::TTS *tts = 0, bool exit_by_menu = true);
     ~OnyxDictFrame();
 
     void setDefaultFocus();
@@ -123,6 +123,7 @@ private:
     SystemActions system_actions_;      ///< System Actions
     int internal_state_;
     bool similar_words_checked_;
+    bool exit_by_menu_;
 
 private:
     NO_COPY_AND_ASSIGN(OnyxDictFrame);

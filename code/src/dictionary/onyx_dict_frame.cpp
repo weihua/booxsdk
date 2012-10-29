@@ -19,8 +19,10 @@ enum OnyxDictionaryMenuType
 
 static const int DICT_MENU_FONT_SIZE = 20;
 
-OnyxDictFrame::OnyxDictFrame(QWidget *parent, DictionaryManager & dict,
-        tts::TTS *tts)
+OnyxDictFrame::OnyxDictFrame(QWidget *parent,
+                             DictionaryManager & dict,
+                             tts::TTS *tts,
+                             bool exit_by_menu)
     : OnyxDialog(parent)
     , big_layout_(&content_widget_)
     , line_edit_layout_(0)
@@ -37,6 +39,7 @@ OnyxDictFrame::OnyxDictFrame(QWidget *parent, DictionaryManager & dict,
     , tts_engine_(tts)
     , internal_state_(-1)
     , similar_words_checked_(false)
+    , exit_by_menu_(exit_by_menu)
 {
 #ifndef Q_WS_QWS
     resize(600, 800);
@@ -741,5 +744,12 @@ void OnyxDictFrame::popupMenu()
 
 void OnyxDictFrame::returnToLibrary()
 {
-    qApp->exit();
+    if (exit_by_menu_)
+    {
+        qApp->exit();
+    }
+    else
+    {
+        close();
+    }
 }

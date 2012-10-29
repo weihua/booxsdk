@@ -16,7 +16,7 @@ class DictWidget : public OnyxDialog
     Q_OBJECT
 
 public:
-    DictWidget(QWidget *parent, DictionaryManager & dict, tts::TTS *tts = 0);
+    DictWidget(QWidget *parent, DictionaryManager & dict, tts::TTS *tts = 0, bool enable_full_screen = false);
     ~DictWidget();
 
 public:
@@ -47,6 +47,7 @@ Q_SIGNALS:
     void keyReleaseSignal(int);
     void closeClicked();
     void positionAdjusted();
+    void dictToolClicked();
 
 private:
     void createLayout();
@@ -105,7 +106,7 @@ private:
     OnyxPushButton dictionaries_button_;
     OnyxPushButton position_button_;
     OnyxPushButton close_button_;
-//    OnyxPushButton open_dictionary_tool_button_;
+    OnyxPushButton open_dictionary_tool_button_;
     QButtonGroup    button_group_;
 
     OnyxLabel func_description_label_;
@@ -124,6 +125,7 @@ private:
 
     int internal_state_;
     bool update_parent_;
+    bool enable_full_screen_;
 
 private:
     static const FunctionDescription DICT_FUNC_DESCRIPTION[];
