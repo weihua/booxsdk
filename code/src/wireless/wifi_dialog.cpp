@@ -96,9 +96,9 @@ WifiDialog::WifiDialog(QWidget *parent,
     , ap_dialog_visible_(false)
     , is_connecting_(false)
 {
-    setModal(true);
+//    setModal(true);
     setGeometry(0, DIALOG_SPACE, ui::screenGeometry().width(), ui::screenGeometry().height() - DIALOG_SPACE);
-    this->setStyleSheet("background-color: white");
+//    this->setStyleSheet("background-color: white");
     createLayout();
     setupConnections();
 }
@@ -126,6 +126,7 @@ int WifiDialog::popup(bool scan, bool auto_connect)
 
     proxy_.enableAutoConnect(auto_connect);
 
+    showMaximized();
     scanResults(scan_results_);
     arrangeAPItems(scan_results_);
 
