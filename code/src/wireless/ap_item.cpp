@@ -19,7 +19,7 @@ QLabel                                  \
 {                                       \
      padding: 0px;                      \
      background: transparent;           \
-     font: 22px ;                       \
+     font: 20px ;                       \
      color: black;                      \
  }";
 
@@ -38,10 +38,13 @@ static const QColor TITLE_BK_COLOR = QColor(210, 210, 210);
 static const QColor NORMAL_BK_COLOR = QColor(255, 255, 255);
 static const QColor SELECTED_BK_COLOR = QColor(164, 164, 164);
 
+static const QString SIGNAL_PATH_BLACK = ":/images/wifi_%1_black.png";
+static const QString SIGNAL_PATH_GRAY = ":/images/wifi_%1_gray.png";
 
 WifiTitleItem::WifiTitleItem(QWidget *parent)
 : QWidget(parent)
 , layout_(this)
+, icon_label_(0)
 , title_label_(tr("Starting Wifi Device..."), 0)
 , dash_board_(0, 0)
 {
@@ -59,6 +62,10 @@ void WifiTitleItem::createLayout()
 {
     layout_.setContentsMargins(SPACING, SPACING / 5, SPACING, SPACING / 5);
     layout_.setSpacing(10);
+
+    icon_label_.setPixmap(QPixmap(":/images/network_connection_icon.png"));
+    layout_.addWidget(&icon_label_, 0, Qt::AlignVCenter);
+    layout_.setSpacing(5);
 
     title_label_.setStyleSheet(LABEL_STYLE_WITH_SMALLER_TEXT);
 
@@ -79,12 +86,12 @@ void WifiTitleItem::createDashBoard()
 {
     ODatas datas;
     ODataPtr customize (new OData);
-    customize->insert(TAG_COVER, QPixmap(":/images/customize.png"));
+    customize->insert(TAG_COVER, QPixmap(":/images/config_black.png"));
     customize->insert(TAG_ID, ID_CUSTOMIZE);
     datas.push_back(customize);
 
     ODataPtr refresh (new OData);
-    refresh->insert(TAG_COVER, QPixmap(":/images/refresh.png"));
+    refresh->insert(TAG_COVER, QPixmap(":/images/refresh_black.png"));
     refresh->insert(TAG_ID, ID_REFRESH);
 
     datas.push_back(refresh);
@@ -135,16 +142,18 @@ bool WifiTitleItem::event(QEvent *e)
 }
 
 static QByteArray selected_bssid;
-scoped_ptr<QPixmap> WifiAPItem::selected_pixmap_;
 WifiAPItem *WifiAPItem::selected_item_ = 0;
 static WifiAPItem *previous_selected_item_ = 0;
 
 WifiAPItem::WifiAPItem(QWidget *parent)
     : ui::ContentView(parent)
     , hor_layout_(this)
+    , status_icon_label_(0)
     , ssid_label_(0)
-    , config_button_(QPixmap(":/images/customize.png"), "", 0)
+    , config_button_(QPixmap(":/images/config_gray.png"), "", 0)
     , lock_icon_label_(0)
+    , signal_icon_label_(0)
+    , signal_count_(0)
 {
     createLayout();
     updateByProfile(profile_);
@@ -226,15 +235,6 @@ void WifiAPItem::paintEvent(QPaintEvent *e)
         painter.fillPath(path, QBrush(NORMAL_BK_COLOR));
     }
 
-    if (isSelected())
-    {
-        if (!selected_pixmap_)
-        {
-            selected_pixmap_.reset(new QPixmap(":/images/selected.png"));
-        }
-        painter.drawPixmap(SPACING, (height() - selected_pixmap_->height()) / 2, *selected_pixmap_);
-    }
-
     QPen pen;
     pen.setWidth(penWidth());
 
@@ -243,12 +243,20 @@ void WifiAPItem::paintEvent(QPaintEvent *e)
         pen.setColor(Qt::black);
         painter.setPen(pen);
         painter.drawPath(path);
+        status_icon_label_.setPixmap(QPixmap(":/images/status_black.png"));
+        lock_icon_label_.setPixmap(QPixmap(":/images/lock_black.png"));
+        config_button_.setIcon(QIcon(QPixmap(":/images/config_black.png")));
+        signal_icon_label_.setPixmap(QPixmap(SIGNAL_PATH_BLACK.arg(signal_count_)));
     }
     else
     {
         pen.setColor(Qt::white);
         painter.setPen(pen);
         painter.drawPath(path);
+        status_icon_label_.setPixmap(QPixmap(":/images/status_gray.png"));
+        lock_icon_label_.setPixmap(QPixmap(":/images/lock_gray.png"));
+        config_button_.setIcon(QIcon(QPixmap(":/images/config_gray.png")));
+        signal_icon_label_.setPixmap(QPixmap(SIGNAL_PATH_GRAY.arg(signal_count_)));
     }
 }
 
@@ -292,21 +300,21 @@ void WifiAPItem::focusOutEvent(QFocusEvent * e)
 
 void WifiAPItem::createLayout()
 {
-    hor_layout_.setContentsMargins(ICON_SIZE + SPACING, SPACING / 2, SPACING, SPACING / 2);
+    hor_layout_.setContentsMargins(SPACING / 2, SPACING / 2, SPACING, SPACING / 2);
     hor_layout_.setSpacing(0);
 
     ssid_label_.setContentsMargins(0, 0, 0, 0);
+    hor_layout_.addWidget(&status_icon_label_, 0, Qt::AlignLeft);
+    hor_layout_.addSpacing(10);
     hor_layout_.addWidget(&ssid_label_, 0, Qt::AlignVCenter);
     hor_layout_.addStretch(0);
-    hor_layout_.addWidget(&lock_icon_label_, 0, Qt::AlignBottom);
-    for(int i = 0; i < SIGNAL_ICONS; ++i)
-    {
-        hor_layout_.addWidget(&signal_labels_[i], 0, Qt::AlignBottom);
-    }
+    hor_layout_.addWidget(&lock_icon_label_, 0, Qt::AlignVCenter);
+    hor_layout_.addSpacing(10);
+    hor_layout_.addWidget(&signal_icon_label_, 0, Qt::AlignVCenter);
 
     hor_layout_.addSpacing(10);
     config_button_.setFocusPolicy(Qt::NoFocus);
-    hor_layout_.addWidget(&config_button_, 0, Qt::AlignBottom);
+    hor_layout_.addWidget(&config_button_, 0, Qt::AlignVCenter);
     connect(&config_button_, SIGNAL(clicked(bool)), this, SLOT(onConfigButtonClicked()));
 }
 
@@ -319,10 +327,7 @@ void WifiAPItem::updateByProfile(WifiProfile & profile)
         lock_icon_label_.setVisible(false);
         config_button_.setVisible(true);
 
-        for(int i = 0; i < SIGNAL_ICONS; ++i)
-        {
-            signal_labels_[i].setVisible(false);
-        }
+        signal_icon_label_.setVisible(false);
         update();
         return;
     }
@@ -331,10 +336,7 @@ void WifiAPItem::updateByProfile(WifiProfile & profile)
     ssid_label_.setVisible(visible);
     lock_icon_label_.setVisible(visible);
     config_button_.setVisible(visible);
-    for(int i = 0; i < SIGNAL_ICONS; ++i)
-    {
-        signal_labels_[i].setVisible(visible);
-    }
+    signal_icon_label_.setVisible(visible);
 
     if (profile.bssid().isEmpty())
     {
@@ -345,7 +347,7 @@ void WifiAPItem::updateByProfile(WifiProfile & profile)
     ssid_label_.setText(profile.ssid());
     if (profile.isWep() || profile.isWpa() || profile.isWpa2())
     {
-        lock_icon_label_.setPixmap(QPixmap(":/images/lock.png"));
+        lock_icon_label_.setPixmap(QPixmap(":/images/lock_gray.png"));
     }
     else
     {
@@ -359,19 +361,8 @@ void WifiAPItem::updateByProfile(WifiProfile & profile)
         ++q;
     }
     int count = qMin(q, SIGNAL_ICONS);
-    for(int i = 0; i < count; ++i)
-    {
-        QString path(":/images/signal_fg_%1.png");
-        path = path.arg(i + 1);
-        signal_labels_[i].setPixmap(path);
-    }
-
-    for(int i = count; i < SIGNAL_ICONS; ++i)
-    {
-        QString path(":/images/signal_bk_%1.png");
-        path = path.arg(i + 1);
-        signal_labels_[i].setPixmap(path);
-    }
+    signal_count_ = count;
+    signal_icon_label_.setPixmap(SIGNAL_PATH_GRAY.arg(signal_count_));
     update();
 }
 

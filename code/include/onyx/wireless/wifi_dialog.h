@@ -83,7 +83,7 @@ private:
     void scanResults(WifiProfiles &);
     WifiProfiles records(sys::SystemConfig& conf);
 
-    void updateHardwareAddress();
+//    void updateHardwareAddress();
     void showPaginationButtons(bool show_prev = false, bool show_next = false);
     bool showConfigurationDialog(WifiProfile &profile);
 
@@ -103,7 +103,7 @@ private:
 
     OnyxLabel title_icon_label_;
     OnyxLabel title_text_label_;
-    OnyxLabel hardware_address_;
+//    OnyxLabel hardware_address_;
     OnyxPushButton close_button_;
 
     WifiTitleItem state_widget_;

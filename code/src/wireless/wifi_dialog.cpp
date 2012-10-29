@@ -11,6 +11,7 @@ const int SPACING = 2;
 const int WIDGET_HEIGHT = 36;
 static const int AP_ITEM_HEIGHT = 55;
 static const int MARGINS = 10;
+static const int DIALOG_SPACE = 30;
 
 static const QString BUTTON_STYLE =    "\
 QPushButton                             \
@@ -84,7 +85,7 @@ WifiDialog::WifiDialog(QWidget *parent,
     , buttons_layout_(0)
     , title_icon_label_(0)
     , title_text_label_(tr("Wireless Connections"), 0)
-    , hardware_address_("", 0)
+//    , hardware_address_("", 0)
     , close_button_("", 0)
     , state_widget_(this)
     , prev_button_(QPixmap(":/images/prev_page.png"), "", this)
@@ -95,9 +96,9 @@ WifiDialog::WifiDialog(QWidget *parent,
     , ap_dialog_visible_(false)
     , is_connecting_(false)
 {
-    setAutoFillBackground(true);
-    setBackgroundRole(QPalette::Base);
-
+    setModal(true);
+    setGeometry(0, DIALOG_SPACE, ui::screenGeometry().width(), ui::screenGeometry().height() - DIALOG_SPACE);
+    this->setStyleSheet("background-color: white");
     createLayout();
     setupConnections();
 }
@@ -125,7 +126,6 @@ int WifiDialog::popup(bool scan, bool auto_connect)
 
     proxy_.enableAutoConnect(auto_connect);
 
-    showMaximized();
     scanResults(scan_results_);
     arrangeAPItems(scan_results_);
 
@@ -161,13 +161,15 @@ void WifiDialog::keyReleaseEvent(QKeyEvent *ke)
 void WifiDialog::paintEvent(QPaintEvent *e)
 {
     QPainter painter(this);
-    painter.fillRect(title_hbox_.contentsRect(), QBrush(Qt::black));
-
-    QPainterPath path;
-    path.addRoundedRect(content_layout_.contentsRect().adjusted(2, 2, -2, -2), 8, 8, Qt::AbsoluteSize);
-    painter.fillPath(path, QBrush(QColor(230, 230, 230)));
-    painter.setPen(QColor(Qt::black));
-    painter.drawPath(path);
+    QPen pen;
+    pen.setColor(Qt::black);
+    pen.setWidth(SPACING);
+    painter.setPen(pen);
+    int line_1_start_x = 0;
+    int line_1_start_y = state_widget_layout_.contentsRect().y() + state_widget_layout_.contentsRect().height() + SPACING * 2;
+    int line_1_end_x = ui::screenGeometry().width();
+    int line_1_end_y = line_1_start_y;
+    painter.drawLine(line_1_start_x, line_1_start_y, line_1_end_x, line_1_end_y);
 }
 
 void WifiDialog::resizeEvent(QResizeEvent *re)
@@ -188,27 +190,6 @@ void WifiDialog::createLayout()
     // big_box_.setSizeConstraint(QLayout::SetMinimumSize);
     big_box_.setSpacing(SPACING);
     big_box_.setContentsMargins(SPACING, SPACING, SPACING, SPACING);
-
-    // title hbox.
-    big_box_.addLayout(&title_hbox_);
-    title_hbox_.setContentsMargins(0, 0, 0, 0);
-    title_hbox_.addWidget(&title_icon_label_, 0, Qt::AlignVCenter);
-    title_hbox_.addSpacing(SPACING * 2);
-    title_hbox_.addWidget(&title_text_label_, 0, Qt::AlignVCenter);
-    title_hbox_.addStretch(0);
-    title_hbox_.addWidget(&close_button_);
-    title_icon_label_.setPixmap(QPixmap(":/images/network_connection.png"));
-    title_text_label_.setAlignment(Qt::AlignVCenter);
-    title_icon_label_.setFixedHeight(WIDGET_HEIGHT);
-    title_text_label_.useTitleBarStyle();
-    title_text_label_.setFixedHeight(WIDGET_HEIGHT);
-
-    close_button_.setStyleSheet(BUTTON_STYLE);
-    QPixmap close_pixmap(":/images/close.png");
-    close_button_.setIconSize(close_pixmap.size());
-    close_button_.setIcon(QIcon(close_pixmap));
-    close_button_.setFocusPolicy(Qt::NoFocus);
-    QObject::connect(&close_button_, SIGNAL(clicked()), this, SLOT(onCloseClicked()));
 
     // content layout.
     big_box_.addLayout(&content_layout_);
@@ -235,6 +216,7 @@ void WifiDialog::createLayout()
 
     ap_view_.setPreferItemSize(QSize(-1, AP_ITEM_HEIGHT));
     ap_view_.setNeighbor(&state_widget_.dashBoard(), CatalogView::UP);
+    ap_view_.setFixedHeight(400);
     content_layout_.addSpacing(50);
 
     // Buttons.
@@ -248,9 +230,11 @@ void WifiDialog::createLayout()
     showPaginationButtons(true, true);
 
     // Hardware address.
-    hardware_address_.setFixedHeight(WIDGET_HEIGHT);
+   /* hardware_address_.setFixedHeight(WIDGET_HEIGHT);
     hardware_address_.setContentsMargins(MARGINS, 0, MARGINS, 0);
-    content_layout_.addWidget(&hardware_address_);
+    content_layout_.addWidget(&hardware_address_);*/
+
+    content_layout_.addSpacing(DIALOG_SPACE);
 }
 
 void WifiDialog::scanResults(WifiProfiles &aps)
@@ -486,7 +470,7 @@ void WifiDialog::onSdioChanged(bool on)
     {
         onRefreshClicked();
         enableChildren(on);
-        updateHardwareAddress();
+        //updateHardwareAddress();
     }
     else
     {
@@ -731,14 +715,14 @@ WifiProfiles WifiDialog::records(sys::SystemConfig &conf)
     conf.loadWifiProfiles(records);
     return records;
 }
-
+/*
 void WifiDialog::updateHardwareAddress()
 {
     QString text(tr("Hardware Address: %1"));
     text = text.arg(proxy_.hardwareAddress());
     hardware_address_.setText(text);
 }
-
+*/
 void WifiDialog::checkAndRestorePassword(WifiProfile &profile)
 {
     sys::SystemConfig conf;
