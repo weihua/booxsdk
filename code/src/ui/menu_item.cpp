@@ -15,6 +15,7 @@ MenuItem::MenuItem(QWidget *parent, QAction *action)
     : QWidget(parent)
     , action_(0)
     , is_layout_dirty_(true)
+    , require_background_(true)
 {
     // setAutoFillBackground(true);
     // setBackgroundRole(QPalette::Base);
@@ -31,18 +32,18 @@ QSize MenuItem::sizeHint() const
 {
     if(ui::isHD() && sys::isIRTouch())
     {
-        return QSize(100, 113);
+        return QSize(105, 113);
     }
-    return QSize(80, 95);
+    return QSize(85, 95);
 }
 
 QSize MenuItem::minimumSizeHint() const
 {
     if(ui::isHD() && sys::isIRTouch())
     {
-        return QSize(100, 113);
+        return QSize(105, 113);
     }
-    return QSize(80, 95);
+    return QSize(85, 95);
 }
 
 bool MenuItem::event(QEvent *e)
@@ -66,58 +67,73 @@ bool MenuItem::event(QEvent *e)
 void MenuItem::paintEvent(QPaintEvent *e)
 {
     if (!updateLayout())
-    {
-        return;
-    }
+      {
+          return;
+      }
 
-    QPainter p(this);
+      QPainter p(this);
 
-    static const int OFFSET = 1;
-    static const int ROUNDED = 8;
-    QPainterPath path;
-    QRect rc = QRect(0, 0, 80, 88); // focus range
-    rc.adjust(OFFSET, OFFSET, -OFFSET, -OFFSET);
-    path.addRoundedRect(rc, ROUNDED, ROUNDED, Qt::AbsoluteSize);
+      static const int OFFSET = 1;
+      static const int ROUNDED = 3;
+      QPainterPath path;
+      QRect rc = rect().adjusted(4, 4, -5, -6);
 
-    QRect icon_rect(icon_pos_, iconActualSize());
-    if (action_->isChecked())
-    {
-        action_->icon().paint(&p, icon_rect,
-                              Qt::AlignTop|Qt::AlignHCenter,
-                              QIcon::Selected, QIcon::On);
-    }
-    else if (action_->isEnabled())
-    {
-        action_->icon().paint(&p, icon_rect,
-                              Qt::AlignTop|Qt::AlignHCenter);
-    }
-    else if (!action_->isEnabled())
-    {
-        action_->icon().paint(&p, icon_rect,
-                              Qt::AlignTop|Qt::AlignHCenter,
-                              QIcon::Disabled);
-    }
+      QRect paint_rc;
+      paint_rc = rect().adjusted(2, 2, -3, -3);
+      path.addRoundedRect(paint_rc, ROUNDED, ROUNDED, Qt::AbsoluteSize);
+      rc.adjust(OFFSET, OFFSET, -OFFSET, -OFFSET);
 
-    // Draw text.
-    QPen pen(Qt::SolidLine);
-    if (action_->isEnabled())
-    {
-        pen.setColor(Qt::black);
-    }
-    else
-    {
-        pen.setColor(Qt::lightGray);
-    }
+      QPen pen(Qt::SolidLine);
+      if (action_->isEnabled())
+      {
+          pen.setColor(Qt::black);
+      }
+      else
+      {
+          pen.setColor(Qt::lightGray);
+      }
 
-    pen.setWidth(1);
-    p.setPen(pen);
-    title_layout_.draw(&p, QPoint());
+      if (hasFocus())
+      {
+          pen.setColor(Qt::black);
+          pen.setBrush(Qt::black);
+          pen.setWidth(2);
+          p.setPen(pen);
+          p.drawPath(path);
+      }
 
-    if (hasFocus())
-    {
-        p.setPen(pen);
-        p.drawPath(path);
-    }
+      if(require_background_)
+      {
+          pen.setWidth(2);
+          pen.setColor(QColor(76, 76, 76));
+          p.setPen(pen);
+          p.setBrush(Qt::gray);
+          p.drawRoundRect(rc);
+      }
+
+      QRect icon_rect(icon_pos_, iconActualSize());
+      if (action_->isChecked())
+      {
+          action_->icon().paint(&p, icon_rect,
+                                Qt::AlignTop|Qt::AlignHCenter,
+                                QIcon::Selected, QIcon::On);
+      }
+      else if (action_->isEnabled())
+      {
+          action_->icon().paint(&p, icon_rect,
+                                Qt::AlignTop|Qt::AlignHCenter);
+      }
+      else if (!action_->isEnabled())
+      {
+          action_->icon().paint(&p, icon_rect,
+                                Qt::AlignTop|Qt::AlignHCenter,
+                                QIcon::Disabled);
+      }
+
+      // Draw text.
+      pen.setColor(Qt::black);
+      p.setPen(pen);
+      title_layout_.draw(&p, QPoint(0, 0));
 }
 
 void MenuItem::mousePressEvent(QMouseEvent *e)
@@ -197,7 +213,7 @@ bool MenuItem::updateLayout()
         QTextLine line = title_layout_.createLine();
         while (line.isValid())
         {
-            line.setLineWidth(rect().width());
+            line.setLineWidth(rect().width()-8);
             layout_width_ = static_cast<int>(line.naturalTextRect().width());
             if (w < layout_width_)
             {
@@ -225,6 +241,16 @@ bool MenuItem::updateLayout()
 QSize MenuItem::iconActualSize() const
 {
     return action_->icon().actualSize(QSize(1024, 1024));
+}
+
+void MenuItem::setRequireBackground(bool require)
+{
+    require_background_ = require;
+}
+
+bool MenuItem::getRequereBackground()
+{
+    return require_background_;
 }
 
 
@@ -474,6 +500,7 @@ bool Section::arrangeItems(QWidget *parent, BaseActions *base_actions, int rows,
             {
                 MenuItem *wnd = createItem(parent, 0);
                 items_.push_back(wnd);
+                layout_.setSpacing(0);
                 layout_.setVerticalSpacing(5);
                 layout_.addWidget(wnd, r, c);
             }

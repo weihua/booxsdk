@@ -60,7 +60,7 @@ QLabel                                  \
 const static int MARGIN = 2;
 const static int RND = 25;
 const static int PEN_WIDTH = 2;
-const static int OUT_WIDTH = 6;
+const static int OUT_WIDTH = 4;
 
 static QTime popup_time;
 
@@ -133,11 +133,11 @@ void PopupMenu::createMenuLayout()
     // Left category section.
 
     menu_layout_.setSpacing(0);
-    categroy_section_.layout().setContentsMargins(3, 0, 0, 0);
+    categroy_section_.layout().setContentsMargins(2, 0, 0, 0);
     menu_layout_.addLayout(&categroy_section_.layout());
 
     // Childrent section.
-    children_section_.layout().setContentsMargins(0, 0, 4, 0);
+    children_section_.layout().setContentsMargins(0, 0, 2, 0);
     menu_layout_.addLayout(&children_section_.layout());
 
     big_layout_.addWidget(&system_title_widget_);
@@ -184,7 +184,8 @@ void PopupMenu::resizeRoundRectDialog(void)
 
 void PopupMenu::addCategory(QAction *category)
 {
-    categroy_section_.addItem(this, category, categroy_section_.items().size(), 0);
+    MenuItem * item = categroy_section_.addItem(this, category, categroy_section_.items().size(), 0);
+    item->setRequireBackground(false);
     if (category->isChecked())
     {
         selected_category_ = category;
@@ -308,8 +309,8 @@ void PopupMenu::paintEvent(QPaintEvent *pe)
     int span_angle_down = 90 * 16;
     p.drawArc(x, y + h - rh, rw, rh, start_angle_down, span_angle_down);
 
-    p.drawLine(x + rw / 2, y, x + w - MARGIN * 3, y);
-    p.drawLine(x + rw / 2, y + h, x + w - MARGIN * 3, y + h);
+    p.drawLine(x + rw / 2, y, x + w - MARGIN * 5, y);
+    p.drawLine(x + rw / 2, y + h, x + w - MARGIN * 5, y + h);
     p.drawLine(x, y + rh / 2, x, y + h - rh / 2);
 
     onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU);
