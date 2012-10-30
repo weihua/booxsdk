@@ -36,6 +36,7 @@ SystemConfig::SystemConfig()
     PageTurningConfig::makeSureTableExist(*database_);
     FontConfig::makeSureTableExist(*database_);
     MiscConfig::makeSureTableExist(*database_);
+    FirmwareConfig::makeSureTableExist(*database_);
 }
 
 SystemConfig::~SystemConfig()

@@ -95,7 +95,7 @@ private:
 
     void increaseScanRetry() { ++scan_count_; }
     void resetScanRetry() { scan_count_ = 0; }
-    bool canScanRetry() { return scan_count_ <= 5; }
+    bool canScanRetry() { return scan_count_ <= 2; }
 
     int increaseConnectRetry() { return ++connect_retry_; }
     void resetConnectRetry() { connect_retry_ = 0; }
