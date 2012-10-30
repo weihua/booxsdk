@@ -61,6 +61,8 @@ static const QString TAG_COVER_BIG ="big_cover";
 static const QString TAG_CDL_BOOK_CATEGORY_ID = "cdl_book_category_id";
 static const QString TAG_CDL_BOOK_CATEGORY_NAME="cdl_book_category_name";
 static const QString TAG_CDL_BOOK_CATEGORY_TOTAL="cdl_book_category_total";
+static const QString TAG_CDL_BOOK_COVER_PIXMAP="cdl_book_cover_pixmap";
+static const QString TAG_CDL_BOOK_COVER_PIXMAP_BIG="cdl_book_cover_pixmap_big";
 
 
 #endif
