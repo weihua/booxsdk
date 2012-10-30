@@ -78,13 +78,10 @@ WifiDialog::WifiDialog(QWidget *parent,
     : QDialog(parent, Qt::FramelessWindowHint)
 #endif
     , big_box_(this)
-    , title_hbox_(0)
     , state_widget_layout_(0)
     , content_layout_(0)
     , ap_layout_(0)
     , buttons_layout_(0)
-    , title_icon_label_(0)
-    , title_text_label_(tr("Wireless Connections"), 0)
 //    , hardware_address_("", 0)
     , close_button_("", 0)
     , state_widget_(this)
@@ -96,9 +93,7 @@ WifiDialog::WifiDialog(QWidget *parent,
     , ap_dialog_visible_(false)
     , is_connecting_(false)
 {
-//    setModal(true);
     setGeometry(0, DIALOG_SPACE, ui::screenGeometry().width(), ui::screenGeometry().height() - DIALOG_SPACE);
-//    this->setStyleSheet("background-color: white");
     createLayout();
     setupConnections();
 }
@@ -109,7 +104,6 @@ WifiDialog::~WifiDialog()
 
 void WifiDialog::updateTr()
 {
-    title_text_label_.setText(tr("Wireless Connections"));
     update();
 }
 
@@ -125,8 +119,6 @@ int WifiDialog::popup(bool scan, bool auto_connect)
     clicked_ssid_.clear();
 
     proxy_.enableAutoConnect(auto_connect);
-
-    showMaximized();
     scanResults(scan_results_);
     arrangeAPItems(scan_results_);
 
@@ -189,17 +181,14 @@ void WifiDialog::mouseReleaseEvent(QMouseEvent *)
 void WifiDialog::createLayout()
 {
     // big_box_.setSizeConstraint(QLayout::SetMinimumSize);
-    big_box_.setSpacing(SPACING);
     big_box_.setContentsMargins(SPACING, SPACING, SPACING, SPACING);
-
     // content layout.
     big_box_.addLayout(&content_layout_);
-    content_layout_.setContentsMargins(MARGINS, MARGINS, MARGINS, MARGINS);
+    content_layout_.setContentsMargins(MARGINS, 0, MARGINS, 0);
 
     // Status.
     state_widget_layout_.setContentsMargins(MARGINS, 0, MARGINS, 0);
     state_widget_layout_.addWidget(&state_widget_);
-    content_layout_.addSpacing(10);
     content_layout_.addLayout(&state_widget_layout_);
     QObject::connect(&state_widget_, SIGNAL(refreshClicked()), this, SLOT(onRefreshClicked()));
     QObject::connect(&state_widget_, SIGNAL(customizedClicked()), this, SLOT(onCustomizedClicked()));
@@ -215,9 +204,9 @@ void WifiDialog::createLayout()
     QObject::connect(&ap_view_, SIGNAL(positionChanged(const int, const int)), this, SLOT(onPositionChanged(const int, const int)));
     QObject::connect(&ap_view_, SIGNAL(itemActivated(CatalogView*, ContentView*, int)), this, SLOT(onItemActivated(CatalogView*, ContentView*, int)));
 
+    ap_view_.setFixedHeight(550);
     ap_view_.setPreferItemSize(QSize(-1, AP_ITEM_HEIGHT));
     ap_view_.setNeighbor(&state_widget_.dashBoard(), CatalogView::UP);
-    ap_view_.setFixedHeight(400);
     content_layout_.addSpacing(50);
 
     // Buttons.
@@ -236,6 +225,7 @@ void WifiDialog::createLayout()
     content_layout_.addWidget(&hardware_address_);*/
 
     content_layout_.addSpacing(DIALOG_SPACE);
+    big_box_.addStretch();
 }
 
 void WifiDialog::scanResults(WifiProfiles &aps)

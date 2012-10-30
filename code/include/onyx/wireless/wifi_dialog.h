@@ -95,14 +95,11 @@ private:
 
 private:
     QVBoxLayout  big_box_;
-    QHBoxLayout  title_hbox_;
     QHBoxLayout state_widget_layout_;
     QVBoxLayout content_layout_;
     QVBoxLayout ap_layout_;
     QHBoxLayout buttons_layout_;
 
-    OnyxLabel title_icon_label_;
-    OnyxLabel title_text_label_;
 //    OnyxLabel hardware_address_;
     OnyxPushButton close_button_;
 

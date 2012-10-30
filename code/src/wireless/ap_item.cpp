@@ -50,7 +50,7 @@ WifiTitleItem::WifiTitleItem(QWidget *parent)
 {
     setAutoFillBackground(true);
     setBackgroundRole(QPalette::Base);
-    setFixedHeight(80);
+    setFixedHeight(55);
     createLayout();
 }
 
@@ -60,7 +60,7 @@ WifiTitleItem::~WifiTitleItem()
 
 void WifiTitleItem::createLayout()
 {
-    layout_.setContentsMargins(SPACING, SPACING / 5, SPACING, SPACING / 5);
+    layout_.setContentsMargins(SPACING, 0, SPACING, SPACING / 5);
     layout_.setSpacing(10);
 
     icon_label_.setPixmap(QPixmap(":/images/network_connection_icon.png"));
@@ -302,8 +302,9 @@ void WifiAPItem::createLayout()
 {
     hor_layout_.setContentsMargins(SPACING / 2, SPACING / 2, SPACING, SPACING / 2);
     hor_layout_.setSpacing(0);
-
+    status_icon_label_.setPixmap(QPixmap(":/images/status_gray.png"));
     ssid_label_.setContentsMargins(0, 0, 0, 0);
+    ssid_label_.setStyleSheet(LABEL_STYLE_WITH_SMALLER_TEXT);
     hor_layout_.addWidget(&status_icon_label_, 0, Qt::AlignLeft);
     hor_layout_.addSpacing(10);
     hor_layout_.addWidget(&ssid_label_, 0, Qt::AlignVCenter);
@@ -312,7 +313,7 @@ void WifiAPItem::createLayout()
     hor_layout_.addSpacing(10);
     hor_layout_.addWidget(&signal_icon_label_, 0, Qt::AlignVCenter);
 
-    hor_layout_.addSpacing(10);
+    hor_layout_.addSpacing(8);
     config_button_.setFocusPolicy(Qt::NoFocus);
     hor_layout_.addWidget(&config_button_, 0, Qt::AlignVCenter);
     connect(&config_button_, SIGNAL(clicked(bool)), this, SLOT(onConfigButtonClicked()));
@@ -322,6 +323,7 @@ void WifiAPItem::updateByProfile(WifiProfile & profile)
 {
     if (!profile.isPresent())
     {
+        status_icon_label_.setVisible(true);
         ssid_label_.setText(profile.ssid());
         ssid_label_.setVisible(true);
         lock_icon_label_.setVisible(false);
@@ -333,6 +335,7 @@ void WifiAPItem::updateByProfile(WifiProfile & profile)
     }
 
     bool visible = !profile.bssid().isEmpty();
+    status_icon_label_.setVisible(visible);
     ssid_label_.setVisible(visible);
     lock_icon_label_.setVisible(visible);
     config_button_.setVisible(visible);

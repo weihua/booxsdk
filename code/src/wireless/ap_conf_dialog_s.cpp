@@ -209,6 +209,7 @@ void ApConfigDialogS::createInputs(int size)
 
 void ApConfigDialogS::createLayout()
 {
+    setModal(true);
     vbox_.setSpacing(0);
     content_widget_.setBackgroundRole(QPalette::Button);
     content_widget_.setContentsMargins(0, 0, 0, 0);
