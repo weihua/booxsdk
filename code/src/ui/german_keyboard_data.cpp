@@ -49,7 +49,7 @@ void GermanKeyboardData::initTopKeyCode()
 
 void GermanKeyboardData::initLeftKeyCode()
 {
-    const QChar chs[] = { 'q', 'w', 'e', 'a', 's', 'd', 'z', 'x', 'c' };
+    const QChar chs[] = { 'q', 'w', 'e', 'a', 's', 'd', 'y', 'x', 'c' };
     for (int i = 0; i < 9; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
@@ -59,7 +59,7 @@ void GermanKeyboardData::initLeftKeyCode()
 
 void GermanKeyboardData::initMiddleKeyCode()
 {
-    const QChar chs[] = {'r', 't', 'y', 'f', 'g', 'h', 'v', 'b', 'n'};
+    const QChar chs[] = {'r', 't', 'z', 'f', 'g', 'h', 'v', 'b', 'n'};
     for (int i=0; i<9; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
@@ -104,7 +104,7 @@ void GermanKeyboardData::initTopKeyShiftCode()
 
 void GermanKeyboardData::initLeftKeyShiftCode()
 {
-    const QChar chs[] = { 'Q', 'W', 'E', 'A', 'S', 'D', 'Z', 'X', 'C' };
+    const QChar chs[] = { 'Q', 'W', 'E', 'A', 'S', 'D', 'Y', 'X', 'C' };
     for (int i = 0; i < 9; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
@@ -114,7 +114,7 @@ void GermanKeyboardData::initLeftKeyShiftCode()
 
 void GermanKeyboardData::initMiddleKeyShiftCode()
 {
-    const QChar chs[] = {'R', 'T', 'Y', 'F', 'G', 'H', 'V', 'B', 'N'};
+    const QChar chs[] = {'R', 'T', 'Z', 'F', 'G', 'H', 'V', 'B', 'N'};
     for (int i=0; i<9; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
