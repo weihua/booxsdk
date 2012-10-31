@@ -62,6 +62,7 @@ private:
     bool loadTranslator();
 
     void resizeRoundRectDialog();
+    bool isLandscapeMode();
 
 public Q_SLOTS:
     virtual void done(int);

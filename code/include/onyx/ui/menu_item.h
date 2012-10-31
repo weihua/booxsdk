@@ -91,7 +91,7 @@ private Q_SLOTS:
 
 private:
     MenuItem *createItem(QWidget *parent, QAction *action);
-
+    bool isLandscapeMode();
 
     int prevRow(int pos);
     int prevColumn(int pos);

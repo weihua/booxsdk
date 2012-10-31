@@ -1,7 +1,7 @@
 #include <algorithm>
 #include "onyx/ui/menu_item.h"
 #include "onyx/sys/platform.h"
-
+#include "onyx/sys/sys_status.h"
 
 namespace ui
 {
@@ -534,11 +534,14 @@ bool Section::arrangeItems(QWidget *parent, BaseActions *base_actions, int rows,
         }
         else if (act)
         {
-            int begin = (i / columns) * columns;
-            int end = begin + columns;
-            for(; i != begin && i < end;++i)
+            if(!isLandscapeMode())
             {
-                items_[i]->setAction(0);
+                int begin = (i / columns) * columns;
+                int end = begin + columns;
+                for(; i != begin && i < end;++i)
+                {
+                    items_[i]->setAction(0);
+                }
             }
         }
         else
@@ -566,6 +569,20 @@ void Section::onClicked(MenuItem *wnd, QAction *action)
         current_focus_ = i;
     }
     emit clicked(wnd, action);
+}
+
+bool Section::isLandscapeMode()
+{
+    QRect rc = QApplication::desktop()->geometry();
+    int def_rotation = sys::defaultRotation();
+    int r1 = (def_rotation + 90) % 360;
+    int r2 = (def_rotation + 270) % 360;
+    if (sys::SysStatus::instance().screenTransformation() == r1 ||
+        sys::SysStatus::instance().screenTransformation() == r2)
+    {
+        return true;
+    }
+    return false;
 }
 
 }

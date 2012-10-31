@@ -6,7 +6,7 @@
 #include "onyx/ui/keyboard_navigator.h"
 #include "onyx/screen/screen_proxy.h"
 #include "onyx/screen/screen_update_watcher.h"
-
+#include "onyx/sys/sys_status.h"
 
 namespace ui
 {
@@ -130,15 +130,32 @@ void PopupMenu::createMenuLayout()
 
     big_layout_.addLayout(&menu_layout_);
 
-    // Left category section.
+    if(isLandscapeMode())
+    {
+        // Bottom category section.
 
-    menu_layout_.setSpacing(0);
-    categroy_section_.layout().setContentsMargins(2, 0, 0, 0);
-    menu_layout_.addLayout(&categroy_section_.layout());
+        menu_layout_.setSpacing(0);
+        categroy_section_.layout().setContentsMargins(2, 0, 0, 0);
+        big_layout_.addLayout(&categroy_section_.layout());
 
-    // Childrent section.
-    children_section_.layout().setContentsMargins(0, 0, 2, 0);
-    menu_layout_.addLayout(&children_section_.layout());
+        // Childrent section.
+        children_section_.layout().setContentsMargins(0, 0, 2, 0);
+        menu_layout_.addLayout(&children_section_.layout());
+    }
+    else
+    {
+        // Left category section.
+
+        menu_layout_.setSpacing(0);
+        categroy_section_.layout().setContentsMargins(2, 0, 0, 0);
+        menu_layout_.addLayout(&categroy_section_.layout());
+
+        // Childrent section.
+        children_section_.layout().setContentsMargins(0, 0, 2, 0);
+        menu_layout_.addLayout(&children_section_.layout());
+
+    }
+
 
     big_layout_.addWidget(&system_title_widget_);
 
@@ -171,20 +188,32 @@ void PopupMenu::createMenuLayout()
 
 void PopupMenu::resizeRoundRectDialog(void)
 {
-    QPainterPath path;
-    QPixmap pixmap(":/images/menu_background.png");
-    int dialog_width = pixmap.width();
-    int dialog_height = pixmap.height();
-    QRectF rect = QRectF(0,0,dialog_width,dialog_height);
-    path.addRoundRect(rect,3,3);
-    QPolygon polygon= path.toFillPolygon().toPolygon();
-    QRegion region(polygon);
-    setMask(region);
+    if(!isLandscapeMode())
+    {
+        QPainterPath path;
+        QPixmap pixmap(":/images/menu_background.png");
+        int dialog_width = pixmap.width();
+        int dialog_height = pixmap.height();
+        QRectF rect = QRectF(0,0,dialog_width,dialog_height);
+        path.addRoundRect(rect,3,3);
+        QPolygon polygon= path.toFillPolygon().toPolygon();
+        QRegion region(polygon);
+        setMask(region);
+    }
 }
 
 void PopupMenu::addCategory(QAction *category)
 {
-    MenuItem * item = categroy_section_.addItem(this, category, categroy_section_.items().size(), 0);
+    MenuItem * item = 0;
+    if(isLandscapeMode())
+    {
+        item = categroy_section_.addItem(this, category, 1, categroy_section_.items().size());
+    }
+    else
+    {
+        item = categroy_section_.addItem(this, category, categroy_section_.items().size(), 0);
+    }
+
     item->setRequireBackground(false);
     if (category->isChecked())
     {
@@ -205,11 +234,20 @@ bool PopupMenu::arrangeItems(BaseActions *items)
 
 int PopupMenu::rows()
 {
+    if(isLandscapeMode())
+    {
+        return 3;
+    }
     return 5;
+
 }
 
 int  PopupMenu::columns()
 {
+    if(isLandscapeMode())
+    {
+        return 7;
+    }
     return 5;
 }
 
@@ -283,36 +321,65 @@ void PopupMenu::paintEvent(QPaintEvent *pe)
 {
     QPainter p(this);
 
-    QString image_path(":/images/menu_background.png");
-    p.drawPixmap(rect(), QPixmap(image_path));
-
     int index = categroy_section_.currentFocusItem();
     MenuItem * item = categroy_section_.items()[index];
     QPoint item_point = item->mapToParent(QPoint(0, 0));
 
     int w = item->rect().width() + OUT_WIDTH;
     int h = item->rect().height();
-    int x = MARGIN;
-    int y = item_point.y() - MARGIN;
+
     int rw = float(w) * float(RND) / 100.0;
     int rh = float(h) * float(RND) / 100.0;
 
-    p.setBrush(Qt::white);
-    p.setPen(QPen(Qt::white, PEN_WIDTH, Qt::SolidLine));
-    p.drawRoundRect(x, y, w, h, RND, RND);
-    p.setBrush(Qt::white);
-    p.setPen(QPen(Qt::black, PEN_WIDTH, Qt::SolidLine));
-    int start_angle_up = 90* 16;
-    int span_angle_up = 90 * 16;
-    p.drawArc(x, y, rw, rh, start_angle_up, span_angle_up);
-    int start_angle_down = 180 * 16;
-    int span_angle_down = 90 * 16;
-    p.drawArc(x, y + h - rh, rw, rh, start_angle_down, span_angle_down);
+    int x = MARGIN;
+    int y = item_point.y() - MARGIN;
 
-    p.drawLine(x + rw / 2, y, x + w - MARGIN * 5, y);
-    p.drawLine(x + rw / 2, y + h, x + w - MARGIN * 5, y + h);
-    p.drawLine(x, y + rh / 2, x, y + h - rh / 2);
+    if(!isLandscapeMode())
+    {
+        QString image_path(":/images/menu_background.png");
+        p.drawPixmap(rect(), QPixmap(image_path));
 
+        p.setBrush(Qt::white);
+        p.setPen(QPen(Qt::white, PEN_WIDTH, Qt::SolidLine));
+        p.drawRoundRect(x, y, w, h, RND, RND);
+        p.setBrush(Qt::white);
+        p.setPen(QPen(Qt::black, PEN_WIDTH, Qt::SolidLine));
+        int start_angle_up = 90* 16;
+        int span_angle_up = 90 * 16;
+        p.drawArc(x, y, rw, rh, start_angle_up, span_angle_up);
+        int start_angle_down = 180 * 16;
+        int span_angle_down = 90 * 16;
+        p.drawArc(x, y + h - rh, rw, rh, start_angle_down, span_angle_down);
+
+        p.drawLine(x + rw / 2, y, x + w - MARGIN * 5, y);
+        p.drawLine(x + rw / 2, y + h, x + w - MARGIN * 5, y + h);
+        p.drawLine(x, y + rh / 2, x, y + h - rh / 2);
+    }
+    else
+    {
+        p.drawPixmap(rect(), QPixmap(":/images/menu_background_landscape.png"));
+
+        x = item_point.x() - MARGIN;
+        y = item_point.y() - MARGIN;
+
+        p.setBrush(Qt::white);
+        p.setPen(QPen(Qt::white, PEN_WIDTH, Qt::SolidLine));
+        p.drawRect(x, y, w, h/2);
+        p.drawRoundRect(x, y + h/2, w, h/2);
+
+        p.setPen(QPen(Qt::black, PEN_WIDTH, Qt::SolidLine));
+        int start_angle_left = 180 * 16;
+        int span_angle_left = 90 * 16;
+
+        p.drawArc(x, y + h - rh, rw, rh, start_angle_left, span_angle_left);
+        int start_angle_right = 270 * 16;
+        int span_angle_right = 90 * 16;
+        p.drawArc(x + w - rw, y + h - rh, rw, rh, start_angle_right, span_angle_right);
+
+        p.drawLine(x + rw / 2, y + h, x + w - MARGIN * 5, y + h);
+        p.drawLine(x, y, x, y + h - rh / 2);
+        p.drawLine(x + w, y , x + w, y + h - rh / 2);
+    }
     onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU);
 }
 
@@ -435,7 +502,6 @@ int PopupMenu::popup(const QString &)
     // when menu is shown. The Qt framebuffer is updated but it's not necessary
     // to update the screen here.
     onyx::screen::watcher().addWatcher(this);
-    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
 
     arrangeItems(all_actions_[group]);
     setModal(true);
@@ -455,10 +521,20 @@ int PopupMenu::popup(const QString &)
     }
     QCoreApplication::removePostedEvents(0);
 
-    QRect rect = QApplication::desktop()->rect();
-    QPixmap pixmap(":/images/menu_background_1.png");
+    QRect rect = ui::safeParentWidget(parentWidget())->rect();
+
+    QPixmap pixmap;
+    if(!isLandscapeMode())
+    {
+        pixmap = QPixmap(":/images/menu_background_1.png");
+    }
+    else
+    {
+        pixmap = QPixmap(":/images/menu_background_landscape.png");
+    }
     move((rect.width()-pixmap.width())/2, (rect.height()-pixmap.height())/2);
 
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
     int ret = exec();
 
     // releaseMouse();
@@ -538,4 +614,17 @@ bool PopupMenu::event(QEvent * e)
     return ret;
 }
 
+bool PopupMenu::isLandscapeMode()
+{
+    QRect rc = QApplication::desktop()->geometry();
+    int def_rotation = sys::defaultRotation();
+    int r1 = (def_rotation + 90) % 360;
+    int r2 = (def_rotation + 270) % 360;
+    if (sys::SysStatus::instance().screenTransformation() == r1 ||
+        sys::SysStatus::instance().screenTransformation() == r2)
+    {
+        return true;
+    }
+    return false;
+}
 }
