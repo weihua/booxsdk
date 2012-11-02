@@ -80,8 +80,6 @@ private:
     bool isSelected();
     bool isAPChecked();
 
-    int getSignalStrength(int level_in_profile);
-
 private Q_SLOTS:
     void onConfigButtonClicked();
 

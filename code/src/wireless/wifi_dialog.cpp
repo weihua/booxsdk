@@ -735,12 +735,6 @@ bool WifiDialog::showConfigurationDialog(WifiProfile &profile)
     // load the stored password
     checkAndRestorePassword(profile);
 
-    if (!isActiveWindow())
-    {
-        qDebug() << "WifiDialog, not active window, ignore showing config dialog";
-        return false;
-    }
-
     ap_dialog_visible_ = true;
     ApConfigDialogS dialog(this, profile);
     int ret = dialog.popup();
