@@ -188,18 +188,19 @@ void PopupMenu::createMenuLayout()
 
 void PopupMenu::resizeRoundRectDialog(void)
 {
-    if(!isLandscapeMode())
+    QPixmap pixmap(":/images/menu_background.png");
+    if(isLandscapeMode())
     {
-        QPainterPath path;
-        QPixmap pixmap(":/images/menu_background.png");
-        int dialog_width = pixmap.width();
-        int dialog_height = pixmap.height();
-        QRectF rect = QRectF(0,0,dialog_width,dialog_height);
-        path.addRoundRect(rect,3,3);
-        QPolygon polygon= path.toFillPolygon().toPolygon();
-        QRegion region(polygon);
-        setMask(region);
+        pixmap = QPixmap(":/images/menu_background_landscape.png");
     }
+    QPainterPath path;
+    int dialog_width = pixmap.width();
+    int dialog_height = pixmap.height();
+    QRectF rect = QRectF(0, 0, dialog_width, dialog_height);
+    path.addRoundRect(rect, 3, 3);
+    QPolygon polygon = path.toFillPolygon().toPolygon();
+    QRegion region(polygon);
+    setMask(region);
 }
 
 void PopupMenu::addCategory(QAction *category)
@@ -412,6 +413,15 @@ void PopupMenu::showEvent(QShowEvent * event)
     state = STATE_INITIAL_VISIBLE;
 }
 
+void PopupMenu::mouseReleaseEvent(QMouseEvent *event)
+{
+    if(event->pos().x()>(this->width()-60) && event->y() < 60)
+    {
+        done(QDialog::Rejected);
+    }
+    event->accept();
+}
+
 QAction * PopupMenu::selectedCategory()
 {
     if (selected_category_ == 0 && categroy_section_.items().size() > 0)
@@ -526,7 +536,7 @@ int PopupMenu::popup(const QString &)
     QPixmap pixmap;
     if(!isLandscapeMode())
     {
-        pixmap = QPixmap(":/images/menu_background_1.png");
+        pixmap = QPixmap(":/images/menu_background.png");
     }
     else
     {
