@@ -42,7 +42,9 @@ bool isLandscapeVolumeMapping();
 
 bool isHD();
 
-};
+bool isLandscapeMode();
+
+}
 
 #endif  // ONYX_UI_UTILS_H_
 
