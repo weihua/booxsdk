@@ -847,6 +847,8 @@ void WpaConnection::parseMessage(QByteArray & data)
     }
     else if (data.contains(WPA_EVENT_DISCONNECTED))
     {
+        authentication_timer_.stop();
+
         // Incorrect password.
         // "WPA: 4-Way Handshake failed - pre-shared key may be incorrect"))
         broadcastState(STATE_DISCONNECTED);
@@ -871,6 +873,9 @@ void WpaConnection::parseMessage(QByteArray & data)
     else if (data.contains(WPA_EVENT_CONNECTED) ||
              data.contains("Key negotiation completed"))
     {
+        // stop the authentication timer when connected
+        authentication_timer_.stop();
+
         // Connected.
         broadcastState(STATE_CONNECTED);
 
