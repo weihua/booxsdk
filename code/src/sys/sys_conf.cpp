@@ -715,6 +715,16 @@ QString SystemConfig::deviceId()
     return DeviceConfig::deviceId(*database_);
 }
 
+QString  SystemConfig::setSerialNumber(const QString &serial_number)
+{
+    return DeviceConfig::setDeviceIdToDatabase(*database_, serial_number);
+}
+
+QString  SystemConfig::setDeviceId(const QString &device_id)
+{
+    return DeviceConfig::setSerialNumberToDatabase(*database_, device_id);
+}
+
 QString SystemConfig::version()
 {
     return DeviceConfig::version();

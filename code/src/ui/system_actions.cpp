@@ -179,6 +179,16 @@ void SystemActions::generateActions(const std::vector<int> & actions)
                 actions_.push_back(br);
                 break;
             }
+        case DEVICE_USER_GUIDE:
+            {
+                shared_ptr<QAction> user_guide(new QAction(exclusiveGroup()));
+                user_guide->setCheckable(true);
+                user_guide->setFont(actionFont());
+                user_guide->setText(QApplication::tr("Start tutorial"));
+                user_guide->setIcon(QIcon(QPixmap(":/images/user_guide.png")));
+                user_guide->setData(DEVICE_USER_GUIDE);
+                actions_.push_back(user_guide);
+            }
         }
     }
 }

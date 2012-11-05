@@ -270,6 +270,7 @@
     <file>images/menu_background_landscape.png</file>
     <file>images/menu_icon.png</file>
     <file>images/option_icon.png</file>
+    <file>images/user_guide.png</file>
 
   </qresource>
 </RCC>

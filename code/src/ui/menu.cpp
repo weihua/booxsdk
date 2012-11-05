@@ -76,17 +76,17 @@ PopupMenu::PopupMenu(QWidget *parent, bool load_translator)
 , exclusive_group_(this)
 , system_actions_(0)
 , big_layout_(this)
-, menu_title_widget_(this)
-, system_title_widget_(this)
+, menu_title_widget_(0)
+, system_title_widget_(0)
 , menu_layout_(0)
 , categroy_section_()
 , children_section_()
 , system_section_()
-, system_title_layout_(this)
-, menu_title_layout_(this)
-, system_title_label_(tr("Menu"), this)
-, menu_title_label_(tr("Option"), this)
-, close_button_("", this)
+, system_title_layout_(0)
+, menu_title_layout_(0)
+, system_title_label_(tr("Menu"), 0)
+, menu_title_label_(tr("Option"), 0)
+, close_button_("", 0)
 {
     createMenuLayout();
     onyx::screen::watcher().flush(this, onyx::screen::ScreenProxy::GU);
@@ -413,13 +413,18 @@ void PopupMenu::showEvent(QShowEvent * event)
     state = STATE_INITIAL_VISIBLE;
 }
 
+void PopupMenu::mousePressEvent(QMouseEvent *event)
+{
+    QDialog::mousePressEvent(event);
+}
+
 void PopupMenu::mouseReleaseEvent(QMouseEvent *event)
 {
     if(event->pos().x()>(this->width()-60) && event->y() < 60)
     {
-        done(QDialog::Rejected);
+        reject();
     }
-    event->accept();
+    QDialog::mouseReleaseEvent(event);
 }
 
 QAction * PopupMenu::selectedCategory()
@@ -433,15 +438,16 @@ QAction * PopupMenu::selectedCategory()
 
 void PopupMenu::setSelectedCategory(QAction *category)
 {
-    for (MenuItemsIter it = categroy_section_.items().begin();
-         it != categroy_section_.items().end();
-         it++) {
-        if ((*it)->action() == category) {
+    int size = categroy_section_.items().size();
+    for (int i=0; i<size; i++)
+    {
+        if (categroy_section_.items().at(i)->action() == category)
+        {
             selected_category_ = category;
+            categroy_section_.setCurrentFocusItem(i);
         }
     }
 }
-
 void PopupMenu::updateClickedItem(QWidget *wnd)
 {
     onyx::screen::instance().enableUpdate(false);
@@ -466,7 +472,6 @@ void PopupMenu::onGroupClicked(MenuItem* wnd, QAction *action)
     onyx::screen::instance().enableUpdate(true);
     selected_category_ = action;
     arrangeItems(all_actions_[action]);
-
     update();
     onyx::screen::instance().flush(this,onyx::screen::ScreenProxy::GU);
 }

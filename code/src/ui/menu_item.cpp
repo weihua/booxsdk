@@ -349,6 +349,11 @@ int Section::currentFocusItem()
     return current_focus_;
 }
 
+void Section::setCurrentFocusItem(int index)
+{
+    current_focus_ = index;
+}
+
 MenuItem *Section::createItem(QWidget *parent, QAction *action)
 {
     MenuItem * item = new MenuItem(parent, action);

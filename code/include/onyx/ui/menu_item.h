@@ -83,6 +83,7 @@ public:
     // return the index of the selected item, only for categories section
     int currentFocusItem();
 
+    void setCurrentFocusItem(int index);
 Q_SIGNALS:
     void clicked(MenuItem *wnd, QAction *action);
 
