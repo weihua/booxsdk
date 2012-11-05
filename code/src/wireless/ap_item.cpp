@@ -30,6 +30,7 @@ const int WifiAPItem::SIGNAL_ICONS;
 
 static const int ID_CUSTOMIZE = 0;
 static const int ID_REFRESH = 1;
+static const int ID_BACK = 2;
 
 
 static const int SPACING = 20;
@@ -86,15 +87,20 @@ void WifiTitleItem::createDashBoard()
 {
     ODatas datas;
     ODataPtr customize (new OData);
-    customize->insert(TAG_COVER, QPixmap(":/images/config_black.png"));
+    customize->insert(TAG_COVER, QPixmap(":/images/config_title.png"));
     customize->insert(TAG_ID, ID_CUSTOMIZE);
     datas.push_back(customize);
 
     ODataPtr refresh (new OData);
-    refresh->insert(TAG_COVER, QPixmap(":/images/refresh_black.png"));
+    refresh->insert(TAG_COVER, QPixmap(":/images/refresh_title.png"));
     refresh->insert(TAG_ID, ID_REFRESH);
-
     datas.push_back(refresh);
+
+    ODataPtr back (new OData);
+    back->insert(TAG_COVER, QPixmap(":/images/back_title.png"));
+    back->insert(TAG_ID, ID_BACK);
+    datas.push_back(back);
+
 
     dash_board_.setFixedGrid(1, datas.size());
     dash_board_.setData(datas);
@@ -121,6 +127,9 @@ void WifiTitleItem::onItemActivated(CatalogView *catalog, ContentView *item, int
     else if (id == ID_REFRESH)
     {
         emit refreshClicked();
+    }else if (id == ID_BACK)
+    {
+        emit backClicked();
     }
 }
 

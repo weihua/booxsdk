@@ -28,6 +28,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void refreshClicked();
     void customizedClicked();
+    void backClicked();
 
 protected:
     virtual bool event(QEvent *e);

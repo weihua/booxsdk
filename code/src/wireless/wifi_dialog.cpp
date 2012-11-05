@@ -92,6 +92,7 @@ WifiDialog::WifiDialog(QWidget *parent,
     , proxy_(sys.connectionManager())
     , ap_dialog_visible_(false)
     , is_connecting_(false)
+    , is_configuration_(false)
 {
     setGeometry(0, DIALOG_SPACE, ui::screenGeometry().width(), ui::screenGeometry().height() - DIALOG_SPACE);
     createLayout();
@@ -192,6 +193,7 @@ void WifiDialog::createLayout()
     content_layout_.addLayout(&state_widget_layout_);
     QObject::connect(&state_widget_, SIGNAL(refreshClicked()), this, SLOT(onRefreshClicked()));
     QObject::connect(&state_widget_, SIGNAL(customizedClicked()), this, SLOT(onCustomizedClicked()));
+    QObject::connect(&state_widget_, SIGNAL(backClicked()), this, SLOT(onBackClicked()));
     QObject::connect(&prev_button_, SIGNAL(clicked()), &ap_view_, SLOT(goPrev()), Qt::QueuedConnection);
     QObject::connect(&next_button_, SIGNAL(clicked()), &ap_view_, SLOT(goNext()), Qt::QueuedConnection);
 
@@ -411,6 +413,11 @@ QString WifiDialog::connectingAccessPoint()
     return proxy_.connectingAP().ssid();
 }
 
+void WifiDialog::enableIsConfiguration()
+{
+    is_configuration_ = true;
+}
+
 void WifiDialog::onScanTimeout()
 {
     // If we can not connect to wpa supplicant before, we need to
@@ -448,6 +455,14 @@ void WifiDialog::onCustomizedClicked()
     {
         onAPItemClicked(profile);
     }
+}
+
+void WifiDialog::onBackClicked()
+{
+    is_configuration_ = false;
+    QTimer::singleShot(0, this, SLOT(onComplete()));
+    update();
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
 }
 
 void WifiDialog::onCloseClicked()
@@ -557,9 +572,23 @@ void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
     case WpaConnection::STATE_COMPLETE:
         {
             QString text(tr("Connected to "));
-            text.append(connectingAccessPoint());
+            QString ssid = connectingAccessPoint();
+            if(!ssid.isEmpty())
+            {
+                text.append(ssid);
+            } else if(!clicked_ssid_.isEmpty()) {
+                text.append(clicked_ssid_);
+            } else {
+                text = tr("Connected.");
+            }
             state_widget_.setState(text);
-            QTimer::singleShot(0, this, SLOT(onComplete()));
+
+            if(!is_configuration_)
+            {
+                QTimer::singleShot(0, this, SLOT(onComplete()));
+            } else {
+                is_configuration_ = false;
+            }
         }
         break;
     case WpaConnection::STATE_CONNECT_ERROR:

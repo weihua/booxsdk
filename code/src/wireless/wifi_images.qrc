@@ -44,5 +44,9 @@
     <file>images/status_gray.png</file>
     <file>images/refresh_black.png</file>
 
+    <file>images/back_title.png</file>
+    <file>images/refresh_title.png</file>
+    <file>images/config_title.png</file>
+
   </qresource>
 </RCC>

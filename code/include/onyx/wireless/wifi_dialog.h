@@ -31,6 +31,7 @@ public:
     bool connectToBestAP();
     bool connectToDefaultAP();
     QString connectingAccessPoint();
+    void enableIsConfiguration();
 
 protected:
     virtual void keyPressEvent(QKeyEvent *);
@@ -48,6 +49,7 @@ private Q_SLOTS:
     void onAPItemClicked(WifiProfile & profile);
     void onRefreshClicked();
     void onCustomizedClicked();
+    void onBackClicked();
     void onCloseClicked();
 
     void onSdioChanged(bool on);
@@ -119,6 +121,7 @@ private:
     QString clicked_ssid_;
 
     bool is_connecting_;
+    bool is_configuration_;
 
 };
 
