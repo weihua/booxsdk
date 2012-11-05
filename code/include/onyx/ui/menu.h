@@ -16,6 +16,7 @@
 #include "reading_tools_actions.h"
 #include "system_actions.h"
 #include "view_actions.h"
+#include "onyx/ui/ui_utils.h"
 #include "onyx/ui/sketch_actions.h"
 #include "onyx/ui/label.h"
 #include "onyx/ui/buttons.h"
@@ -64,7 +65,6 @@ private:
     bool loadTranslator();
 
     void resizeRoundRectDialog();
-    bool isLandscapeMode();
 
 public Q_SLOTS:
     virtual void done(int);

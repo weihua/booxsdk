@@ -629,17 +629,4 @@ bool PopupMenu::event(QEvent * e)
     return ret;
 }
 
-bool PopupMenu::isLandscapeMode()
-{
-    QRect rc = QApplication::desktop()->geometry();
-    int def_rotation = sys::defaultRotation();
-    int r1 = (def_rotation + 90) % 360;
-    int r2 = (def_rotation + 270) % 360;
-    if (sys::SysStatus::instance().screenTransformation() == r1 ||
-        sys::SysStatus::instance().screenTransformation() == r2)
-    {
-        return true;
-    }
-    return false;
-}
 }

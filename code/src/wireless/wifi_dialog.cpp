@@ -521,7 +521,7 @@ void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
     switch (state)
     {
     case WpaConnection::STATE_DISABLED:
-        state_widget_.setState(tr("Wifi is disabled."));
+        state_widget_.setState(" ");
         break;
     case WpaConnection::STATE_HARDWARE_ERROR:
         state_widget_.setState(tr("Can not start wifi device."));
@@ -734,6 +734,12 @@ bool WifiDialog::showConfigurationDialog(WifiProfile &profile)
 {
     // load the stored password
     checkAndRestorePassword(profile);
+
+    if (!isActiveWindow())
+    {
+        qDebug() << "WifiDialog, not active window, ignore showing config dialog";
+        return false;
+    }
 
     ap_dialog_visible_ = true;
     ApConfigDialogS dialog(this, profile);

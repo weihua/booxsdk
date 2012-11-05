@@ -319,6 +319,35 @@ void WifiAPItem::createLayout()
     connect(&config_button_, SIGNAL(clicked(bool)), this, SLOT(onConfigButtonClicked()));
 }
 
+/// return -1, 1~4 for the signal strength
+int WifiAPItem::getSignalStrength(int level_in_profile)
+{
+    // signal level (dBM)
+    int signal = -1;
+    int signal_level = level_in_profile - 256;
+    if (signal_level > -60)
+    {
+        signal = 4;
+    }
+    else if (signal_level <= -60 && signal_level > -86)
+    {
+        signal = 3;
+    }
+    else if (signal_level <= -86 && signal_level > -95)
+    {
+        signal = 2;
+    }
+    else if (signal_level <= -95 && signal_level > -100)
+    {
+        signal = 1;
+    }
+    else
+    {
+        signal = -1;
+    }
+    return signal;
+}
+
 void WifiAPItem::updateByProfile(WifiProfile & profile)
 {
     if (!profile.isPresent())
@@ -357,14 +386,7 @@ void WifiAPItem::updateByProfile(WifiProfile & profile)
         lock_icon_label_.setVisible(false);
     }
 
-    // Boundary check is necessary in case that the quality is out of range.
-    int q = profile.quality() * SIGNAL_ICONS / 100;
-    if (q * 100 / SIGNAL_ICONS < profile.quality())
-    {
-        ++q;
-    }
-    int count = qMin(q, SIGNAL_ICONS);
-    signal_count_ = count;
+    signal_count_ = getSignalStrength(profile.level());
     signal_icon_label_.setPixmap(SIGNAL_PATH_GRAY.arg(signal_count_));
     update();
 }
