@@ -73,8 +73,6 @@ private Q_SLOTS:
     void onItemClicked(MenuItem* wnd, QAction *action);
     void onGroupClicked(MenuItem* wnd, QAction *action);
     void onSystemActionClicked(MenuItem* wnd, QAction *action);
-    void onClosePressed();
-    void onCloseClicked();
 
 private:
     QAction * selected_category_;
@@ -101,7 +99,6 @@ private:
     OnyxLabel menu_title_label_;
     OnyxLabel system_icon_label_;
     OnyxLabel menu_icon_label_;
-    OnyxPushButton close_button_;
 };
 
 }
