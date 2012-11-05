@@ -129,6 +129,8 @@ public:
     // Device information.
     QString serialNumber();
     QString deviceId();
+    QString setSerialNumber(const QString &str);
+    QString setDeviceId(const QString &device_id);
     static QString version();
     static QString otaPathName();
 

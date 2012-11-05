@@ -16,6 +16,7 @@
 #include "reading_tools_actions.h"
 #include "system_actions.h"
 #include "view_actions.h"
+#include "onyx/ui/ui_utils.h"
 #include "onyx/ui/sketch_actions.h"
 #include "onyx/ui/label.h"
 #include "onyx/ui/buttons.h"
@@ -47,6 +48,7 @@ protected:
     virtual bool event(QEvent * event);
     virtual void resizeEvent(QResizeEvent *);
     virtual void showEvent(QShowEvent * event);
+    virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
 
 private:
@@ -63,7 +65,6 @@ private:
     bool loadTranslator();
 
     void resizeRoundRectDialog();
-    bool isLandscapeMode();
 
 public Q_SLOTS:
     virtual void done(int);
@@ -72,8 +73,6 @@ private Q_SLOTS:
     void onItemClicked(MenuItem* wnd, QAction *action);
     void onGroupClicked(MenuItem* wnd, QAction *action);
     void onSystemActionClicked(MenuItem* wnd, QAction *action);
-    void onClosePressed();
-    void onCloseClicked();
 
 private:
     QAction * selected_category_;
@@ -100,7 +99,6 @@ private:
     OnyxLabel menu_title_label_;
     OnyxLabel system_icon_label_;
     OnyxLabel menu_icon_label_;
-    OnyxPushButton close_button_;
 };
 
 }

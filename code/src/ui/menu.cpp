@@ -76,17 +76,18 @@ PopupMenu::PopupMenu(QWidget *parent, bool load_translator)
 , exclusive_group_(this)
 , system_actions_(0)
 , big_layout_(this)
-, menu_title_widget_(this)
-, system_title_widget_(this)
+, menu_title_widget_(0)
+, system_title_widget_(0)
 , menu_layout_(0)
 , categroy_section_()
 , children_section_()
 , system_section_()
-, system_title_layout_(this)
-, menu_title_layout_(this)
-, system_title_label_(tr("Menu"), this)
-, menu_title_label_(tr("Option"), this)
-, close_button_("", this)
+, system_title_layout_(0)
+, menu_title_layout_(0)
+, system_title_label_(tr("Menu"), &system_title_widget_)
+, menu_title_label_(tr("Option"), 0)
+, system_icon_label_("", &system_title_widget_)
+, menu_icon_label_("", 0)
 {
     createMenuLayout();
     onyx::screen::watcher().flush(this, onyx::screen::ScreenProxy::GU);
@@ -104,30 +105,17 @@ void PopupMenu::createMenuLayout()
 
     big_layout_.setContentsMargins(0, 0, 0, 0);
 
-    big_layout_.addWidget(&menu_title_widget_);
-    menu_title_widget_.setStyleSheet(background_sytle);
-    menu_title_widget_.setLayout(&menu_title_layout_);
-
-    menu_title_layout_.setContentsMargins(8, 0, 4, 0);
+    menu_title_layout_.setContentsMargins(8, 0, 80, 0);
     menu_title_layout_.addWidget(&menu_icon_label_, 0, Qt::AlignLeft);
     menu_title_layout_.addWidget(&menu_title_label_, 0, Qt::AlignLeft);
     menu_title_layout_.addStretch();
-    menu_title_layout_.addWidget(&close_button_);
 
     menu_icon_label_.setPixmap(QPixmap(":/images/option_icon.png"));
 
     menu_title_label_.setAlignment(Qt::AlignLeft|Qt::AlignVCenter);
     menu_title_label_.setStyleSheet(TITLE_STYLE);
 
-    close_button_.setStyleSheet(BUTTON_STYLE);
-    QPixmap close_pixmap(":/images/close.png");
-    close_pixmap.scaled(close_pixmap.width() / 2, close_pixmap.height() / 2);
-    close_button_.setIcon(QIcon(close_pixmap));
-    close_button_.setIconSize(close_pixmap.size());
-    close_button_.setFocusPolicy(Qt::NoFocus);
-    connect(&close_button_, SIGNAL(clicked()), this, SLOT(onCloseClicked()), Qt::QueuedConnection);
-    connect(&close_button_, SIGNAL(pressed()), this, SLOT(onClosePressed()), Qt::QueuedConnection);
-
+    big_layout_.addLayout(&menu_title_layout_);
     big_layout_.addLayout(&menu_layout_);
 
     if(isLandscapeMode())
@@ -176,7 +164,6 @@ void PopupMenu::createMenuLayout()
     big_layout_.addLayout(&system_section_.layout());
 
     resizeRoundRectDialog();
-
     // Setup connection.
     connect(&categroy_section_, SIGNAL(clicked(MenuItem *, QAction *)),
             this, SLOT(onGroupClicked(MenuItem *, QAction *)));
@@ -381,6 +368,7 @@ void PopupMenu::paintEvent(QPaintEvent *pe)
         p.drawLine(x, y, x, y + h - rh / 2);
         p.drawLine(x + w, y , x + w, y + h - rh / 2);
     }
+    p.drawPixmap(rect().x()+rect().width()-60, rect().y()+2, QPixmap(":/images/close.png"));
     onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU);
 }
 
@@ -389,22 +377,10 @@ void PopupMenu::resizeEvent(QResizeEvent *)
 
 }
 
-void PopupMenu::onClosePressed()
-{
-    QPixmap close_pressed_pixmap(":/images/close_pressed.png");
-    close_button_.setIcon(QIcon(close_pressed_pixmap));
-    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::A2, onyx::screen::ScreenCommand::WAIT_NONE);
-}
-
 void PopupMenu::done(int r)
 {
     onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU);
     return QDialog::done(r);
-}
-
-void PopupMenu::onCloseClicked()
-{
-    done(QDialog::Rejected);
 }
 
 void PopupMenu::showEvent(QShowEvent * event)
@@ -413,13 +389,19 @@ void PopupMenu::showEvent(QShowEvent * event)
     state = STATE_INITIAL_VISIBLE;
 }
 
+void PopupMenu::mousePressEvent(QMouseEvent *event)
+{
+    QDialog::mousePressEvent(event);
+}
+
 void PopupMenu::mouseReleaseEvent(QMouseEvent *event)
 {
     if(event->pos().x()>(this->width()-60) && event->y() < 60)
     {
-        done(QDialog::Rejected);
+        qDebug() << "mouse release reject!";
+        reject();
     }
-    event->accept();
+    QDialog::mouseReleaseEvent(event);
 }
 
 QAction * PopupMenu::selectedCategory()
@@ -433,15 +415,16 @@ QAction * PopupMenu::selectedCategory()
 
 void PopupMenu::setSelectedCategory(QAction *category)
 {
-    for (MenuItemsIter it = categroy_section_.items().begin();
-         it != categroy_section_.items().end();
-         it++) {
-        if ((*it)->action() == category) {
+    int size = categroy_section_.items().size();
+    for (int i=0; i<size; i++)
+    {
+        if (categroy_section_.items().at(i)->action() == category)
+        {
             selected_category_ = category;
+            categroy_section_.setCurrentFocusItem(i);
         }
     }
 }
-
 void PopupMenu::updateClickedItem(QWidget *wnd)
 {
     onyx::screen::instance().enableUpdate(false);
@@ -466,7 +449,6 @@ void PopupMenu::onGroupClicked(MenuItem* wnd, QAction *action)
     onyx::screen::instance().enableUpdate(true);
     selected_category_ = action;
     arrangeItems(all_actions_[action]);
-
     update();
     onyx::screen::instance().flush(this,onyx::screen::ScreenProxy::GU);
 }
@@ -624,17 +606,4 @@ bool PopupMenu::event(QEvent * e)
     return ret;
 }
 
-bool PopupMenu::isLandscapeMode()
-{
-    QRect rc = QApplication::desktop()->geometry();
-    int def_rotation = sys::defaultRotation();
-    int r1 = (def_rotation + 90) % 360;
-    int r2 = (def_rotation + 270) % 360;
-    if (sys::SysStatus::instance().screenTransformation() == r1 ||
-        sys::SysStatus::instance().screenTransformation() == r2)
-    {
-        return true;
-    }
-    return false;
-}
 }

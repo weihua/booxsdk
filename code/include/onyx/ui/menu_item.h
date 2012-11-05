@@ -83,6 +83,7 @@ public:
     // return the index of the selected item, only for categories section
     int currentFocusItem();
 
+    void setCurrentFocusItem(int index);
 Q_SIGNALS:
     void clicked(MenuItem *wnd, QAction *action);
 
@@ -91,7 +92,6 @@ private Q_SLOTS:
 
 private:
     MenuItem *createItem(QWidget *parent, QAction *action);
-    bool isLandscapeMode();
 
     int prevRow(int pos);
     int prevColumn(int pos);

@@ -23,6 +23,8 @@ class DeviceConfig
 
     static QString deviceIdFromDatabase(QSqlDatabase &db);
     static QString serialNumberFromDatabase(QSqlDatabase& db);
+    static QString setDeviceIdToDatabase(QSqlDatabase &db, const QString &string);
+    static QString setSerialNumberToDatabase(QSqlDatabase& db, const QString &string);
   private:
     DeviceConfig() {}
     ~DeviceConfig() {}

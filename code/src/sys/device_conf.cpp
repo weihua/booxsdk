@@ -109,4 +109,27 @@ QString DeviceConfig::serialNumberFromDatabase(QSqlDatabase& db)
     return ret;
 }
 
+QString DeviceConfig::setDeviceIdToDatabase(QSqlDatabase &db, const QString &string)
+{
+    QString ret = string;
+    QSqlQuery query(db);
+
+    query.prepare( "INSERT OR REPLACE into device_conf (key, value) values(?, ?)");
+    query.addBindValue("device_id");
+    query.addBindValue(ret);
+    query.exec();
+    return ret;
+}
+
+QString DeviceConfig::setSerialNumberToDatabase(QSqlDatabase &db, const QString &string)
+{
+    QString ret = string;
+    QSqlQuery query(db);
+    query.prepare( "INSERT OR REPLACE into device_conf (key, value) values(?, ?)");
+    query.addBindValue("serial_number");
+    query.addBindValue(ret);
+    query.exec();
+    return ret;
+}
+
 }
