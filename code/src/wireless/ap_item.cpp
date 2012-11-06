@@ -247,6 +247,7 @@ void WifiAPItem::paintEvent(QPaintEvent *e)
     QPen pen;
     pen.setWidth(penWidth());
 
+/*
     if (hasFocus())
     {
         pen.setColor(Qt::black);
@@ -267,6 +268,7 @@ void WifiAPItem::paintEvent(QPaintEvent *e)
         config_button_.setIcon(QIcon(QPixmap(":/images/config_gray.png")));
         signal_icon_label_.setPixmap(QPixmap(SIGNAL_PATH_GRAY.arg(signal_count_)));
     }
+*/
 }
 
 void WifiAPItem::mousePressEvent(QMouseEvent *e)

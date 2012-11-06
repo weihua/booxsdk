@@ -589,6 +589,8 @@ void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
             } else {
                 is_configuration_ = false;
             }
+
+            onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU);
         }
         break;
     case WpaConnection::STATE_CONNECT_ERROR:

@@ -119,8 +119,7 @@ void OnyxDialog::onClosePressed()
 {
     QPixmap close_pressed_pixmap(":/images/close_pressed.png");
     close_button_.setIcon(QIcon(close_pressed_pixmap));
-    onyx::screen::instance().flush(&close_button_,
-            onyx::screen::ScreenProxy::GU, onyx::screen::ScreenCommand::WAIT_NONE);
+    onyx::screen::instance().updateWidget(this, onyx::screen::ScreenProxy::GU);
 }
 
 void OnyxDialog::updateTitle(const QString &message)

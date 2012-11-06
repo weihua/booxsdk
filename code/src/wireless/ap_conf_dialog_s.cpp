@@ -56,7 +56,7 @@ ApConfigDialogS::ApConfigDialogS(QWidget *parent, WifiProfile & profile)
     connectWithChildren();
 
     updateTitle(tr("Wifi Configuration"));
-    onyx::screen::watcher().addWatcher(this);
+    //onyx::screen::watcher().addWatcher(this);
 }
 
 ApConfigDialogS::~ApConfigDialogS()
@@ -159,8 +159,8 @@ bool ApConfigDialogS::popup()
         addLineEditsToGroup();
     }
 
-    onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC);
-
+    update();
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU);
     return exec();
 }
 
