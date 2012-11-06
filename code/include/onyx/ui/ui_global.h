@@ -202,7 +202,7 @@ enum SystemAction
     DEVICE_USER_GUIDE,
     STORE_BOOK_DATA_SYNC,
     STORE_USER_DATA_SHARE,
-    GLOW_LIGHT_SWITCH
+    GLOW_LIGHT_CONTROL
 };
 
 enum AnnotationMode

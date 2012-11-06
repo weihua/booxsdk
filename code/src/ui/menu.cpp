@@ -175,19 +175,22 @@ void PopupMenu::createMenuLayout()
 
 void PopupMenu::resizeRoundRectDialog(void)
 {
-    QPixmap pixmap(":/images/menu_background.png");
-    if(isLandscapeMode())
+    if(!ui::isHD())
     {
-        pixmap = QPixmap(":/images/menu_background_landscape.png");
+        QPixmap pixmap(":/images/menu_background.png");
+        if(isLandscapeMode())
+        {
+            pixmap = QPixmap(":/images/menu_background_landscape.png");
+        }
+        QPainterPath path;
+        int dialog_width = pixmap.width();
+        int dialog_height = pixmap.height();
+        QRectF rect = QRectF(0, 0, dialog_width, dialog_height);
+        path.addRoundRect(rect, 3, 3);
+        QPolygon polygon = path.toFillPolygon().toPolygon();
+        QRegion region(polygon);
+        setMask(region);
     }
-    QPainterPath path;
-    int dialog_width = pixmap.width();
-    int dialog_height = pixmap.height();
-    QRectF rect = QRectF(0, 0, dialog_width, dialog_height);
-    path.addRoundRect(rect, 3, 3);
-    QPolygon polygon = path.toFillPolygon().toPolygon();
-    QRegion region(polygon);
-    setMask(region);
 }
 
 void PopupMenu::addCategory(QAction *category)
@@ -524,7 +527,10 @@ int PopupMenu::popup(const QString &)
     {
         pixmap = QPixmap(":/images/menu_background_landscape.png");
     }
-    move((rect.width()-pixmap.width())/2, (rect.height()-pixmap.height())/2);
+    if(!ui::isHD())
+    {
+        move((rect.width()-pixmap.width())/2, (rect.height()-pixmap.height())/2);
+    }
 
     onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
     int ret = exec();

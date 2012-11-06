@@ -188,6 +188,23 @@ void SystemActions::generateActions(const std::vector<int> & actions)
                 user_guide->setIcon(QIcon(QPixmap(":/images/user_guide.png")));
                 user_guide->setData(DEVICE_USER_GUIDE);
                 actions_.push_back(user_guide);
+                break;
+            }
+        case GLOW_LIGHT_CONTROL:
+            {
+                if (!sys::hasGlowLight())
+                {
+                    continue;
+                }
+
+                shared_ptr<QAction> glow_light(new QAction(exclusiveGroup()));
+                glow_light->setCheckable(true);
+                glow_light->setFont(actionFont());
+                glow_light->setText(QCoreApplication::tr("MOON Light Control"));
+                glow_light->setIcon(QIcon(QPixmap(":/images/glow_light_switch.png")));
+                glow_light->setData(GLOW_LIGHT_CONTROL);
+                actions_.push_back(glow_light);
+                break;
             }
         }
     }
