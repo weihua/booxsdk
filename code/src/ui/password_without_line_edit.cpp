@@ -8,15 +8,26 @@
 namespace ui
 {
 
-const QString LABEL_STYLE = "           \
+static const QString LABEL_STYLE = "    \
 QLabel                                  \
 {                                       \
      padding: 0px;                      \
-     background: black;                 \
+     background: transparent;           \
      font: 24px ;                       \
      color: white;                      \
  }";
 
+static const QString BUTTON_STYLE =    "\
+QPushButton                             \
+{                                       \
+    background: transparent;            \
+    font-size: 14px;                    \
+    border-width: 1px;                  \
+    border-color: transparent;          \
+    border-style: solid;                \
+    color: black;                       \
+    padding: 0px;                       \
+}";
 PasswordWithoutLineEdit::PasswordWithoutLineEdit(QWidget *parent)
     : QWidget(parent, Qt::WindowStaysOnTopHint|Qt::FramelessWindowHint)
     , big_layout_(this)
@@ -42,6 +53,7 @@ void PasswordWithoutLineEdit::createLayout()
     title_.setAlignment(Qt::AlignLeft|Qt::AlignVCenter);
     title_.setFixedHeight(36);
 
+    close_.setStyleSheet(BUTTON_STYLE);
     QPixmap close_pixmap(":/images/close.png");
     close_.setIconSize(close_pixmap.size());
     close_.setIcon(QIcon(close_pixmap));
