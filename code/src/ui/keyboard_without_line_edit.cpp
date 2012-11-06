@@ -7,11 +7,11 @@
 namespace ui
 {
 
-const QString LABEL_STYLE = "           \
+static const QString LABEL_STYLE = "    \
 QLabel                                  \
 {                                       \
      padding: 0px;                      \
-     background: black;                 \
+     background: transparent;           \
      font: 24px ;                       \
      color: white;                      \
  }";
