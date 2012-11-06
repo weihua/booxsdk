@@ -93,6 +93,7 @@ enum ReadingToolsType
     UNDEFINED_TOOL,
     MARGIN_SETTING,
     WEB_BROWSER_MODE,
+    KEY_MAPPING,
 };
 
 enum NetworkType

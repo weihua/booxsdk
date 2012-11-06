@@ -267,6 +267,12 @@ void ReadingToolsActions::generateActions(const vector<ReadingToolsType> & value
                 act->setIcon(QIcon(QPixmap(":/images/zoom_hide_margin.png")));
             }
             break;
+        case KEY_MAPPING:
+            {
+                act->setText(QCoreApplication::tr("Key Mapping"));
+                act->setIcon(QIcon(QPixmap(":/images/edit.png")));
+            }
+            break;
         default:
             break;
         }
