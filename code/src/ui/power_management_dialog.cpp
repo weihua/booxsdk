@@ -27,6 +27,7 @@ static const ItemStruct DISPLAY_ITEMS[] =
     {QT_TRANSLATE_NOOP("pm","Never"), 0, 0},
     {QT_TRANSLATE_NOOP("pm","3 minutes to standby"), 180 * 1000, 0},
     {QT_TRANSLATE_NOOP("pm","5 minutes to standby"), 300 * 1000, 0},
+    {QT_TRANSLATE_NOOP("pm","10 minutes to standby"), 600 * 1000, 0},
 };
 
 static const ItemStruct ICARUS_DISPLAY_ITEMS[] =
