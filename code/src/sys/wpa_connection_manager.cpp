@@ -703,7 +703,7 @@ QString WpaConnectionManager::hardwareAddress()
 void WpaConnectionManager::queryStatus()
 {
     QVariantMap info;
-    proxy().status(info);
+    proxy().status(info, false);
 }
 
 void WpaConnectionManager::enableSuspendPeriod()

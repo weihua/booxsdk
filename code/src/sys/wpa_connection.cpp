@@ -297,7 +297,7 @@ int WpaConnection::openCtrlConnection(const QString & name)
 bool WpaConnection::update()
 {
     QVariantMap info;
-    status(info);
+    status(info, false);
 
     WifiProfiles all;
     listNetworks(all);
