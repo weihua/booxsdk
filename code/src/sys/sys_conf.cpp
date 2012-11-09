@@ -612,7 +612,9 @@ QString SystemConfig::downloadFolder()
 
     // Please note that this path is directory, and should exists
     // in file system.
-    QString predefined_path = qgetenv("ABSOLUTE_DOWNLOAD_PATH");
+    QString predefined_path = QString::fromLocal8Bit(qgetenv("ABSOLUTE_DOWNLOAD_PATH"));
+
+    qDebug() << "at sys conf, download path is: " << predefined_path;
     if (!predefined_path.isEmpty())
     {
         path = predefined_path;
