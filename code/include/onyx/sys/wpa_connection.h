@@ -84,7 +84,6 @@ Q_SIGNALS:
 private Q_SLOTS:
     void receiveMessages();
     void onAddressAcquired(bool);
-    void onAuthenticationTimeout();
 
 private:
     QString defaultInterface();
@@ -127,9 +126,6 @@ private:
 #else
     QTimer timer_;
 #endif
-
-    QTimer authentication_timer_;
-    bool ignore_following_auth_error_;
 
 };
 

@@ -29,8 +29,6 @@ static const QString iface   = "com.onyx.interface.system_manager";
 static const int IMX508_WIFI_QUAL_MAX = 55;
 static const int IMX508_WIFI_QUAL_MIN = 14;
 
-static const int AUTHENTICATION_INTERVAL = 5000;
-
 
 #if _WIN32
 #define snprintf _snprintf_s
@@ -80,8 +78,6 @@ WpaConnection::WpaConnection(const QString &name)
 #else
 , timer_(this)
 #endif
-, authentication_timer_(this)
-, ignore_following_auth_error_(true)
 {
 #ifndef _WIN32
     if (ctrl_iface_.isEmpty())
@@ -89,9 +85,6 @@ WpaConnection::WpaConnection(const QString &name)
         ctrl_iface_ = IFNAME;
     }
 #endif
-
-    authentication_timer_.setInterval(AUTHENTICATION_INTERVAL);
-    connect(&authentication_timer_, SIGNAL(timeout()), this, SLOT(onAuthenticationTimeout()));
 
     // Setup connection in order to get notification
     // when IP address acquired.
@@ -297,7 +290,7 @@ int WpaConnection::openCtrlConnection(const QString & name)
 bool WpaConnection::update()
 {
     QVariantMap info;
-    status(info);
+    status(info, false);
 
     WifiProfiles all;
     listNetworks(all);
@@ -800,12 +793,6 @@ void WpaConnection::onAddressAcquired(bool ok)
     broadcastState(STATE_ACQUIRING_ADDRESS_ERROR);
 }
 
-void WpaConnection::onAuthenticationTimeout()
-{
-    ignore_following_auth_error_ = true;
-    broadcastState(STATE_AUTHENTICATION_FAILED);
-}
-
 /// Receive messages from wpa supplicant.
 void WpaConnection::receiveMessages()
 {
@@ -834,11 +821,6 @@ void WpaConnection::parseMessage(QByteArray & data)
         emit scanResultsReady(aps);
         broadcastState(STATE_SCANNED);
     }
-    else if (data.contains("Trying to associate with"))
-    {
-        ignore_following_auth_error_ = false;
-        authentication_timer_.start();
-    }
     else if (data.contains("Associated with"))
     {
         // Means connecting..., but does not need to broadcast any message here.
@@ -847,8 +829,6 @@ void WpaConnection::parseMessage(QByteArray & data)
     }
     else if (data.contains(WPA_EVENT_DISCONNECTED))
     {
-        authentication_timer_.stop();
-
         // Incorrect password.
         // "WPA: 4-Way Handshake failed - pre-shared key may be incorrect"))
         broadcastState(STATE_DISCONNECTED);
@@ -862,20 +842,13 @@ void WpaConnection::parseMessage(QByteArray & data)
             // When connecting wep (shared/open), the bssid could be invalid.
             if (!data.contains(INVALID_BSSID) || connecting_ap_.isWep())
             {
-                if (!ignore_following_auth_error_)
-                {
-                    authentication_timer_.stop();
-                    broadcastState(STATE_AUTHENTICATION_FAILED);
-                }
+                broadcastState(STATE_AUTHENTICATION_FAILED);
             }
         }
     }
     else if (data.contains(WPA_EVENT_CONNECTED) ||
              data.contains("Key negotiation completed"))
     {
-        // stop the authentication timer when connected
-        authentication_timer_.stop();
-
         // Connected.
         broadcastState(STATE_CONNECTED);
 
@@ -885,11 +858,7 @@ void WpaConnection::parseMessage(QByteArray & data)
     }
     else if (data.contains("WPA: 4-Way Handshake failed"))
     {
-        if (!ignore_following_auth_error_)
-        {
-            authentication_timer_.stop();
-            broadcastState(STATE_AUTHENTICATION_FAILED);
-        }
+        broadcastState(STATE_AUTHENTICATION_FAILED);
     }
 }
 

@@ -586,8 +586,6 @@ void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
             if(!is_configuration_)
             {
                 QTimer::singleShot(0, this, SLOT(onComplete()));
-            } else {
-                is_configuration_ = false;
             }
 
             onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU);
