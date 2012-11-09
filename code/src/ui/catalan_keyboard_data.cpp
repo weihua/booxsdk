@@ -103,7 +103,7 @@ void CatalanKeyboardData::initBottomKeyCode()
     ODataPtr dd(createBackspaceData());
     bottom_codes_.push_back(dd);
 
-    const QChar chs_next[] = {QChar(0x00fa),QChar(0x00FC) };
+    const QChar chs_next[] = {'.',QChar(0x00FC) };
     for (int i=0; i<2; i++)
     {
         ODataPtr dd(createData(QString(chs_next[i])));
@@ -167,7 +167,7 @@ void CatalanKeyboardData::initBottomKeyShiftCode()
     ODataPtr dd(createBackspaceData());
     bottom_shift_codes_.push_back(dd);
 
-    const QChar chs_next[] = {QChar(0x00da), QChar(0x00dc)};
+    const QChar chs_next[] = {'.', QChar(0x00dc)};
     for (int i=0; i<2; i++)
     {
         ODataPtr dd (createData(QString(chs_next[i])));
@@ -180,9 +180,9 @@ void CatalanKeyboardData::initBottomKeyShiftCode()
 // for symbol key
 void CatalanKeyboardData::initLeftKeySymbolCode()
 {
-    const QChar chs[] = { QChar(0x00a1), QChar(0x00f2), QChar(0x00f1),
-                         QChar(0x00bf), QChar(0x00f2).toUpper(), QChar(0x00f1).toUpper(),
-                         '.', ',', '-'};
+    const QChar chs[] = { QChar(0x00a1), QChar(0x00f1), QChar(0x00f1).toUpper(),
+                         QChar(0x00bf), QChar(0x00f2), QChar(0x00f2).toUpper(),
+                         ',', QChar(0x00fa), QChar(0x00fa).toUpper()};
     for (int i = 0; i < 9; i++)
     {
         ODataPtr dd(createData(QString(chs[i])));
