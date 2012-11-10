@@ -20,7 +20,7 @@ class MainWindow : public QWidget
 {
     Q_OBJECT
 public:
-    MainWindow(QObject *parent);
+    MainWindow(QObject *parent, bool enable_font_setting = false);
     ~MainWindow();
 
     void attachModel(BaseModel* model);
@@ -59,6 +59,7 @@ Q_SIGNALS:
     void pagebarClicked(const int, const int);
     void popupContextMenu();
     void statusBarStylusClicked();
+    void statusBarFontSettingClicked();
     void itemStatusChanged(const StatusBarItemType, const int);
 
 private Q_SLOTS:
@@ -66,6 +67,7 @@ private Q_SLOTS:
     void onPagebarClicked(const int, const int);
     void onPopupContextMenu();
     void onStatusBarStylusClicked();
+    void onStatusBarFontSettingClicked();
     void onMusicPlayerStateChanged(int);
 
 private:

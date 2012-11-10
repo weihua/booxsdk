@@ -26,6 +26,8 @@
 #include "onyx/data/keys.h"
 #include "onyx/ui/keyboard_config_dialog.h"
 #include "onyx/sys/platform.h"
+#include "onyx/ui/status_bar_item_font_setting.h"
+
 
 namespace ui
 {
@@ -37,7 +39,11 @@ StatusBar::StatusBar(QWidget *parent, StatusBarItemTypes items)
 {
     createLayout();
     setupConnections();
-    addItems(items);
+    if(items)
+    {
+        addItems(items);
+    }
+
     initUpdate();
 }
 
@@ -126,7 +132,7 @@ void StatusBar::addItems(StatusBarItemTypes items)
     // Adjust the order if necessary.
     const StatusBarItemType all[] =
     {
-        MENU, PROGRESS, MESSAGE, STYLUS, INPUT_TEXT, SCREEN_REFRESH, VOLUME, INPUT_URL,THREEG_CONNECTION,
+        MENU, PROGRESS, MESSAGE, FONT_SETTING, STYLUS, INPUT_TEXT, SCREEN_REFRESH, VOLUME, INPUT_URL,THREEG_CONNECTION,
         CONNECTION, VIEWPORT, MUSIC_PLAYER, BATTERY, CLOCK
     };
     const int size = sizeof(all)/sizeof(all[0]);
@@ -322,6 +328,11 @@ void StatusBar::onMenuClicked()
 void StatusBar::onStylusClicked()
 {
     emit stylusClicked();
+}
+
+void StatusBar::onFontSettingClicked()
+{
+    emit fontSettingClicked();
 }
 
 void StatusBar::onMessageAreaClicked()
@@ -815,6 +826,7 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
             }
             break;
         }
+
     case SCREEN_REFRESH:
         item = new StatusBarItemRefreshScreen(this);
         connect(item, SIGNAL(clicked()), this, SLOT(onScreenRefreshClicked()));
@@ -837,6 +849,10 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
     case STYLUS:
         item = new StatusBarItemStylus(this);
         connect(item, SIGNAL(clicked()), this, SLOT(onStylusClicked()));
+        break;
+    case FONT_SETTING:
+        item = new StatusBarItemFontSetting(this);
+        connect(item, SIGNAL(clicked()), this, SLOT(onFontSettingClicked()));
         break;
     case PROGRESS:
         item = new StatusBarItemProgress(this);

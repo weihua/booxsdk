@@ -8,7 +8,7 @@ using namespace base;
 namespace vbf
 {
 
-MainWindow::MainWindow(QObject *parent)
+MainWindow::MainWindow(QObject *parent, bool enable_font_setting)
 #ifndef Q_WS_QWS
     : QWidget(0)
 #else
@@ -18,11 +18,23 @@ MainWindow::MainWindow(QObject *parent)
     , model_(0)
     , vlayout_(this)
     , hlayout_(0)
-    , status_bar_(this,
-                  (SysStatus::instance().hasTouchScreen() ? 
-                  (MENU | PROGRESS | MESSAGE | STYLUS | BATTERY | MUSIC_PLAYER | CLOCK | VOLUME | SCREEN_REFRESH) :
-                  (MENU | PROGRESS | MESSAGE | CLOCK | BATTERY)))
+    , status_bar_(this, 0)
 {
+    StatusBarItemTypes items;
+    if(SysStatus::instance().hasTouchScreen())
+    {
+        items = (MENU | PROGRESS | MESSAGE | STYLUS | BATTERY | MUSIC_PLAYER | CLOCK | VOLUME | SCREEN_REFRESH);
+        if(enable_font_setting)
+        {
+            items = (MENU | PROGRESS | MESSAGE | FONT_SETTING | BATTERY | MUSIC_PLAYER | CLOCK | VOLUME | SCREEN_REFRESH );
+        }
+    }
+    else
+    {
+        items = (MENU | PROGRESS | MESSAGE | CLOCK | BATTERY);
+    }
+    status_bar_.addItems(items);
+
     setAutoFillBackground(true);
     setBackgroundRole(QPalette::Base);
     bool ok = false;
@@ -72,6 +84,11 @@ MainWindow::MainWindow(QObject *parent)
             SIGNAL(stylusClicked()),
             this,
             SLOT(onStatusBarStylusClicked()));
+
+    connect(&status_bar_,
+            SIGNAL(fontSettingClicked()),
+            this,
+            SLOT(onStatusBarFontSettingClicked()));
 
     connect(&status_bar_,
             SIGNAL(progressClicked(const int, const int)),
@@ -210,6 +227,11 @@ void MainWindow::onPopupContextMenu()
 void MainWindow::onStatusBarStylusClicked()
 {
     emit statusBarStylusClicked();
+}
+
+void MainWindow::onStatusBarFontSettingClicked()
+{
+    emit statusBarFontSettingClicked();
 }
 
 void MainWindow::handleItemStatusChanged(const StatusBarItemType type,

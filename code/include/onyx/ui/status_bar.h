@@ -62,6 +62,7 @@ Q_SIGNALS:
     void progressClicked(const int percent, const int value);
     void menuClicked();
     void stylusClicked();
+    void fontSettingClicked();
     void requestInputUrl();
     void requestInputText();
 
@@ -70,6 +71,7 @@ private Q_SLOTS:
     void onProgressChanged(const int percent, const int value);
     void onMenuClicked();
     void onStylusClicked();
+    void onFontSettingClicked();
     void onConnectionClicked();
     bool onItemStatusChanged(const StatusBarItemType type, const int state);
     void onViewportChanged(const QRect & parent, const QRect & child);

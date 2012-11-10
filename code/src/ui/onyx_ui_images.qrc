@@ -266,6 +266,7 @@
     <file>images/menu_icon.png</file>
     <file>images/option_icon.png</file>
     <file>images/user_guide.png</file>
+    <file>images/font_settings_small.png</file>
 
   </qresource>
 </RCC>
