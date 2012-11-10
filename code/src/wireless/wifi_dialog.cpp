@@ -547,7 +547,11 @@ void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
         state_widget_.setState(" ");
         break;
     case WpaConnection::STATE_HARDWARE_ERROR:
-        state_widget_.setState(tr("Can not start wifi device."));
+//        state_widget_.setState(tr("Can not start wifi device."));
+        // TODO: do not show this message, since this state is occurred when normal startup,
+        // need to avoid setting this state in the future when something like wpa_supplicant
+        // start fail, but not hardware error
+        state_widget_.setState(" ");
         break;
     case WpaConnection::STATE_SCANNING:
         state_widget_.setState(tr("Scanning..."));
