@@ -155,12 +155,20 @@ void WifiDialog::keyReleaseEvent(QKeyEvent *ke)
 void WifiDialog::paintEvent(QPaintEvent *e)
 {
     QPainter painter(this);
+
+    QRectF rc(0, state_widget_layout_.contentsRect().height(), width(), height()+4);
+    QPainterPath p_path;
+    p_path.addRect(rc);
+    QBrush b(Qt::white);
+    painter.setBrush(b);
+    painter.drawPath(p_path);
+
     QPen pen;
     pen.setColor(Qt::black);
     pen.setWidth(SPACING);
     painter.setPen(pen);
     int line_1_start_x = 0;
-    int line_1_start_y = state_widget_layout_.contentsRect().y() + state_widget_layout_.contentsRect().height() + SPACING * 2;
+    int line_1_start_y = state_widget_layout_.contentsRect().y() + state_widget_layout_.contentsRect().height();
     int line_1_end_x = ui::screenGeometry().width();
     int line_1_end_y = line_1_start_y;
     painter.drawLine(line_1_start_x, line_1_start_y, line_1_end_x, line_1_end_y);
@@ -181,14 +189,14 @@ void WifiDialog::mouseReleaseEvent(QMouseEvent *)
 
 void WifiDialog::createLayout()
 {
+    state_widget_.setStyleSheet("background: gray;");
+
     // big_box_.setSizeConstraint(QLayout::SetMinimumSize);
-    big_box_.setContentsMargins(SPACING, SPACING, SPACING, SPACING);
+    big_box_.setContentsMargins(SPACING, 0, SPACING, SPACING);
     // content layout.
     big_box_.addLayout(&content_layout_);
-    content_layout_.setContentsMargins(MARGINS, 0, MARGINS, 0);
 
     // Status.
-    state_widget_layout_.setContentsMargins(MARGINS, 0, MARGINS, 0);
     state_widget_layout_.addWidget(&state_widget_);
     content_layout_.addLayout(&state_widget_layout_);
     QObject::connect(&state_widget_, SIGNAL(refreshClicked()), this, SLOT(onRefreshClicked()));
