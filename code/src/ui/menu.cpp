@@ -368,8 +368,8 @@ void PopupMenu::paintEvent(QPaintEvent *pe)
         p.drawArc(x + w - rw, y + h - rh, rw, rh, start_angle_right, span_angle_right);
 
         p.drawLine(x + rw / 2, y + h, x + w - MARGIN * 5, y + h);
-        p.drawLine(x, y, x, y + h - rh / 2);
-        p.drawLine(x + w, y , x + w, y + h - rh / 2);
+        p.drawLine(x, y + MARGIN * 3, x, y + h - rh / 2);
+        p.drawLine(x + w, y + MARGIN * 3 , x + w, y + h - rh / 2);
     }
     p.drawPixmap(rect().x()+rect().width()-60, rect().y()+2, QPixmap(":/images/close.png"));
     onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU);
@@ -529,7 +529,14 @@ int PopupMenu::popup(const QString &)
     }
     if(!ui::isHD())
     {
-        move((rect.width()-pixmap.width())/2, (rect.height()-pixmap.height())/2);
+        if(!isLandscapeMode())
+        {
+            move((rect.width()-pixmap.width()), (rect.height()-pixmap.height())/2);
+        }
+        else
+        {
+            move((rect.width()-pixmap.width()) / 2, (pixmap.height()-rect.height()));
+        }
     }
 
     onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);

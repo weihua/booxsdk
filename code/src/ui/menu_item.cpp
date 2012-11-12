@@ -76,10 +76,10 @@ void MenuItem::paintEvent(QPaintEvent *e)
       static const int OFFSET = 1;
       static const int ROUNDED = 3;
       QPainterPath path;
-      QRect rc = rect().adjusted(4, 4, -5, -6);
+      QRect rc = rect().adjusted(OFFSET*2, OFFSET*2, -OFFSET*2, -OFFSET*2);
 
       QRect paint_rc;
-      paint_rc = rect().adjusted(2, 2, -3, -3);
+      paint_rc = rect().adjusted(OFFSET, OFFSET, -OFFSET, -OFFSET);
       path.addRoundedRect(paint_rc, ROUNDED, ROUNDED, Qt::AbsoluteSize);
       rc.adjust(OFFSET, OFFSET, -OFFSET, -OFFSET);
 
@@ -468,7 +468,9 @@ MenuItem *Section::addItem(QWidget *parent, QAction *action, int row, int col)
 {
     MenuItem * item = createItem(parent, action);
     items_.push_back(item);
-    layout_.setVerticalSpacing(17);
+    layout_.setSpacing(0);
+    layout_.setVerticalSpacing(0);
+    layout_.setHorizontalSpacing(0);
     layout_.addWidget(item, row, col);
 
     if (action && action->isChecked())
@@ -506,7 +508,8 @@ bool Section::arrangeItems(QWidget *parent, BaseActions *base_actions, int rows,
                 MenuItem *wnd = createItem(parent, 0);
                 items_.push_back(wnd);
                 layout_.setSpacing(0);
-                layout_.setVerticalSpacing(5);
+                layout_.setVerticalSpacing(0);
+                layout_.setHorizontalSpacing(0);
                 layout_.addWidget(wnd, r, c);
             }
         }
