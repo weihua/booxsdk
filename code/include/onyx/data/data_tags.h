@@ -63,6 +63,9 @@ static const QString TAG_CDL_BOOK_CATEGORY_NAME="cdl_book_category_name";
 static const QString TAG_CDL_BOOK_CATEGORY_TOTAL="cdl_book_category_total";
 static const QString TAG_CDL_BOOK_COVER_PIXMAP="cdl_book_cover_pixmap";
 static const QString TAG_CDL_BOOK_COVER_PIXMAP_BIG="cdl_book_cover_pixmap_big";
-
+static const QString TAG_CDL_BOOK_PAGE_NUMBER = "cdl_book_page_number";
+static const QString TAG_CDL_BOOK_EDITOR="cdl_book_editor";
+static const QString TAG_CDL_BOOK_LANGUAGE="cdl_book_language";
+static const QString TAG_CDL_BOOK_YEAR_OF_PRODUCTION="cdl_book_publication";
 
 #endif
