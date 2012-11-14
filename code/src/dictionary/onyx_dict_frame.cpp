@@ -32,7 +32,8 @@ OnyxDictFrame::OnyxDictFrame(QWidget *parent, DictionaryManager & dict,
     , dictionary_menu_(0, this)
     , tts_button_view_(0, this)
     , keyboard_(this)
-    , status_bar_(this, MENU | MESSAGE | BATTERY | CLOCK | SCREEN_REFRESH | INPUT_TEXT)
+    , status_bar_(this, MESSAGE | BATTERY | CLOCK | SCREEN_REFRESH | INPUT_TEXT)
+    , view_(this)
     , dict_mgr_(dict)
     , tts_engine_(tts)
     , internal_state_(-1)
@@ -228,10 +229,18 @@ void OnyxDictFrame::createTtsButtonView()
 
 void OnyxDictFrame::createLayout()
 {
+    view_.hide();
+
     OnyxDialog::updateTitle(tr("Dictionary"));
     updateTitleIcon(QPixmap(":/images/dictionary_title.png"));
     content_widget_.setBackgroundRole(QPalette::Button);
     content_widget_.setContentsMargins(0, 0, 0, 0);
+
+    QString text("<u><a style=\"font-size:20pt; color:black;\" href=\"Dictionary DRAE Legal agreement\">%1</a></u>");
+    text = text.arg(tr("Dictionary DRAE Legal agreement"));
+    dict_drae_legal_agreement_.setText(text);
+    dict_drae_legal_agreement_.setStyleSheet("background: white;");
+    dict_drae_legal_agreement_.setFixedHeight(40);
 
     createLineEdit();
     createSubMenu();
@@ -262,13 +271,25 @@ void OnyxDictFrame::createLayout()
 
     big_layout_.addLayout(&dict_menu_layout_, 0);
     big_layout_.addWidget(&keyboard_);
+    big_layout_.addWidget(&dict_drae_legal_agreement_);
     big_layout_.addWidget(&status_bar_);
 
     connect(&list_widget_, SIGNAL(activated(const QModelIndex &)),
             this, SLOT(onItemClicked(const QModelIndex &)));
     connect(&list_widget_, SIGNAL(exceed(bool)),
             this, SLOT(moreSimilarWords(bool)));
+    connect(&dict_drae_legal_agreement_, SIGNAL(linkActivated(const QString &)),
+            this, SLOT(clickDictDRAE(const QString &)));
     list_widget_.showHeader(false);
+}
+
+void OnyxDictFrame::clickDictDRAE(const QString &)
+{
+    if(!view_.isVisible())
+    {
+        view_.show();
+        onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
+    }
 }
 
 void OnyxDictFrame::onSystemVolumeChanged(int value, bool muted)
@@ -623,6 +644,13 @@ void OnyxDictFrame::keyPressEvent(QKeyEvent *event)
 void OnyxDictFrame::keyReleaseEvent(QKeyEvent *event)
 {
     int key = event->key();
+
+    if(view_.isVisible())
+    {
+        view_.hide();
+        onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC);
+        return;
+    }
     if (key == ui::Device_Menu_Key)
     {
         popupMenu();

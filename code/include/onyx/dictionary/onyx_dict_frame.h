@@ -7,6 +7,7 @@
 #include "onyx/sys/sys.h"
 #include "onyx/tts/tts.h"
 #include "dictionary_manager.h"
+#include "onyx/dictionary/dictionary_drae_view.h"
 
 using namespace ui;
 using namespace base;
@@ -44,6 +45,7 @@ private Q_SLOTS:
 
     void onItemClicked(const QModelIndex & index);
     void moreSimilarWords(bool);
+    void clickDictDRAE(const QString &);
 
 private:
     void createLineEdit();
@@ -105,7 +107,10 @@ private:
     ODatas tts_button_datas_;
 
     OnyxKeyboard keyboard_;
+    QLabel dict_drae_legal_agreement_;
     StatusBar status_bar_;              ///< Status Bar
+
+    DictionaryDraeView view_;
 
     DictionaryManager &dict_mgr_;
     tts::TTS *tts_engine_;
