@@ -17,7 +17,7 @@ DictionaryDraeView::DictionaryDraeView(QWidget *parent)
     this->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
     this->page()->mainFrame()->setScrollBarValue(Qt::Vertical,100);
 
-    load(QUrl("/usr/share/dictionary_RAE/dict_drae_legal_agreement.html"));
+    load(QUrl("/usr/share/dictionary_DRAE/dict_drae_legal_agreement.html"));
     onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
     resize(600, 800);
 }
