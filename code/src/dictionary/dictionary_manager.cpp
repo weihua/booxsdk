@@ -3,9 +3,8 @@
 #include "onyx/sys/sys_conf.h"
 #include "onyx/dictionary/dictionary_manager.h"
 #include "qstardict_plugin/qstardict_plugin_impl.h"
-#include "apps/code/lib/crypto_util/onyx_aes_crypto.h"
 
-static const QString ENCRYPTED_DICT_NAME = "DRAE";
+
 
 DictionaryManager::DictionaryManager(const QString& dict_root)
 {
@@ -136,13 +135,6 @@ bool DictionaryManager::fuzzyTranslate(const QString &word, QString& result, QSt
     {
         qWarning("Dictionary exception catched.");
         return false;
-    }
-
-    if (selected_dictionary_ == ENCRYPTED_DICT_NAME)
-    {
-        OnyxAESCrypto aes;
-        result = aes.decryptData(result);
-        result = result.replace("\\n", "<br>");
     }
 
     return true;
