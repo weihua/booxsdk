@@ -7,6 +7,7 @@
 #include "onyx/dictionary/onyx_dict_frame.h"
 #include "onyx/data/data_tags.h"
 #include "onyx/screen/screen_update_watcher.h"
+#include "onyx/ui/languages.h"
 
 enum OnyxDictionaryMenuType
 {
@@ -45,6 +46,7 @@ OnyxDictFrame::OnyxDictFrame(QWidget *parent, DictionaryManager & dict,
     resize(qApp->desktop()->screenGeometry().size());
 #endif
 
+    ui::loadTranslator(QLocale::system().name());
     createLayout();
     initBrowser();
     initDictionaries();
