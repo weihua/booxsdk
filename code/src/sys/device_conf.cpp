@@ -77,11 +77,11 @@ QString DeviceConfig::deviceIdFromDatabase(QSqlDatabase &db)
         return ret;
     }
 
-    ret = QUuid::createUuid().toString();
-    query.prepare( "INSERT OR REPLACE into device_conf (key, value) values(?, ?)");
-    query.addBindValue("device_id");
-    query.addBindValue(ret);
-    query.exec();
+//    ret = QUuid::createUuid().toString();
+//    query.prepare( "INSERT OR REPLACE into device_conf (key, value) values(?, ?)");
+//    query.addBindValue("device_id");
+//    query.addBindValue(ret);
+//    query.exec();
     return ret;
 }
 
@@ -101,11 +101,11 @@ QString DeviceConfig::serialNumberFromDatabase(QSqlDatabase& db)
         return ret;
     }
 
-    ret = QUuid::createUuid().toString();
-    query.prepare( "INSERT OR REPLACE into device_conf (key, value) values(?, ?)");
-    query.addBindValue("serial_number");
-    query.addBindValue(ret);
-    query.exec();
+//    ret = QUuid::createUuid().toString();
+//    query.prepare( "INSERT OR REPLACE into device_conf (key, value) values(?, ?)");
+//    query.addBindValue("serial_number");
+//    query.addBindValue(ret);
+//    query.exec();
     return ret;
 }
 
