@@ -113,7 +113,7 @@ void ReadingToolsActions::generateActions(const vector<ReadingToolsType> & value
             break;
         case DICTIONARY_TOOL:
             {
-                act->setText(QCoreApplication::tr("Dictionary Lookup"));
+                act->setText(QCoreApplication::tr("Dictionary"));
                 act->setIcon(QIcon(QPixmap(":/images/dictionary.png")));
             }
             break;
