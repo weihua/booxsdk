@@ -238,8 +238,8 @@ void OnyxDictFrame::createLayout()
     content_widget_.setBackgroundRole(QPalette::Button);
     content_widget_.setContentsMargins(0, 0, 0, 0);
 
-    QString text("<u><a style=\"font-size:20pt; color:black;\" href=\"Dictionary DRAE Legal agreement\">%1</a></u>");
-    text = text.arg(tr("Dictionary DRAE Legal agreement"));
+    QString text("<u><a style=\"font-size:20pt; color:black;\" href=\"RAE Dictionary Legal agreement\">%1</a></u>");
+    text = text.arg(tr("RAE Dictionary Legal agreement"));
     dict_drae_legal_agreement_.setText(text);
     dict_drae_legal_agreement_.setStyleSheet("background: white;");
     dict_drae_legal_agreement_.setFixedHeight(40);
