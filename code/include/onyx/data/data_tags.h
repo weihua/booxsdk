@@ -67,5 +67,7 @@ static const QString TAG_CDL_BOOK_PAGE_NUMBER = "cdl_book_page_number";
 static const QString TAG_CDL_BOOK_EDITOR="cdl_book_editor";
 static const QString TAG_CDL_BOOK_LANGUAGE="cdl_book_language";
 static const QString TAG_CDL_BOOK_YEAR_OF_PRODUCTION="cdl_book_publication";
+static const QString TAG_CDL_BOOK_DIGITAL_PRICE="cdl_book_digital_price";
+static const QString TAG_CDL_BOOK_PAPER_PRICE="cdl_book_paper_price";
 
 #endif
