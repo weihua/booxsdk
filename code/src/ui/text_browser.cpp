@@ -3,6 +3,7 @@
 #include "onyx/ui/text_browser.h"
 #include "onyx/sys/sys.h"
 #include "onyx/screen/screen_proxy.h"
+#include "onyx/screen/screen_update_watcher.h"
 
 namespace ui
 {
@@ -23,6 +24,7 @@ OnyxTextBrowser::OnyxTextBrowser(QWidget *parent)
     palette.setColor(QPalette::Highlight, Qt::black);
     palette.setColor(QPalette::HighlightedText, Qt::white);
     this->setPalette(palette);
+    onyx::screen::watcher().addWatcher(this);
 }
 
 OnyxTextBrowser::~OnyxTextBrowser()
@@ -105,7 +107,14 @@ void OnyxTextBrowser::keyReleaseEvent(QKeyEvent * ev)
     if (key_event_)
     {
         QTextBrowser::keyPressEvent(key_event_.get());
+        onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
     }
+}
+
+void OnyxTextBrowser::paintEvent(QPaintEvent *event)
+{
+    QTextBrowser::paintEvent(event);
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
 }
 
 }

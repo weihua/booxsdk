@@ -105,6 +105,11 @@ void WifiTitleItem::createDashBoard()
     dash_board_.setFixedGrid(1, datas.size());
     dash_board_.setData(datas);
     dash_board_.setSubItemBkColor(Qt::transparent);
+    QVector<ContentView *> & all = dash_board_.visibleSubItems();
+    foreach(ContentView *view, all)
+    {
+        view->setFocusWaveform(onyx::screen::ScreenProxy::GU);
+    }
 }
 
 void WifiTitleItem::setState(const QString & state)

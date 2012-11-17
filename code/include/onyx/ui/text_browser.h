@@ -23,6 +23,7 @@ protected:
     virtual void resizeEvent ( QResizeEvent * event );
     virtual void keyPressEvent(QKeyEvent * ev );
     virtual void keyReleaseEvent(QKeyEvent * ev );
+    virtual void paintEvent(QPaintEvent *event);
 
 private:
     scoped_ptr<QKeyEvent> key_event_;
