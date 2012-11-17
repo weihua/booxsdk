@@ -246,13 +246,19 @@ void WifiAPItem::paintEvent(QPaintEvent *e)
 
     QPen pen;
     pen.setWidth(2);
-
+    painter.setPen(pen);
     int start_x = 0;
     int start_y = height()-2;
     int end_x = width();
     int end_y = start_y;
-    painter.drawLine(start_x, start_y, end_x, end_y);
-
+    if (hasFocus())
+    {
+        painter.drawPath(path);
+    }
+    else
+    {
+        painter.drawLine(start_x, start_y, end_x, end_y);
+    }
 /*
     if (hasFocus())
     {

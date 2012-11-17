@@ -132,6 +132,7 @@ int WifiDialog::popup(bool scan, bool auto_connect)
         triggerScan();
     }
     sys::SysStatus::instance().setSystemBusy(false);
+    state_widget_.dashBoard().setFocusTo(0,0);
     bool ret = exec();
     update();
     onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
