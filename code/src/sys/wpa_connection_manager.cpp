@@ -150,7 +150,13 @@ void WpaConnectionManager::onNeedPassword(WifiProfile profile)
         return;
     }
 
-    emit passwordRequired(profile);
+    static bool acquire = false;
+    if (!acquire)
+    {
+        acquire = true;
+        emit passwordRequired(profile);
+        acquire = false;
+    }
 }
 
 void WpaConnectionManager::onConnectionChanged(WifiProfile profile,
@@ -204,6 +210,7 @@ void WpaConnectionManager::onConnectionChanged(WifiProfile profile,
             connection_timer_.stop();
             proxy().removeAllNetworks();
             setControlState(CONTROL_CONNECTING_FAILED);
+            onConnectionTimeout();
         }
         break;
     default:
@@ -246,7 +253,7 @@ void WpaConnectionManager::onConnectionTimeout()
     else
     {
         proxy().removeAllNetworks();
-        setControlState(CONTROL_CONNECTING_TIMEOUT);
+        setControlState(CONTROL_CONNECTING_FAILED);
         onNeedPassword(connectingAP());
     }
 }
