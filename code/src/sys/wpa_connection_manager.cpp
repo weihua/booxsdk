@@ -175,7 +175,7 @@ void WpaConnectionManager::onConnectionChanged(WifiProfile profile,
         break;
     case WpaConnection::STATE_CONNECTING:
         {
-            setControlState(CONTROL_CONNECTING);
+            //setControlState(CONTROL_CONNECTING);
             emit connectionChanged(dummy, WpaConnection::STATE_CONNECTING);
         }
         break;
@@ -543,11 +543,8 @@ void WpaConnectionManager::setWpaState(WifiProfile profile, WpaConnection::Conne
 
 void WpaConnectionManager::setControlState(WpaConnectionManager::ControlState control)
 {
-    if (control_state_ != control)
-    {
-        control_state_ = control;
-        emit controlStateChanged(control);
-    }
+    control_state_ = control;
+    emit controlStateChanged(control);
 }
 
 WpaConnectionManager::ControlState WpaConnectionManager::controlState()
