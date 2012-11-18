@@ -57,6 +57,7 @@ private Q_SLOTS:
 
     void onScanReturned();
     void onConnectionChanged(WifiProfile , WpaConnection::ConnectionState state);
+    void onControlStateChanged(WpaConnectionManager::ControlState control);
     void onNeedPassword(WifiProfile profile);
     void onNoMatchedAP();
 
@@ -93,7 +94,6 @@ private:
 
     void sort(ODatas &list);
 
-    inline bool isConnecting() { return is_connecting_; }
 
 private:
     QVBoxLayout  big_box_;

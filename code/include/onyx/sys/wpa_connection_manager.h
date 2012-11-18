@@ -95,7 +95,7 @@ private Q_SLOTS:
 Q_SIGNALS:
     // signals for caller
     void wpaStateChanged(bool running);
-    void controlStateChanged(ControlState control);
+    void controlStateChanged(WpaConnectionManager::ControlState control);
     void connectionChanged(WifiProfile profile, WpaConnection::ConnectionState state);
     void passwordRequired(WifiProfile profile);
     void noMatchedAP();

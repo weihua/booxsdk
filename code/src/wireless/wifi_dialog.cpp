@@ -340,6 +340,9 @@ void WifiDialog::setupConnections()
 
     QObject::connect(&sys_, SIGNAL(sdioChangedSignal(bool)),
             this, SLOT(onSdioChanged(bool)));
+
+    QObject::connect(&proxy_, SIGNAL(controlStateChanged(WpaConnectionManager::ControlState)),
+        this, SLOT(onControlStateChanged(WpaConnectionManager::ControlState)));
 }
 
 void WifiDialog::clear()
@@ -533,6 +536,11 @@ void WifiDialog::onConnectionChanged(WifiProfile profile, WpaConnection::Connect
     onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
 }
 
+void WifiDialog::onControlStateChanged(WpaConnectionManager::ControlState control)
+{
+
+}
+
 void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
 {
     // If wifi is disabled.
@@ -558,8 +566,8 @@ void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
         state_widget_.setState(tr("Scanning..."));
         break;
     case WpaConnection::STATE_SCANNED:
-        qDebug() << "WifiDialog>>>>>>>>>>>>>>is isConnecting?  " << isConnecting();
-        if (!isConnecting())
+        qDebug() << "WifiDialog>>>>>>>>>>>>>>is isConnecting?  " << proxy_.isConnectionOnProgress();
+        if (!proxy_.isConnectionOnProgress())
         {
             state_widget_.setState(tr("Ready"));
             onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU);
