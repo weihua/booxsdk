@@ -133,8 +133,9 @@ bool WpaConnectionManager::connectTo(WifiProfile profile)
     connection_timer_.stop();
     connection_timer_.start();
     setWpaState(profile, WpaConnection::STATE_CONNECTING);
+    bool ret = proxy().connectTo(profile);
     setControlState(CONTROL_CONNECTING);
-    return proxy().connectTo(profile);
+    return ret;
 }
 
 WifiProfile WpaConnectionManager::connectingAP()
