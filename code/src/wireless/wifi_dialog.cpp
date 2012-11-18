@@ -91,7 +91,6 @@ WifiDialog::WifiDialog(QWidget *parent,
     , sys_(sys)
     , proxy_(sys.connectionManager())
     , ap_dialog_visible_(false)
-    , is_connecting_(false)
     , is_configuration_(false)
 {
     setGeometry(0, DIALOG_SPACE, ui::screenGeometry().width(), ui::screenGeometry().height() - DIALOG_SPACE);
@@ -120,8 +119,7 @@ int WifiDialog::popup(bool scan, bool auto_connect)
     clicked_ssid_.clear();
 
     proxy_.enableAutoConnect(auto_connect);
-    scanResults(scan_results_);
-    arrangeAPItems(scan_results_);
+    onScanReturned();
 
     onyx::screen::watcher().addWatcher(this);
     update();
@@ -441,7 +439,7 @@ void WifiDialog::onConnectionTimeout()
 {
     // Need to clean up password.
     // Timeout in wifi dialog.
-    updateStateLabel(WpaConnection::STATE_TIMEOUT);
+    updateStateLabel(WpaConnectionManager::CONTROL_CONNECTING_FAILED);
 }
 
 void WifiDialog::onAPItemClicked(WifiProfile & profile)
@@ -492,7 +490,7 @@ void WifiDialog::onSdioChanged(bool on)
     }
     else
     {
-        updateStateLabel(WpaConnection::STATE_DISABLED);
+        updateStateLabel(WpaConnectionManager::CONTROL_STOP);
         enableChildren(on);
     }
 }
@@ -511,71 +509,50 @@ void WifiDialog::onScanReturned()
 
 void WifiDialog::onConnectionChanged(WifiProfile profile, WpaConnection::ConnectionState state)
 {
+}
+
+void WifiDialog::onControlStateChanged(WpaConnectionManager::ControlState state)
+{
     updateStateLabel(state);
-    if (state == WpaConnection::STATE_CONNECTED)
+    if (state == WpaConnectionManager::CONTROL_CONNECTED)
     {
     }
-    if (state == WpaConnection::STATE_COMPLETE)
+    if (state == WpaConnectionManager::CONTROL_COMPLETE)
     {
     }
-    else if (state == WpaConnection::STATE_ACQUIRING_ADDRESS_ERROR)
+    else if (state == WpaConnectionManager::CONTROL_ACQUIRING_ADDRESS_FAILED)
     {
     }
-    else if (state == WpaConnection::STATE_AUTHENTICATION_FAILED)
+    else if (state == WpaConnectionManager::CONTROL_CONNECTING_FAILED)
     {
     }
-    else if (state == WpaConnection::STATE_SCANNED)
+    else if (state == WpaConnectionManager::CONTROL_SCANNED)
     {
         onScanReturned();
     }
-    else if (state == WpaConnection::STATE_CONNECTING)
+    else if (state == WpaConnectionManager::CONTROL_CONNECTING)
     {
-        // Mark the item selected.
-        qDebug("connecting to %s", qPrintable(profile.ssid()));
     }
     onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
 }
 
-void WifiDialog::onControlStateChanged(WpaConnectionManager::ControlState control)
+void WifiDialog::updateStateLabel(WpaConnectionManager::ControlState state)
 {
-
-}
-
-void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
-{
-    // If wifi is disabled.
-    //if (!wifi_enabled_ && state != WpaConnection::STATE_DISABLED)
-    //{
-    //    return;
-    //}
-
-     qDebug("WifiDialog::updateStateLabel %d", state);
+    qDebug("WifiDialog::updateStateLabel %d", state);
     switch (state)
     {
-    case WpaConnection::STATE_DISABLED:
-        state_widget_.setState(" ");
+    case WpaConnectionManager::CONTROL_STOP:
+    case WpaConnectionManager::CONTROL_INIT:
+        state_widget_.setState("");
         break;
-    case WpaConnection::STATE_HARDWARE_ERROR:
-//        state_widget_.setState(tr("Can not start wifi device."));
-        // TODO: do not show this message, since this state is occurred when normal startup,
-        // need to avoid setting this state in the future when something like wpa_supplicant
-        // start fail, but not hardware error
-        state_widget_.setState(" ");
-        break;
-    case WpaConnection::STATE_SCANNING:
+    case WpaConnectionManager::CONTROL_SCANNING:
         state_widget_.setState(tr("Scanning..."));
         break;
-    case WpaConnection::STATE_SCANNED:
-        qDebug() << "WifiDialog>>>>>>>>>>>>>>is isConnecting?  " << proxy_.isConnectionOnProgress();
-        if (!proxy_.isConnectionOnProgress())
-        {
-            state_widget_.setState(tr("Ready"));
-            onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU);
-        }
+    case WpaConnectionManager::CONTROL_SCANNED:
+        state_widget_.setState(tr(""));
+        onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU);
         break;
-    case WpaConnection::STATE_CONNECTING:
-    case WpaConnection::STATE_CONNECTED:
-    case WpaConnection::STATE_ACQUIRING_ADDRESS:
+    case WpaConnectionManager::CONTROL_CONNECTING:
         {
             QString msg = tr("Connecting to ");
             QString ssid = connectingAccessPoint();
@@ -583,23 +560,39 @@ void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
             {
                 ssid = clicked_ssid_;
             }
-            msg.append(ssid+"...");
+            msg.append(ssid + " ...");
             state_widget_.setState(msg);
         }
         break;
-    case WpaConnection::STATE_ACQUIRING_ADDRESS_ERROR:
+    case WpaConnectionManager::CONTROL_CONNECTED:
+        {
+            QString msg = tr("Associated.");
+            state_widget_.setState(msg);
+        }
+        break;
+    case WpaConnectionManager::CONTROL_ACQUIRING_ADDRESS:
+        {
+            QString msg = tr("Acquiring IP Address...");
+            state_widget_.setState(msg);
+        }
+        break;
+    case WpaConnectionManager::CONTROL_ACQUIRING_ADDRESS_FAILED:
         state_widget_.setState(tr("Could not acquire address."));
         break;
-    case WpaConnection::STATE_COMPLETE:
+    case WpaConnectionManager::CONTROL_COMPLETE:
         {
             QString text(tr("Connected to "));
             QString ssid = connectingAccessPoint();
             if(!ssid.isEmpty())
             {
                 text.append(ssid);
-            } else if(!clicked_ssid_.isEmpty()) {
+            }
+            else if(!clicked_ssid_.isEmpty())
+            {
                 text.append(clicked_ssid_);
-            } else {
+            }
+            else
+            {
                 text = tr("Connected.");
             }
             state_widget_.setState(text);
@@ -612,29 +605,12 @@ void WifiDialog::updateStateLabel(WpaConnection::ConnectionState state)
             onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GU);
         }
         break;
-    case WpaConnection::STATE_CONNECT_ERROR:
-    case WpaConnection::STATE_DISCONNECT:
+    case WpaConnectionManager::CONTROL_CONNECTING_FAILED:
         state_widget_.setState(tr("Not connected."));
         break;
-    case WpaConnection::STATE_TIMEOUT:
-        state_widget_.setState(tr("Timeout."));
-        break;
-    case WpaConnection::STATE_ABORTED:
-        state_widget_.setState(tr("Aborted."));
-        break;
     default:
+        state_widget_.setState(tr(""));
         break;
-    }
-
-    if (WpaConnection::STATE_CONNECTING == state)
-    {
-        is_connecting_ = true;
-    }
-    else if (WpaConnection::STATE_COMPLETE == state || WpaConnection::STATE_ABORTED == state
-             || WpaConnection::STATE_HARDWARE_ERROR == state
-             || WpaConnection::STATE_ACQUIRING_ADDRESS_ERROR == state)
-    {
-        is_connecting_ = false;
     }
 
     update();
@@ -785,11 +761,13 @@ bool WifiDialog::showConfigurationDialog(WifiProfile &profile)
     // load the stored password
     checkAndRestorePassword(profile);
 
+    /*
     if (!isActiveWindow())
     {
         qDebug() << "WifiDialog, not active window, ignore showing config dialog";
         return false;
     }
+    */
 
     ap_dialog_visible_ = true;
     ApConfigDialogS dialog(this, profile);

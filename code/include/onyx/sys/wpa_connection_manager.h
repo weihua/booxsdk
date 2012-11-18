@@ -28,6 +28,7 @@ public:
     {
         CONTROL_INIT,               ///< Init state.
         CONTROL_SCANNING,           ///< In scanning.
+        CONTROL_SCANNED,            ///< Scan finished.
         CONTROL_CONNECTING,         ///< In connecting.
         CONTROL_CONNECTED,          ///< connected.
         CONTROL_CONNECTING_TIMEOUT, ///< timeout.

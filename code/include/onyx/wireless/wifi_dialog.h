@@ -78,7 +78,7 @@ private:
     void setPassword(WifiProfile & profile, const QString & password);
     void storeAp(WifiProfile & profile);
 
-    void updateStateLabel(WpaConnection::ConnectionState state);
+    void updateStateLabel(WpaConnectionManager::ControlState state);
 
     void enableAutoConnect(bool e) { auto_connect_to_best_ap_ = e; }
     bool allowAutoConnect() { return auto_connect_to_best_ap_; }
@@ -120,7 +120,6 @@ private:
     ODatas datas_;
     QString clicked_ssid_;
 
-    bool is_connecting_;
     bool is_configuration_;
 
 };

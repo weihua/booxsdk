@@ -119,6 +119,7 @@ void WpaConnectionManager::onScanReturned(WifiProfiles & list)
     clearScanContext();
 
     setWpaState(dummy, WpaConnection::STATE_SCANNED);
+    setControlState(WpaConnectionManager::CONTROL_SCANNED);
     connectToBestAP();
 }
 
