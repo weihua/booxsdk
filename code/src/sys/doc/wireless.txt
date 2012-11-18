@@ -1,0 +1,26 @@
+
+states
+======
+* wpa control state    : report manager state for caller.
+* wpa connection state : report wpa_supplicant connection state.
+
+
+state control (control state)
+===========
+* init 
+* scanning                : if failed, just rescan.
+* connecting              : don't auto connect unti timeout or failed.
+* authentication failed   : show error message
+* authentication timeout  : retry couple of times, show error message
+* connected (finished)    : report finished
+
+
+exceed retry count
+================
+* stop connecting and remove network
+
+
+profile
+====
+* remove existing settings if user specified new one
+* 

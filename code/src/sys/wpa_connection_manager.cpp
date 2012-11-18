@@ -13,9 +13,9 @@ WpaConnectionManager::WpaConnectionManager()
 #else
 : connection_(QDBusConnection::sessionBus())
 #endif
-, scan_count_(0)
+, scan_retry_(0)
 , connect_retry_(0)
-, internal_state_(WpaConnection::STATE_UNKNOWN)
+, wpa_state_(WpaConnection::STATE_UNKNOWN)
 , auto_connect_(true)
 , auto_reconnect_(true)
 , wifi_enabled_(true)
@@ -23,7 +23,12 @@ WpaConnectionManager::WpaConnectionManager()
 , disable_idle_called_(false)
 {
     setupConnections();
+
     scan_timer_.setInterval(1500);
+    scan_timer_.setSingleShot(true);
+
+    connection_timer_.setInterval(15 * 1000);
+    connection_timer_.setSingleShot(true);
 }
 
 WpaConnectionManager::~WpaConnectionManager()
@@ -44,13 +49,14 @@ bool WpaConnectionManager::start()
         sys::SysStatus::instance().enableIdle(false);
     }
 
-    triggerScan();
+    initScan();
     return true;
 }
 
 bool WpaConnectionManager::stop()
 {
-    internal_state_ = WpaConnection::STATE_DISCONNECTED;
+    wpa_state_ = WpaConnection::STATE_DISCONNECTED;
+    setControlState(CONTROL_STOP);
 
     wifi_enabled_ = false;
     enableSdio(false);
@@ -58,6 +64,11 @@ bool WpaConnectionManager::stop()
     SysStatus::instance().enableIdle(true);
     disable_idle_called_ = false;
     return true;
+}
+
+WpaConnection::ConnectionState WpaConnectionManager::wpaState()
+{
+    return wpa_state_;
 }
 
 void WpaConnectionManager::onSdioChanged(bool on)
@@ -86,11 +97,14 @@ void WpaConnectionManager::onScanTimeout()
 /// Called when wpa supplicant get some scan results.
 void WpaConnectionManager::onScanReturned(WifiProfiles & list)
 {
-    // When connecting, we may igonre the list.
-    // TODO, we can also merge them into together.
-    if (isConnecting())
+    // Ignore auto connect for certain states.
+    if (controlState() == CONTROL_CONNECTING ||
+        controlState() == CONTROL_ACQUIRING_ADDRESS ||
+        controlState() == CONTROL_COMPLETE ||
+        controlState() == CONTROL_CONNECTED ||
+        controlState() == CONTROL_STOP)
     {
-        qDebug("Don't trigger scan as it's in connecting state.");
+        qDebug() << "Don't connect for state:" << controlState();
         return;
     }
 
@@ -102,14 +116,9 @@ void WpaConnectionManager::onScanReturned(WifiProfiles & list)
     }
 
     scan_results_ = list;
-    scan_timer_.stop();
-    setState(dummy, WpaConnection::STATE_SCANNED);
+    clearScanContext();
 
-    if (proxy().isComplete(auto_connect_))
-    {
-        qDebug("Complete, don't connect again.");
-        return;
-    }
+    setWpaState(dummy, WpaConnection::STATE_SCANNED);
     connectToBestAP();
 }
 
@@ -120,9 +129,10 @@ void WpaConnectionManager::scanResults(WifiProfiles &ret)
 
 bool WpaConnectionManager::connectTo(WifiProfile profile)
 {
-    resetConnectRetry();
-    setState(profile, WpaConnection::STATE_CONNECTING);
-    setConnecting(true);
+    connection_timer_.stop();
+    connection_timer_.start();
+    setWpaState(profile, WpaConnection::STATE_CONNECTING);
+    setControlState(CONTROL_CONNECTING);
     return proxy().connectTo(profile);
 }
 
@@ -136,7 +146,7 @@ void WpaConnectionManager::onNeedPassword(WifiProfile profile)
     // check if it is correct
     if (checkAuthentication(profile))
     {
-        proxy().connectTo(profile);
+        connectTo(profile);
         return;
     }
 
@@ -147,65 +157,104 @@ void WpaConnectionManager::onConnectionChanged(WifiProfile profile,
                                                WpaConnection::ConnectionState state)
 {
     qDebug("state changed %d", state);
-    bool update_internal_state = true;
     switch (state)
     {
     case WpaConnection::STATE_SCANNING:
         {
+            setControlState(CONTROL_SCANNING);
             emit connectionChanged(dummy, WpaConnection::STATE_SCANNING);
         }
         break;
-
+    case WpaConnection::STATE_CONNECTING:
+        {
+            setControlState(CONTROL_CONNECTING);
+            emit connectionChanged(dummy, WpaConnection::STATE_CONNECTING);
+        }
+        break;
     case WpaConnection::STATE_CONNECTED:
         {
+            stopAllTimers();
+            setControlState(CONTROL_CONNECTED);
             saveAp(profile);
             emit connectionChanged(profile, WpaConnection::STATE_CONNECTED);
         }
         break;
-
     case WpaConnection::STATE_COMPLETE:
         {
             stopAllTimers();
             emit connectionChanged(profile, WpaConnection::STATE_COMPLETE);
         }
         break;
+    case WpaConnection::STATE_ACQUIRING_ADDRESS:
+        {
+            stopAllTimers();
+            setControlState(CONTROL_ACQUIRING_ADDRESS);
+        }
+        break;
     case WpaConnection::STATE_ACQUIRING_ADDRESS_ERROR:
         {
-            // resetProfile(profile);
+            stopAllTimers();
+            setControlState(CONTROL_ACQUIRING_ADDRESS_FAILED);
             emit connectionChanged(profile, WpaConnection::STATE_ACQUIRING_ADDRESS_ERROR);
         }
         break;
-
     case WpaConnection::STATE_AUTHENTICATION_FAILED:
         {
-            update_internal_state = false;
-            onNeedPassword(profile);
+            scan_timer_.stop();
+            connection_timer_.stop();
+            proxy().removeAllNetworks();
+            setControlState(CONTROL_CONNECTING_FAILED);
         }
         break;
     default:
         break;
     }
 
-    if (update_internal_state)
-    {
-        internal_state_ = state;
-    }
+    wpa_state_ = state;
+}
+
+bool WpaConnectionManager::canScanRetry()
+{
+    return scan_retry_ <= 2;
+}
+
+void WpaConnectionManager::clearScanContext()
+{
+    scan_timer_.stop();
+    resetScanRetry();
+}
+
+void WpaConnectionManager::clearConnectContext()
+{
+    connection_timer_.stop();
+    resetConnectRetry();
 }
 
 bool WpaConnectionManager::canRetryConnect()
 {
-    qDebug("connect retry %d", connect_retry_);
     return (connect_retry_ < 1);
 }
 
 void WpaConnectionManager::onConnectionTimeout()
 {
-    qWarning("Connection timeout, maybe need to reconnect.");
+    qWarning() << "Connection timeout, connect retry count:" << connect_retry_;
+    if (canRetryConnect())
+    {
+        increaseConnectRetry();
+        connectTo(connectingAP());
+    }
+    else
+    {
+        proxy().removeAllNetworks();
+        setControlState(CONTROL_CONNECTING_TIMEOUT);
+        onNeedPassword(connectingAP());
+    }
 }
 
 void WpaConnectionManager::onComplete()
 {
-    setState(proxy().connectingAP(), WpaConnection::STATE_SCANNED);
+    setWpaState(proxy().connectingAP(), WpaConnection::STATE_SCANNED);
+    setControlState(CONTROL_CONNECTED);
 }
 
 bool WpaConnectionManager::checkWifiDevice()
@@ -216,7 +265,7 @@ bool WpaConnectionManager::checkWifiDevice()
     // Check state again.
     if (!sdioState())
     {
-        setState(dummy, WpaConnection::STATE_DISABLED);
+        setWpaState(dummy, WpaConnection::STATE_DISABLED);
         return false;
     }
     return true;
@@ -230,7 +279,7 @@ bool WpaConnectionManager::checkWpaSupplicant()
         if (!startWpaSupplicant(""))
         {
             qWarning("Seems we can not start wpa supplicant.");
-            setState(dummy, WpaConnection::STATE_HARDWARE_ERROR);
+            setWpaState(dummy, WpaConnection::STATE_HARDWARE_ERROR);
             emit wpaStateChanged(false);
             return false;
         }
@@ -252,6 +301,7 @@ bool WpaConnectionManager::checkWpaSupplicant()
 void WpaConnectionManager::setupConnections()
 {
     QObject::connect(&scan_timer_, SIGNAL(timeout()), this, SLOT(onScanTimeout()));
+    QObject::connect(&connection_timer_, SIGNAL(timeout()), this, SLOT(onConnectionTimeout()));
 
     if (!connection_.connect(service, object, iface,
                              "sdioChangedSignal",
@@ -269,12 +319,13 @@ void WpaConnectionManager::setupConnections()
             this, SLOT(onNeedPassword(WifiProfile )));
 }
 
-void WpaConnectionManager::triggerScan()
+void WpaConnectionManager::initScan()
 {
     wifi_enabled_ = true;
-    setConnecting(false);
-    resetScanRetry();
-    resetConnectRetry();
+    clearConnectContext();
+    clearScanContext();
+    setWpaState(dummy, WpaConnection::STATE_UNKNOWN);
+    setControlState(CONTROL_INIT);
     scan();
 }
 
@@ -294,7 +345,7 @@ void WpaConnectionManager::scan()
         {
             // Stop timer.
             scan_timer_.stop();
-            setState(dummy, WpaConnection::STATE_SCANNING);
+            setWpaState(dummy, WpaConnection::STATE_SCANNING);
             proxy().scan();
         }
     }
@@ -311,7 +362,7 @@ void WpaConnectionManager::scan()
             // Wifi device is detected, but wpa_supplicant can not be launched
             // Hardware issue, but user can try to turn off and turn on the
             // wifi switcher again.
-            setState(dummy, WpaConnection::STATE_HARDWARE_ERROR);
+            setWpaState(dummy, WpaConnection::STATE_HARDWARE_ERROR);
             SysStatus::instance().enableSdio(false);
             SysStatus::instance().enableSdio(true);
         }
@@ -460,38 +511,38 @@ bool WpaConnectionManager::connectToBestAP()
         return false;
     }
 
+    clearConnectContext();
     sortByCount(scan_results_);
-    proxy().connectTo(scan_results_.front());
-    setConnecting(true);
+    connectTo(scan_results_.front());
     return true;
-}
-
-bool WpaConnectionManager::isConnecting()
-{
-    return (state() == WpaConnection::STATE_CONNECTING);
-}
-
-void WpaConnectionManager::setConnecting(bool c)
-{
-    if (c)
-    {
-        setState(proxy().connectingAP(), WpaConnection::STATE_CONNECTING);
-    }
-    else
-    {
-        setState(dummy, WpaConnection::STATE_UNKNOWN);
-    }
 }
 
 void WpaConnectionManager::stopAllTimers()
 {
     scan_timer_.stop();
+    connection_timer_.stop();
+    scan_retry_ = 0;
+    connect_retry_ = 0;
 }
 
-void WpaConnectionManager::setState(WifiProfile profile, WpaConnection::ConnectionState s)
+void WpaConnectionManager::setWpaState(WifiProfile profile, WpaConnection::ConnectionState s)
 {
-    internal_state_ = s;
+    wpa_state_ = s;
     emit connectionChanged(profile, s);
+}
+
+void WpaConnectionManager::setControlState(WpaConnectionManager::ControlState control)
+{
+    if (control_state_ != control)
+    {
+        control_state_ = control;
+        emit controlStateChanged(control);
+    }
+}
+
+WpaConnectionManager::ControlState WpaConnectionManager::controlState()
+{
+    return control_state_;
 }
 
 WifiProfiles & WpaConnectionManager::records(sys::SystemConfig& conf)
@@ -718,17 +769,10 @@ void WpaConnectionManager::disableSuspendPeriod()
 
 bool WpaConnectionManager::isConnectionOnProgress()
 {
-    if (WpaConnection::STATE_SCANNING == internal_state_
-            || WpaConnection::STATE_CONNECTING == internal_state_
-            || WpaConnection::STATE_ACQUIRING_ADDRESS == internal_state_)
-    {
-        return true;
-    }
-    return false;
+    return (controlState() == CONTROL_CONNECTING);
 }
 
 bool WpaConnectionManager::isConnectionComplete()
 {
-    return internal_state_ == WpaConnection::STATE_COMPLETE
-            || ((internal_state_ == WpaConnection::STATE_SCANNED) && proxy().isConnectionEstablished());
+    return (controlState() == CONTROL_CONNECTED);
 }

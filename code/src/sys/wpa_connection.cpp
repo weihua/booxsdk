@@ -458,6 +458,9 @@ bool WpaConnection::connectTo(WifiProfile ap)
     // To connect to hidden ssid. Seems work.
     setNetworkParam(id, "ap_scan", "1", false);
     setNetworkParam(id, "scan_ssid", "1", false);
+    
+    // timeout.
+    setNetworkParam(id, "dot11RSNAConfigSATimeout", "5", false);
 
     // encryption.
     encryptionAttributes(ap);
