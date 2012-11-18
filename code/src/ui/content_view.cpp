@@ -488,6 +488,7 @@ void LineEditView::checkEditByMouse()
 {
     QKeyEvent key_event(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier, "virtual");
     QApplication::sendEvent(this, &key_event);
+    emit activated(this, 0);
 }
 
 void LineEditView::createLayout()

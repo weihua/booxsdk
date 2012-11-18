@@ -4,6 +4,7 @@
 #include "onyx/ui/text_layout.h"
 #include "onyx/sys/sys.h"
 #include "onyx/screen/screen_proxy.h"
+#include "onyx/screen/screen_update_watcher.h"
 
 namespace ui
 {
@@ -44,6 +45,7 @@ OnyxTreeHeaderBar::OnyxTreeHeaderBar(QWidget *parent, QStandardItemModel * model
     setFixedHeight(50);
 
     setModel(model);
+    onyx::screen::watcher().addWatcher(this);
 }
 
 OnyxTreeHeaderBar::~OnyxTreeHeaderBar()
@@ -326,6 +328,7 @@ void OnyxTreeView::onItemReleased(OnyxTreeViewItem *item, const QPoint &point)
     {
         pageUp();
     }
+
 }
 
 void OnyxTreeView::setModel(QStandardItemModel * model)
@@ -502,6 +505,8 @@ void OnyxTreeView::paintEvent(QPaintEvent *pe)
     {
         p.drawRect(rect());
     }
+    QWidget::paintEvent(pe);
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
 }
 
 void OnyxTreeView::keyReleaseEvent(QKeyEvent * event)
@@ -732,6 +737,8 @@ bool OnyxTreeView::selectItem(OnyxTreeViewItem *item)
 void OnyxTreeView::updateTreeWidget()
 {
     arrangeItems(first_visible_, selected_, itemsPerPage());
+    update();
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
 }
 
 int OnyxTreeView::first_visible()
