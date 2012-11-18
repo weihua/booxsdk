@@ -189,6 +189,7 @@ void WpaConnectionManager::onConnectionChanged(WifiProfile profile,
     case WpaConnection::STATE_COMPLETE:
         {
             stopAllTimers();
+            setControlState(CONTROL_COMPLETE);
             emit connectionChanged(profile, WpaConnection::STATE_COMPLETE);
         }
         break;
