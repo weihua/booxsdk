@@ -175,7 +175,7 @@ void PasswordWithoutLineEdit::paintEvent(QPaintEvent *event)
     QWidget::paintEvent(event);
     QPainter painter(this);
 
-    QBrush brush(QColor(Qt::black));
+    QBrush brush(Qt::black);
     painter.setBrush(brush);
     QRectF rect(2, 0, width()-2, 38);
     QPainterPath p_path;

@@ -57,6 +57,7 @@ private Q_SLOTS:
 
     void onScanReturned();
     void onConnectionChanged(WifiProfile , WpaConnection::ConnectionState state);
+    void onControlStateChanged(WpaConnectionManager::ControlState control);
     void onNeedPassword(WifiProfile profile);
     void onNoMatchedAP();
 
@@ -77,7 +78,7 @@ private:
     void setPassword(WifiProfile & profile, const QString & password);
     void storeAp(WifiProfile & profile);
 
-    void updateStateLabel(WpaConnection::ConnectionState state);
+    void updateStateLabel(WpaConnectionManager::ControlState state);
 
     void enableAutoConnect(bool e) { auto_connect_to_best_ap_ = e; }
     bool allowAutoConnect() { return auto_connect_to_best_ap_; }
@@ -93,7 +94,6 @@ private:
 
     void sort(ODatas &list);
 
-    inline bool isConnecting() { return is_connecting_; }
 
 private:
     QVBoxLayout  big_box_;
@@ -120,7 +120,6 @@ private:
     ODatas datas_;
     QString clicked_ssid_;
 
-    bool is_connecting_;
     bool is_configuration_;
 
 };
