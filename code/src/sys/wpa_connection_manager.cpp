@@ -783,5 +783,5 @@ bool WpaConnectionManager::isConnectionOnProgress()
 
 bool WpaConnectionManager::isConnectionComplete()
 {
-    return (controlState() == CONTROL_CONNECTED);
+    return (controlState() == CONTROL_COMPLETE);
 }
