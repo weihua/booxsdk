@@ -27,7 +27,7 @@ WpaConnectionManager::WpaConnectionManager()
     scan_timer_.setInterval(1500);
     scan_timer_.setSingleShot(true);
 
-    connection_timer_.setInterval(15 * 1000);
+    connection_timer_.setInterval(8 * 1000);
     connection_timer_.setSingleShot(true);
 }
 
