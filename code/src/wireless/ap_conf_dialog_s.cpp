@@ -159,8 +159,7 @@ bool ApConfigDialogS::popup()
         addLineEditsToGroup();
     }
 
-    update();
-    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU);
+    onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC);
     return exec();
 }
 
