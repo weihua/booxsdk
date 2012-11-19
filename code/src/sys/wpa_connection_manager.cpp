@@ -143,6 +143,22 @@ WifiProfile WpaConnectionManager::connectingAP()
     return proxy().connectingAP();
 }
 
+void WpaConnectionManager::resetConnectRetry()
+{
+    connect_retry_ = 0;
+}
+
+void WpaConnectionManager::broadcastPasswordRequireSignal(WifiProfile profile)
+{
+    static bool acquire = false;
+    if (!acquire)
+    {
+        acquire = true;
+        emit passwordRequired(profile);
+        acquire = false;
+    }
+}
+
 void WpaConnectionManager::onNeedPassword(WifiProfile profile)
 {
     // check if it is correct
@@ -151,14 +167,7 @@ void WpaConnectionManager::onNeedPassword(WifiProfile profile)
         connectTo(profile);
         return;
     }
-
-    static bool acquire = false;
-    if (!acquire)
-    {
-        acquire = true;
-        emit passwordRequired(profile);
-        acquire = false;
-    }
+    broadcastPasswordRequireSignal(profile);
 }
 
 void WpaConnectionManager::onConnectionChanged(WifiProfile profile,
@@ -257,7 +266,7 @@ void WpaConnectionManager::onConnectionTimeout()
     {
         proxy().removeAllNetworks();
         setControlState(CONTROL_CONNECTING_FAILED);
-        onNeedPassword(connectingAP());
+        broadcastPasswordRequireSignal(connectingAP());
     }
 }
 
@@ -411,14 +420,10 @@ bool WpaConnectionManager::checkAuthentication(WifiProfile & profile)
         // Use bssid instead of ssid.
         if (profile.bssid() == record.bssid())
         {
-            if (canRetryConnect())
+            if (syncAuthentication(record, profile))
             {
-                increaseConnectRetry();
-                if (syncAuthentication(record, profile))
-                {
-                    profile.setCount(record.count());
-                    return true;
-                }
+                profile.setCount(record.count());
+                return true;
             }
         }
     }
