@@ -111,7 +111,8 @@ void MenuItem::paintEvent(QPaintEvent *e)
           p.drawRoundRect(rc);
       }
 
-      QRect icon_rect(icon_pos_, iconActualSize());
+      QPoint icon_new_p = icon_pos_+QPoint(0, 2);
+      QRect icon_rect(icon_new_p, iconActualSize());
       if (action_->isChecked())
       {
           action_->icon().paint(&p, icon_rect,
