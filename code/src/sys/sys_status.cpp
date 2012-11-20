@@ -59,9 +59,10 @@ static QString getCustomizedDownloadPath()
         if (!dir.mkpath(context))
         {
             qWarning() << "Could not create folder" << context;
-            return ;
+            return QString();
         }
     }
+    return context;
 }
 
 static void putDocumentFolder()
