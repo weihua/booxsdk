@@ -642,6 +642,7 @@ void WifiDialog::onNeedPassword(WifiProfile profile)
         storeAp(profile);
 
         // Connect again.
+        proxy_.resetConnectRetry();
         proxy_.connectTo(profile);
     }
     else
@@ -669,6 +670,7 @@ void WifiDialog::onItemActivated(CatalogView *catalog, ContentView *item, int us
     }
     WifiProfile * d = static_cast<WifiProfile *>(item->data());
     static_cast<WifiAPItem *>(item)->activateItem();
+    proxy_.resetConnectRetry();
     onAPItemClicked(*d);
 }
 

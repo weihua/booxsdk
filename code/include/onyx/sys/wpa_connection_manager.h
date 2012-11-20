@@ -63,6 +63,7 @@ public Q_SLOTS:
 
     bool connectTo(WifiProfile profile);
     WifiProfile connectingAP();
+    void resetConnectRetry();
 
     QString networkInterface();
     QString address();
@@ -112,13 +113,14 @@ private:
     bool syncAuthentication(WifiProfile & source, WifiProfile & target);
     void saveAp(WifiProfile & profile);
 
+    void broadcastPasswordRequireSignal(WifiProfile profile);
+
     void increaseScanRetry() { ++scan_retry_; }
     void resetScanRetry() { scan_retry_ = 0; }
     bool canScanRetry();
     void clearScanContext();
 
     int increaseConnectRetry() { return ++connect_retry_; }
-    void resetConnectRetry() { connect_retry_ = 0; }
     bool canRetryConnect();
     void clearConnectContext();
 
