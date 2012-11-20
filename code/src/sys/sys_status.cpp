@@ -44,18 +44,46 @@ static void putRootFolder()
     qDebug("ADOBE_DE_ROOT_FOLDER : %s", qgetenv("ADOBE_DE_ROOT_FOLDER").constData());
 }
 
+static QString getCustomizedDownloadPath()
+{
+    QString context = qgetenv("DOWNLOAD_PATH_CONTEXT");
+    if (context.isEmpty())
+    {
+        return QString();
+    }
+    context = context.arg(QCoreApplication::tr("Downloaded"));
+    qDebug() << "Download path for drm: " << context;
+    QDir dir(context);
+    if (!dir.exists())
+    {
+        if (!dir.mkpath(context))
+        {
+            qWarning() << "Could not create folder" << context;
+            return ;
+        }
+    }
+}
+
 static void putDocumentFolder()
 {
     // set the folder of Digital Edition
-    QString path;
+    QString customized_path = getCustomizedDownloadPath();
+    if (!customized_path.isEmpty())
+    {
+        qputenv("ADOBE_DE_DOC_FOLDER", customized_path.toLocal8Bit());
+    }
+    else
+    {
+        QString path;
 #ifdef Q_WS_QWS
-    path = ROOT_FOLDER;
+        path = ROOT_FOLDER;
 #else
-    path = QDir::home().path();
+        path = QDir::home().path();
 #endif
-    QDir dir(path);
-    qputenv("ADOBE_DE_DOC_FOLDER", dir.absoluteFilePath(DRM_CONTENT_DIR).toAscii());
-    qDebug("ADOBE_DE_DOC_FOLDER : %s", qgetenv("ADOBE_DE_DOC_FOLDER").constData());
+        QDir dir(path);
+        qputenv("ADOBE_DE_DOC_FOLDER", dir.absoluteFilePath(DRM_CONTENT_DIR).toAscii());
+    }
+    qDebug() << "path after set: " << QString::fromLocal8Bit(qgetenv("ADOBE_DE_DOC_FOLDER"));
 }
 
 static void putResourceFolder()
