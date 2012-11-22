@@ -36,7 +36,11 @@ void TTSWidget::onTTSInitError()
     QString err_msg;
     if (tts_.valid() == TTS_DATA_INVALID)
     {
-        err_msg = tr("Invalid TTS data!");
+        err_msg = tr("1. Please set correct Date&Time and Time Zone; "
+                     "2. TTS voices are missing. Please download from %1 and store in"
+                     " .tts/ folder of user space.");
+        QString voices_download_path = qgetenv("VOICES_DOWNLOAD_PATH");
+        err_msg = err_msg.arg(voices_download_path);
     }
     else if (tts_.valid() == TTS_PLUGIN_INVALID)
     {
