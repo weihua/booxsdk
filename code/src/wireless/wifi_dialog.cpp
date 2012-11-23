@@ -763,6 +763,14 @@ void WifiDialog::checkAndRestorePassword(WifiProfile &profile)
 
 bool WifiDialog::showConfigurationDialog(WifiProfile &profile)
 {
+    static bool denied_reentrance = false;
+    if (denied_reentrance)
+    {
+        qDebug() << "denied reentrance";
+        return;
+    }
+    denied_reentrance = true;
+
     // load the stored password
     checkAndRestorePassword(profile);
 
@@ -776,6 +784,7 @@ bool WifiDialog::showConfigurationDialog(WifiProfile &profile)
 
     ap_config_dialog_.reset(0);
     int ret = apConfigDialog(profile)->popup();
+    denied_reentrance = false;
 
     // Update screen.
     update();
