@@ -767,7 +767,7 @@ bool WifiDialog::showConfigurationDialog(WifiProfile &profile)
     if (denied_reentrance)
     {
         qDebug() << "denied reentrance";
-        return;
+        return false;
     }
     denied_reentrance = true;
 
