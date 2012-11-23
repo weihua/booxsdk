@@ -621,10 +621,6 @@ void WifiDialog::updateStateLabel(WpaConnectionManager::ControlState state)
 /// can use the password remembered.
 void WifiDialog::onNeedPassword(WifiProfile profile)
 {
-    if (apConfigDialog(profile)->isVisible())
-    {
-        return;
-    }
     qDebug("Need password now, password incorrect or not available.");
 
     // reserve the signal level value
