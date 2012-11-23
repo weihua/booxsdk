@@ -3,7 +3,6 @@
 #include "onyx/screen/screen_update_watcher.h"
 #include "onyx/data/data.h"
 #include "onyx/data/data_tags.h"
-#include "onyx/wireless/ap_conf_dialog_s.h"
 
 namespace ui
 {
@@ -90,7 +89,6 @@ WifiDialog::WifiDialog(QWidget *parent,
     , ap_view_(&my_factory, this)
     , sys_(sys)
     , proxy_(sys.connectionManager())
-    , ap_dialog_visible_(false)
     , is_configuration_(false)
 {
     setGeometry(0, DIALOG_SPACE, ui::screenGeometry().width(), ui::screenGeometry().height() - DIALOG_SPACE);
@@ -623,7 +621,7 @@ void WifiDialog::updateStateLabel(WpaConnectionManager::ControlState state)
 /// can use the password remembered.
 void WifiDialog::onNeedPassword(WifiProfile profile)
 {
-    if (ap_dialog_visible_)
+    if (apConfigDialog(profile)->isVisible())
     {
         return;
     }
@@ -691,6 +689,15 @@ void WifiDialog::sort(ODatas &list)
 {
     // DescendingOrder
     qSort(list.begin(), list.end(), greaterBySignalLevel);
+}
+
+ApConfigDialogS *WifiDialog::apConfigDialog(WifiProfile &profile)
+{
+    if (0 == ap_config_dialog_)
+    {
+        ap_config_dialog_.reset(new ApConfigDialogS(this, profile));
+    }
+    return ap_config_dialog_.get();
 }
 
 void WifiDialog::setPassword(WifiProfile & profile,
@@ -771,10 +778,8 @@ bool WifiDialog::showConfigurationDialog(WifiProfile &profile)
     }
     */
 
-    ap_dialog_visible_ = true;
-    ApConfigDialogS dialog(this, profile);
-    int ret = dialog.popup();
-    ap_dialog_visible_ = false;
+    ap_config_dialog_.reset(0);
+    int ret = apConfigDialog(profile)->popup();
 
     // Update screen.
     update();

@@ -6,6 +6,7 @@
 #include <QtGui/QtGui>
 #include "onyx/ui/paginator.h"
 #include "ap_item.h"
+#include "onyx/wireless/ap_conf_dialog_s.h"
 
 using namespace sys;
 
@@ -94,6 +95,7 @@ private:
 
     void sort(ODatas &list);
 
+    ApConfigDialogS * apConfigDialog(WifiProfile &profile);
 
 private:
     QVBoxLayout  big_box_;
@@ -114,13 +116,14 @@ private:
     WpaConnectionManager& proxy_;
     bool auto_connect_to_best_ap_;      ///< Access points used successfully before.
     bool auto_connect_to_default_ap_;    ///< If we have pre-installed access point.
-    bool ap_dialog_visible_;
 
     WifiProfiles scan_results_;
     ODatas datas_;
     QString clicked_ssid_;
 
     bool is_configuration_;
+
+    scoped_ptr<ApConfigDialogS> ap_config_dialog_;
 
 };
 
