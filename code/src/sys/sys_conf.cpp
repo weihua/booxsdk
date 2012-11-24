@@ -848,7 +848,8 @@ void SystemConfig::askMeForUpdate(bool ask)
 
 bool SystemConfig::askMeForUpdate()
 {
-    return FirmwareConfig::askMeForUpdate(*database_);
+//    return FirmwareConfig::askMeForUpdate(*database_);
+    return true;
 }
 
 

@@ -621,10 +621,6 @@ void WifiDialog::updateStateLabel(WpaConnectionManager::ControlState state)
 /// can use the password remembered.
 void WifiDialog::onNeedPassword(WifiProfile profile)
 {
-    if (apConfigDialog(profile)->isVisible())
-    {
-        return;
-    }
     qDebug("Need password now, password incorrect or not available.");
 
     // reserve the signal level value
@@ -767,6 +763,14 @@ void WifiDialog::checkAndRestorePassword(WifiProfile &profile)
 
 bool WifiDialog::showConfigurationDialog(WifiProfile &profile)
 {
+    static bool denied_reentrance = false;
+    if (denied_reentrance)
+    {
+        qDebug() << "denied reentrance";
+        return false;
+    }
+    denied_reentrance = true;
+
     // load the stored password
     checkAndRestorePassword(profile);
 
@@ -780,6 +784,7 @@ bool WifiDialog::showConfigurationDialog(WifiProfile &profile)
 
     ap_config_dialog_.reset(0);
     int ret = apConfigDialog(profile)->popup();
+    denied_reentrance = false;
 
     // Update screen.
     update();
