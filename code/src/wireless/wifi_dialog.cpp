@@ -537,6 +537,7 @@ void WifiDialog::onControlStateChanged(WpaConnectionManager::ControlState state)
 void WifiDialog::updateStateLabel(WpaConnectionManager::ControlState state)
 {
     qDebug("WifiDialog::updateStateLabel %d", state);
+
     switch (state)
     {
     case WpaConnectionManager::CONTROL_STOP:

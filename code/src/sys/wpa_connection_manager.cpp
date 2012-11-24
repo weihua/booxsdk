@@ -27,7 +27,7 @@ WpaConnectionManager::WpaConnectionManager()
     scan_timer_.setInterval(1500);
     scan_timer_.setSingleShot(true);
 
-    connection_timer_.setInterval(8 * 1000);
+    connection_timer_.setInterval(12 * 1000);
     connection_timer_.setSingleShot(true);
 }
 
@@ -167,6 +167,7 @@ void WpaConnectionManager::onNeedPassword(WifiProfile profile)
         connectTo(profile);
         return;
     }
+    connection_timer_.stop();
     broadcastPasswordRequireSignal(profile);
 }
 
