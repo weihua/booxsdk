@@ -321,6 +321,10 @@ int CatalogView::moveLeft(int current)
         }
         emit outOfLeft(this, current / paginator().cols(),
                 current % paginator().cols());
+        if(onePageOrderOnly())
+        {
+            return FLAG_STOP;
+        }
     }
     return --current;
 }
@@ -342,6 +346,10 @@ int CatalogView::moveRight(int current)
         }
         emit outOfRight(this, current / paginator().cols(),
                 current % paginator().cols());
+        if(onePageOrderOnly())
+        {
+            return FLAG_STOP;
+        }
     }
     return ++current;
 }
@@ -363,6 +371,10 @@ int CatalogView::moveUp(int current)
         }
         emit outOfUp(this, current / paginator().cols(),
                 current % paginator().cols());
+        if(onePageOrderOnly())
+        {
+            return FLAG_STOP;
+        }
     }
     return current - paginator().cols();
 }
@@ -384,6 +396,10 @@ int CatalogView::moveDown(int current)
         }
         emit outOfDown(this, current / paginator().cols(),
                 current % paginator().cols());
+        if(onePageOrderOnly())
+        {
+            return FLAG_STOP;
+        }
         return current + paginator().cols();
     }
     else
@@ -451,6 +467,11 @@ int CatalogView::col(int index)
 bool CatalogView::neighborFirst()
 {
     return policy_ & NeighborFirst;
+}
+
+bool CatalogView::onePageOrderOnly()
+{
+    return policy_ & OnePageOrder;
 }
 
 bool CatalogView::horAutoRecycle()

@@ -32,6 +32,7 @@ public:
          NeighborFirst  = 0x01,
          AutoHorRecycle = 0x02,
          AutoVerRecycle = 0x04,
+         OnePageOrder   = 0x10
      };
 
 #ifdef BUILD_WITH_TFT
@@ -175,6 +176,7 @@ private:
     bool neighborFirst();
     bool verAutoRecycle();
     bool horAutoRecycle();
+    bool onePageOrderOnly();
 
 private:
     QGridLayout layout_;
