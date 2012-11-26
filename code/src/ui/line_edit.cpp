@@ -113,7 +113,8 @@ void OnyxLineEdit::keyPressEvent(QKeyEvent * ke)
     QLineEdit::keyPressEvent(ke);
     ke->accept();
     update();
-    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::DW, onyx::screen::ScreenCommand::WAIT_NONE);
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::A2,
+                                    onyx::screen::ScreenCommand::WAIT_NONE);
 }
 
 void OnyxLineEdit::mouseReleaseEvent(QMouseEvent * event)
