@@ -260,8 +260,8 @@ void StatusBarItemProgress::updateProgressPositionRect(int value)
     int w = progress_position_pixmap_.width();
     int h = progress_position_pixmap_.height();
 
-    int x = width() * value / total_ - w;
-    int y = Y_POS + HEIGHT / 2 - h / 2;
+    int x = width() * value / total_ - MARGIN * 8;
+    int y = Y_POS + HEIGHT / 2 + MARGIN * 2;
 
     progress_position_rect_.setX(x);
     progress_position_rect_.setY(y);
