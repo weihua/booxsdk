@@ -531,11 +531,11 @@ int PopupMenu::popup(const QString &)
     {
         if(!isLandscapeMode())
         {
-            move((rect.width()-pixmap.width()), (rect.height()-pixmap.height())/2);
+            move((rect.width()-pixmap.width())/2, (rect.height()-pixmap.height())/2);
         }
         else
         {
-            move((rect.width()-pixmap.width()) / 2, (pixmap.height()-rect.height()));
+            move((rect.width()-pixmap.width())/2, (rect.height()-pixmap.height())/2);
         }
     }
 
