@@ -56,7 +56,7 @@ ApConfigDialogS::ApConfigDialogS(QWidget *parent, WifiProfile & profile)
     connectWithChildren();
 
     updateTitle(tr("Wifi Configuration"));
-    //onyx::screen::watcher().addWatcher(this);
+    onyx::screen::watcher().addWatcher(this);
 }
 
 ApConfigDialogS::~ApConfigDialogS()
@@ -159,8 +159,12 @@ bool ApConfigDialogS::popup()
         addLineEditsToGroup();
     }
 
-    onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC);
-    return exec();
+    update();
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
+    int ret = exec();
+    update();
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
+    return ret;
 }
 
 QString ApConfigDialogS::value(int d_index)
@@ -674,7 +678,7 @@ void ApConfigDialogS::onItemActivated(CatalogView *catalog,
         {
             clearClicked();
             update();
-            onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::DW);
+            onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::A2);
         }
     }
     else if (catalog == &show_plain_text_)
@@ -691,20 +695,6 @@ void ApConfigDialogS::onItemActivated(CatalogView *catalog,
         update();
         onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC);
     }
-}
-
-bool ApConfigDialogS::event(QEvent *event)
-{
-    bool ret = OnyxDialog::event(event);
-    if (event->type() == QEvent::UpdateRequest && onyx::screen::instance().isUpdateEnabled())
-    {
-        onyx::screen::instance().updateWidget(
-            this,
-            onyx::screen::ScreenProxy::DW,
-            false,
-            onyx::screen::ScreenCommand::WAIT_NONE);
-    }
-    return ret;
 }
 
 bool ApConfigDialogS::eventFilter(QObject *obj, QEvent *event)
