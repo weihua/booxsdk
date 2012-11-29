@@ -11,6 +11,7 @@ class OnyxLabel : public QLabel
 {
 public:
     static const QString LABEL_STYLE_SMALLER_TEXT;
+    static const QString LABEL_STYLE_TINY_TEXT;
 
     OnyxLabel(QWidget * parent = 0);
     OnyxLabel(const QString & text, QWidget *parent = 0);
