@@ -1,5 +1,6 @@
 #include "onyx/ui/tree_view_dialog.h"
 #include "onyx/screen/screen_proxy.h"
+#include "onyx/sys/platform.h"
 
 namespace ui
 {
@@ -71,6 +72,10 @@ void TreeViewDialog::createLayout()
     title_layout_.addWidget(&close_button_, 50);
     close_button_.useDefaultHeight();
     close_button_.setFocusPolicy(Qt::NoFocus);
+    if(sys::isNoTouch())
+    {
+        close_button_.setVisible(false);
+    }
     layout_.addLayout(&title_layout_);
 
     hor_separator_.setFixedHeight(5);

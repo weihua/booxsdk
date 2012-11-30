@@ -535,7 +535,7 @@ void WifiDialog::onControlStateChanged(WpaConnectionManager::ControlState state)
     if (state == WpaConnectionManager::CONTROL_CONNECTED)
     {
     }
-    if (state == WpaConnectionManager::CONTROL_COMPLETE)
+    else if (state == WpaConnectionManager::CONTROL_COMPLETE)
     {
     }
     else if (state == WpaConnectionManager::CONTROL_ACQUIRING_ADDRESS_FAILED)
