@@ -61,7 +61,7 @@ public:
     void generateSketchMode(const SketchModes & modes,
                             const SketchMode selected_mode = MODE_UNKNOWN);
     void generateSketchColors(const SketchColors & colors,
-                              const SketchColor selected_color = INVALID_SKETCH_COLOR);
+                              const SketchColor selected_color = SKETCH_COLOR_BLACK);
     void generateSketchShapes(const SketchShapes & shapes,
                               const SketchShape selected_shape = SKETCH_SHAPE_2);
     void generateSketchMiscItems(const SketchMiscItems &items);
@@ -70,7 +70,7 @@ public:
     void setHighlightMode(const HighlightMode mode, bool checked);
     void setSketchMode(const SketchMode mode, bool checked);
     void setSketchShape(const SketchShape shape);
-    void setSketchColor(const SketchMode color);
+    void setSketchColor(const SketchColor color);
     // set different menu text according to annotation visible value
     void setToggleAnnotationVisibleText(bool value);
     void setPdfMergeEnabled(bool enabled);

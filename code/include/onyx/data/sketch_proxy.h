@@ -57,10 +57,10 @@ public:
     void setContentOrient(const RotateDegree r);
     void setWidgetOrient(const RotateDegree r);
     void setShape(const SketchShape s);
-    void setColor(const SketchMode c);
+    void setColor(const SketchColor c);
     void setZoom(const ZoomFactor z);
     void setDrawLayer(const int l);
-    inline SketchMode getColor() { return sketch_ctx_.color_; }
+    inline SketchColor getColor() { return sketch_ctx_.color_; }
     inline SketchShape getShape() { return sketch_ctx_.shape_; }
 
     // paint
