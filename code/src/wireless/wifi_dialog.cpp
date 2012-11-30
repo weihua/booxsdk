@@ -128,7 +128,7 @@ int WifiDialog::popup(bool scan, bool auto_connect)
         triggerScan();
     }
     sys::SysStatus::instance().setSystemBusy(false);
-    state_widget_.dashBoard().setFocusTo(0,0);
+    state_widget_.dashBoard().setFocusTo(0, 1);
     bool ret = exec();
     update();
     onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
@@ -140,12 +140,28 @@ void WifiDialog::keyPressEvent(QKeyEvent *)
 {
 }
 
+bool WifiDialog::event(QEvent *e)
+{
+    bool ret = QDialog::event(e);
+    if(e->type() == QEvent::UpdateRequest)
+    {
+        onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
+        e->accept();
+        return true;
+    }
+    return ret;
+}
+
 void WifiDialog::keyReleaseEvent(QKeyEvent *ke)
 {
     if (ke->key() == Qt::Key_Escape)
     {
         ke->accept();
         reject();
+    }
+    if(this->hasFocus())
+    {
+        state_widget_.dashBoard().setFocusTo(0, 1);
     }
 }
 
@@ -318,6 +334,10 @@ void WifiDialog::arrangeAPItems(WifiProfiles & profiles)
     appendStoredAPs(profiles);
 
     ap_view_.setData(datas_, true);
+    if(datas_.size() > 0)
+    {
+        ap_view_.setFocusTo(0, 0);
+    }
     showPaginationButtons(ap_view_.hasPrev(), ap_view_.hasNext());
 
     connectAllAPItems(ap_view_);

@@ -41,6 +41,7 @@ protected:
     virtual void resizeEvent(QResizeEvent *);
     virtual void mousePressEvent(QMouseEvent *);
     virtual void mouseReleaseEvent(QMouseEvent *);
+    virtual bool event(QEvent *e);
 
 private Q_SLOTS:
     void onScanTimeout();
