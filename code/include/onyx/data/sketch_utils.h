@@ -36,7 +36,7 @@ enum EraseSize
 
 struct SketchContext
 {
-    SketchMode   color_;         /// color of the sketch
+    SketchColor   color_;         /// color of the sketch
     SketchShape   shape_;         /// shape of the sketch
     ZoomFactor    zoom_;          /// zoom factor
     int           draw_layer_;    /// the drawing layer
