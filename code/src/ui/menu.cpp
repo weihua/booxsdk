@@ -371,7 +371,10 @@ void PopupMenu::paintEvent(QPaintEvent *pe)
         p.drawLine(x, y + MARGIN * 3, x, y + h - rh / 2);
         p.drawLine(x + w, y + MARGIN * 3 , x + w, y + h - rh / 2);
     }
-    p.drawPixmap(rect().x()+rect().width()-60, rect().y()+2, QPixmap(":/images/close.png"));
+    if(!sys::isNoTouch())
+    {
+        p.drawPixmap(rect().x()+rect().width()-60, rect().y()+2, QPixmap(":/images/close.png"));
+    }
     onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU);
 }
 

@@ -31,7 +31,6 @@ protected Q_SLOTS:
             int user_data);
 
 protected:
-    bool event(QEvent *event);
     bool eventFilter(QObject *obj, QEvent *event);
 
 private Q_SLOTS:

@@ -114,7 +114,7 @@ void OnyxNotesDialog::onItemActivated(CatalogView *catalog,
         {
             clearClicked();
             update();
-            onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::DW);
+            onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::A2);
         }
     }
 }
@@ -208,7 +208,7 @@ bool OnyxNotesDialog::eventFilter(QObject *obj, QEvent *event)
             {
                 update();
                 onyx::screen::watcher().enqueue(this,
-                        onyx::screen::ScreenProxy::DW,
+                        onyx::screen::ScreenProxy::A2,
                         onyx::screen::ScreenCommand::WAIT_NONE);
             }
         }
@@ -248,7 +248,7 @@ void OnyxNotesDialog::keyPressEvent(QKeyEvent *event)
 
         QApplication::sendEvent(&notes_edit_, event);
         update();
-        onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::DW,
+        onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::A2,
                 onyx::screen::ScreenCommand::WAIT_NONE);
     }
 }

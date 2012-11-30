@@ -1,5 +1,6 @@
 #include "onyx/ui/onyx_dialog.h"
 #include "onyx/screen/screen_proxy.h"
+#include "onyx/sys/platform.h"
 
 namespace ui
 {
@@ -92,6 +93,10 @@ void OnyxDialog::createDefaultLayout()
     title_hbox_.addWidget(&close_button_);
     title_hbox_.setContentsMargins(SPACING << 1, SPACING, SPACING << 1, SPACING);
     title_vbox_.addLayout(&title_hbox_);
+    if(sys::isNoTouch())
+    {
+        close_button_.setVisible(false);
+    }
 
     // title seperator
     top_separator_.setFocusPolicy(Qt::NoFocus);

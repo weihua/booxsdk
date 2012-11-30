@@ -21,6 +21,15 @@ QLabel                                 \
     color: black;                      \
 }";
 
+const QString ui::OnyxLabel::LABEL_STYLE_TINY_TEXT = " \
+QLabel                                 \
+{                                      \
+    padding: 0px;                      \
+    background: transparent;           \
+    font: 16px ;                       \
+    color: black;                      \
+}";
+
 const QString TITLEBAR_STYLE = "        \
 QLabel                                  \
 {                                       \

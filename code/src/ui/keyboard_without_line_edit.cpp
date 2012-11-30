@@ -3,6 +3,7 @@
 #include "onyx/screen/screen_update_watcher.h"
 #include "onyx/ui/ui_utils.h"
 #include "onyx/screen/screen_proxy.h"
+#include "onyx/sys/platform.h"
 
 namespace ui
 {
@@ -64,6 +65,10 @@ void KeyboardWithoutLineEdit::createLayout()
     close_.setIcon(QIcon(close_pixmap));
     close_.setIconSize(close_pixmap.size());
     close_.setFocusPolicy(Qt::NoFocus);
+    if(sys::isNoTouch())
+    {
+        close_.setVisible(false);
+    }
 
     top_layout_.addWidget(&title_, 500);
     top_layout_.addWidget(&close_, 72, Qt::AlignVCenter);

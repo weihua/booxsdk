@@ -267,6 +267,7 @@
     <file>images/option_icon.png</file>
     <file>images/user_guide.png</file>
     <file>images/font_settings_small.png</file>
+    <file>images/legal_text.png</file>
 
   </qresource>
 </RCC>

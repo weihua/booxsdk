@@ -415,7 +415,7 @@ void OnyxPasswordDialog::onItemActivated(CatalogView *catalog,
         {
             clearClicked();
             update();
-            onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::DW);
+            onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::A2);
         }
     }
     else if (catalog == &show_plain_text_)
