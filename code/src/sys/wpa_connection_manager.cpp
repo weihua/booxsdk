@@ -220,9 +220,7 @@ void WpaConnectionManager::onConnectionChanged(WifiProfile profile,
     case WpaConnection::STATE_AUTHENTICATION_FAILED:
         {
             scan_timer_.stop();
-            scan_retry_ = 0;
             connection_timer_.stop();
-            connect_retry_ = 0;
             proxy().removeAllNetworks();
             setControlState(CONTROL_CONNECTING_FAILED);
             onConnectionTimeout();
@@ -231,8 +229,7 @@ void WpaConnectionManager::onConnectionChanged(WifiProfile profile,
     case WpaConnection::STATE_DISCONNECTED:
         {
             qDebug() << "at WpaConnectionManager::onConnectionChanged, STATE_DISCONNECTED";
-            scan_timer_.stop();
-            scan_retry_ = 0;
+            stopAllTimers();
             setControlState(CONTROL_STOP);
             emit connectionChanged(profile, WpaConnection::STATE_DISCONNECTED);
         }
