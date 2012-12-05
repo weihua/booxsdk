@@ -561,7 +561,7 @@ void WifiDialog::updateStateLabel(WpaConnectionManager::ControlState state)
     switch (state)
     {
     case WpaConnectionManager::CONTROL_INIT:
-        state_widget_.setState("Starting...");
+        state_widget_.setState(tr("Starting..."));
         break;
     case WpaConnectionManager::CONTROL_STOP:
         state_widget_.setState("");
