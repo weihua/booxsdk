@@ -226,6 +226,18 @@ void WpaConnectionManager::onConnectionChanged(WifiProfile profile,
             onConnectionTimeout();
         }
         break;
+    case WpaConnection::STATE_DISCONNECTED:
+        {
+            qDebug() << "at WpaConnectionManager::onConnectionChanged, STATE_DISCONNECTED";
+            if (controlState() != CONTROL_CONNECTING)
+            {
+                connection_timer_.stop();
+                resetConnectRetry();
+                setControlState(CONTROL_DISCONNECTED);
+                emit connectionChanged(profile, WpaConnection::STATE_CONNECTION_LOST);
+            }
+        }
+        break;
     default:
         break;
     }

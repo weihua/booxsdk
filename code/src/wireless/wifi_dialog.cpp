@@ -629,6 +629,9 @@ void WifiDialog::updateStateLabel(WpaConnectionManager::ControlState state)
     case WpaConnectionManager::CONTROL_CONNECTING_FAILED:
         state_widget_.setState(tr("Authentication failed."));
         break;
+    case WpaConnectionManager::CONTROL_DISCONNECTED:
+        state_widget_.setState(tr("Disconnected."));
+        break;
     default:
         state_widget_.setState(tr(""));
         break;

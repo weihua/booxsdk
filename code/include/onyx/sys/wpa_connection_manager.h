@@ -33,6 +33,7 @@ public:
         CONTROL_CONNECTED,          ///< connected.
         CONTROL_CONNECTING_TIMEOUT, ///< timeout.
         CONTROL_CONNECTING_FAILED,  ///< failed, psk incorrect.
+        CONTROL_DISCONNECTED,       ///< Disconnected
         CONTROL_ACQUIRING_ADDRESS,  ///< Acquiring address.
         CONTROL_ACQUIRING_ADDRESS_FAILED,
         CONTROL_COMPLETE,           ///< All finished.
