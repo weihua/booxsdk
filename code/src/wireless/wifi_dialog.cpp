@@ -110,6 +110,13 @@ void WifiDialog::updateFonts()
 
 }
 
+void WifiDialog::runBackGround()
+{
+    scanResults(scan_results_);
+    arrangeAPItems(scan_results_);
+    triggerScan();
+}
+
 int WifiDialog::popup(bool scan, bool auto_connect)
 {
     sys::SysStatus::instance().setSystemBusy(true);

@@ -31,6 +31,7 @@ public:
 public:
     void addItems(StatusBarItemTypes ids);
     int itemState(const StatusBarItemType type);
+    void setAutoConnect(bool connect){auto_connect_ = connect;}
 
 public Q_SLOTS:
     void showItem(StatusBarItemType item, bool show = true);
@@ -93,6 +94,7 @@ private Q_SLOTS:
     void onVolumeButtonsPressed();
     void onHideVolumeDialog();
     void onConfigKeyboard();
+    void autoSelect();
 
 private:
     virtual void mouseMoveEvent(QMouseEvent *me);
@@ -128,6 +130,7 @@ private:
     scoped_ptr<VolumeControlDialog> volume_dialog_;
 
     scoped_ptr<OnyxLabel> right_margin_;
+    bool auto_connect_;
 };
 
 };  // namespace ui
