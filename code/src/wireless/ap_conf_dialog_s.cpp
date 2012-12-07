@@ -159,8 +159,9 @@ bool ApConfigDialogS::popup()
         addLineEditsToGroup();
     }
 
+    QApplication::processEvents();
     update();
-    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
+    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC);
     int ret = exec();
     update();
     onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
