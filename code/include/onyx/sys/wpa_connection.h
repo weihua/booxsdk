@@ -41,6 +41,7 @@ public:
         STATE_ACQUIRING_ADDRESS_ERROR,  ///< Could not acquire address.
         STATE_TIMEOUT,
         STATE_DISCONNECT,
+        STATE_CONNECTION_LOST           ///< Only for disconnected from complete state.
     };
 
     static QString connectionStateToString(ConnectionState state);

@@ -830,7 +830,7 @@ void WpaConnection::parseMessage(QByteArray & data)
         // broadcastState(STATE_CONNECTING);
         update();
     }
-    else if (data.contains(WPA_EVENT_DISCONNECTED))
+    else if (data.contains(WPA_EVENT_DISCONNECTED) && !data.contains(INVALID_BSSID))
     {
         // Incorrect password.
         // "WPA: 4-Way Handshake failed - pre-shared key may be incorrect"))

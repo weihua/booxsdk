@@ -91,6 +91,7 @@ class SysStatus : public QObject
     void resetIdle();
     void enableIdle(bool enable, bool force_disable_suspend = false);
     bool isIdleEnabled();
+    void forcePowerManagement(int level);
 
     int volume();
     bool setVolume(int volume);

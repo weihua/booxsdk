@@ -1058,6 +1058,19 @@ void SysStatus::enableIdle(bool enable, bool force_disable_suspend)
     connection_.call(message);
 }
 
+void SysStatus::forcePowerManagement(int level)
+{
+    QDBusMessage message = QDBusMessage::createMethodCall(
+        service,            // destination
+        object,             // path
+        iface,              // interface
+        "forcePowerManagement"      // method.
+    );
+
+    message << level;
+    connection_.call(message);
+}
+
 bool SysStatus::isIdleEnabled()
 {
     QDBusMessage message = QDBusMessage::createMethodCall(

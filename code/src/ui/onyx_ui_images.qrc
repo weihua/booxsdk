@@ -268,6 +268,7 @@
     <file>images/user_guide.png</file>
     <file>images/font_settings_small.png</file>
     <file>images/legal_text.png</file>
+    <file>images/glow_light_switch.png</file>
 
   </qresource>
 </RCC>
