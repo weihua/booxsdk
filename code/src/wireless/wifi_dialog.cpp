@@ -8,9 +8,10 @@ namespace ui
 {
 const int SPACING = 2;
 const int WIDGET_HEIGHT = 36;
-static const int AP_ITEM_HEIGHT = 55;
+static const int AP_ITEM_HEIGHT = 45;
 static const int MARGINS = 10;
 static const int DIALOG_SPACE = 30;
+static const QString TEST_TARGET = "TP-LINK_KIM";
 
 static const QString BUTTON_STYLE =    "\
 QPushButton                             \
@@ -80,6 +81,7 @@ WifiDialog::WifiDialog(QWidget *parent,
     , state_widget_layout_(0)
     , content_layout_(0)
     , ap_layout_(0)
+    , test_summary_layout_(0)
     , buttons_layout_(0)
 //    , hardware_address_("", 0)
     , close_button_("", 0)
@@ -90,8 +92,18 @@ WifiDialog::WifiDialog(QWidget *parent,
     , sys_(sys)
     , proxy_(sys.connectionManager())
     , is_configuration_(false)
+    , miss_count_(0)
+    , need_restart_(false)
 {
     setGeometry(0, DIALOG_SPACE, ui::screenGeometry().width(), ui::screenGeometry().height() - DIALOG_SPACE);
+
+    scan_timer_.setInterval(6000);
+    QDialog::connect(&scan_timer_, SIGNAL(timeout()), this, SLOT(toScanIfIdle()));
+    auto_connect_to_best_ap_ = false;
+    auto_connect_to_default_ap_ = false;
+
+    sys.forcePowerManagement(0);
+
     createLayout();
     setupConnections();
 }
@@ -113,6 +125,7 @@ void WifiDialog::updateFonts()
 int WifiDialog::popup(bool scan, bool auto_connect)
 {
     sys::SysStatus::instance().setSystemBusy(true);
+    miss_count_ = 0;
 
     clicked_ssid_.clear();
 
@@ -128,6 +141,9 @@ int WifiDialog::popup(bool scan, bool auto_connect)
         triggerScan();
     }
     sys::SysStatus::instance().setSystemBusy(false);
+
+    sys::SysStatus::instance().enableIdle(false);
+
     state_widget_.dashBoard().setFocusTo(0, 1);
     bool ret = exec();
     update();
@@ -229,6 +245,8 @@ void WifiDialog::createLayout()
 
     ap_view_.setFixedHeight(550);
     ap_view_.setPreferItemSize(QSize(-1, AP_ITEM_HEIGHT));
+    ap_view_.setFixedGrid(10, 1);
+    ap_view_.setFixedHeight(500);
     ap_view_.setNeighbor(&state_widget_.dashBoard(), CatalogView::UP);
     content_layout_.addSpacing(50);
 
@@ -241,6 +259,18 @@ void WifiDialog::createLayout()
     buttons_layout_.addStretch(0);
     buttons_layout_.addWidget(&next_button_);
     showPaginationButtons(true, true);
+
+    test_summary_layout_.setContentsMargins(MARGINS, 0, MARGINS, 0);
+    test_summary_label_.setStyleSheet(OnyxLabel::LABEL_STYLE_SMALLER_TEXT);
+    test_summary_label_.setFixedHeight(WIDGET_HEIGHT);
+    test_summary_layout_.addWidget(&test_summary_label_);
+    content_layout_.addLayout(&test_summary_layout_, 0);
+
+    miss_count_layout_.setContentsMargins(MARGINS, 0, MARGINS, 0);
+    miss_count_label_.setStyleSheet(OnyxLabel::LABEL_STYLE_SMALLER_TEXT);
+    miss_count_label_.setFixedHeight(WIDGET_HEIGHT);
+    miss_count_layout_.addWidget(&miss_count_label_);
+    content_layout_.addLayout(&miss_count_layout_, 0);
 
     // Hardware address.
    /* hardware_address_.setFixedHeight(WIDGET_HEIGHT);
@@ -330,6 +360,25 @@ void WifiDialog::arrangeAPItems(WifiProfiles & profiles)
     }
 
     sort(datas_);
+
+    if (0 != datas_.size())
+    {
+        QString test_summary_text("total active: "+QString::number(datas_.size()));
+        test_summary_text.append(" scan count: "+QString::number(proxy_.testScanCount()));
+
+//        if (proxy_.testScanCount() == 20)
+//        {
+//            reject();
+//            need_restart_ = true;
+//        }
+
+        test_summary_label_.setText(test_summary_text);
+
+        QString miss_count_text(TEST_TARGET+" miss count: "+QString::number(miss_count_));
+        miss_count_label_.setText(miss_count_text);
+        qDebug() << test_summary_text;
+        qDebug() << miss_count_text;
+    }
 
     appendStoredAPs(profiles);
 
@@ -495,6 +544,7 @@ void WifiDialog::onBackClicked()
 
 void WifiDialog::onCloseClicked()
 {
+    need_restart_ = false;
     reject();
 }
 
@@ -521,8 +571,31 @@ void WifiDialog::enableChildren(bool enable)
 
 void WifiDialog::onScanReturned()
 {
+    scan_timer_.stop();
     proxy_.scanResults(scan_results_);
+
+    QString target(TEST_TARGET);
+    //    QString target("tiger2");
+    bool missed = true;
+    foreach(WifiProfile ap, scan_results_)
+    {
+        if (target == ap.ssid())
+        {
+            missed = false;
+            break;
+        }
+    }
+    if (missed)
+    {
+        miss_count_++;
+    }
+
     arrangeAPItems(scan_results_);
+
+    if (this->isVisible())
+    {
+        scan_timer_.start();
+    }
 }
 
 void WifiDialog::onConnectionChanged(WifiProfile profile, WpaConnection::ConnectionState state)
@@ -697,6 +770,14 @@ void WifiDialog::onItemActivated(CatalogView *catalog, ContentView *item, int us
 void WifiDialog::onPositionChanged(const int, const int)
 {
     showPaginationButtons(ap_view_.hasPrev(), ap_view_.hasNext());
+}
+
+void WifiDialog::toScanIfIdle()
+{
+//    if (!ap_dialog_visible_)
+//    {
+        triggerScan();
+//    }
 }
 
 void WifiDialog::onAPConfig(WifiProfile &profile)

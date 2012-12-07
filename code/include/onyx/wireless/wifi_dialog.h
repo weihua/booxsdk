@@ -23,6 +23,9 @@ public:
     void updateTr();
     void updateFonts();
 
+Q_SIGNALS:
+    void needRestart();
+
 public Q_SLOTS:
     void triggerScan();
 
@@ -33,6 +36,8 @@ public:
     bool connectToDefaultAP();
     QString connectingAccessPoint();
     void enableIsConfiguration();
+
+    inline bool isNeedRestart() { return need_restart_; }
 
 protected:
     virtual void keyPressEvent(QKeyEvent *);
@@ -69,6 +74,8 @@ private Q_SLOTS:
     void onItemActivated(CatalogView *catalog, ContentView *item, int user_data);
     void onPositionChanged(const int, const int);
 
+    void toScanIfIdle();
+
 private:
     void createLayout();
     void connectAllAPItems(CatalogView &view);
@@ -103,8 +110,12 @@ private:
     QHBoxLayout state_widget_layout_;
     QVBoxLayout content_layout_;
     QVBoxLayout ap_layout_;
+    QHBoxLayout test_summary_layout_;
+    QHBoxLayout miss_count_layout_;
     QHBoxLayout buttons_layout_;
 
+    OnyxLabel test_summary_label_;
+    OnyxLabel miss_count_label_;
 //    OnyxLabel hardware_address_;
     OnyxPushButton close_button_;
 
@@ -121,8 +132,11 @@ private:
     WifiProfiles scan_results_;
     ODatas datas_;
     QString clicked_ssid_;
+    QTimer scan_timer_;
 
     bool is_configuration_;
+    int miss_count_;
+    bool need_restart_;
 
     scoped_ptr<ApConfigDialogS> ap_config_dialog_;
 

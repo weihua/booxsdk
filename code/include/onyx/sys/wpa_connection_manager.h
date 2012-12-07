@@ -47,6 +47,8 @@ public:
     bool isConnectionOnProgress();
     bool isConnectionComplete();
 
+    int testScanCount();
+
 public Q_SLOTS:
     void enableAutoConnect(bool e) { auto_connect_ = e; }
     bool allowAutoConnect() { return auto_connect_; }
@@ -160,6 +162,7 @@ private:
     bool suspend_period_;
     bool disable_idle_called_;
 
+    int test_scan_count_;
 };
 
 #endif      // WAP_CONNECTION_MANAGER_H_

@@ -150,6 +150,6 @@ private:
 void sortByQuality(WifiProfiles & list);
 void sortByCount(WifiProfiles & list);
 
-};
+}
 
 #endif  // SYS_WIFI_CONF_H__

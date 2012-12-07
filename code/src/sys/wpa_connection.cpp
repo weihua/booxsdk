@@ -686,6 +686,9 @@ bool WpaConnection::detailInfo(WifiProfile & profile)
         updateCachedNetworks();
     }
 
+    qDebug() << ">>>>>>>>>>>>>at WpaConnection::detailInfo";
+    qDebug() << "level: " << profile.level();
+
     // Query the cached network for details.
     foreach(WifiProfile ap, cached_network_)
     {
@@ -708,8 +711,8 @@ bool WpaConnection::detailInfo(WifiProfile & profile)
                 {
                     real_qual = 0;
                 }
-                qDebug() << "snr value: " << ap.quality();
-                qDebug() << "quality: " << real_qual;
+//                qDebug() << "snr value: " << ap.quality();
+//                qDebug() << "quality: " << real_qual;
                 profile.setQuality(real_qual);
             }
 
@@ -941,6 +944,8 @@ bool WpaConnection::parseEntry(const QStringList & tags,
         return false;
     }
 
+    qDebug() << ">>>>>>>>>>>>>>>>>>>>>at parse entry, to print data";
+    qDebug() << data;
     // Parse the entry
     // data = 0x02fc27a8 "00:24:01:1e:55:e0	2412	-49	[WPA-PSK-TKIP+CCMP][WPA2-PSK-TKIP+CCMP][WPS]	tiger"
     QList<QByteArray> items = data.split('\t');

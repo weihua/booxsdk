@@ -21,6 +21,7 @@ WpaConnectionManager::WpaConnectionManager()
 , wifi_enabled_(true)
 , suspend_period_(false)
 , disable_idle_called_(false)
+, test_scan_count_(0)
 {
     setupConnections();
 
@@ -368,6 +369,8 @@ void WpaConnectionManager::scan()
     {
         return;
     }
+
+    test_scan_count_++;
 
     increaseScanRetry();
     bool wpa_ok = checkWpaSupplicant();
@@ -800,4 +803,9 @@ bool WpaConnectionManager::isConnectionOnProgress()
 bool WpaConnectionManager::isConnectionComplete()
 {
     return (controlState() == CONTROL_COMPLETE);
+}
+
+int WpaConnectionManager::testScanCount()
+{
+    return test_scan_count_;
 }

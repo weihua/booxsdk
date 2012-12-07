@@ -377,6 +377,14 @@ void WifiAPItem::updateByProfile(WifiProfile & profile)
     {
         status_icon_label_.setVisible(true);
         ssid_label_.setText(profile.ssid());
+
+        QString text(profile.ssid());
+        if (0 != profile.level())
+        {
+            text.prepend(QString::number(profile.level()-256)+" ");
+        }
+        ssid_label_.setText(text);
+
         ssid_label_.setVisible(true);
         lock_icon_label_.setVisible(false);
         config_button_.setVisible(true);
@@ -399,7 +407,12 @@ void WifiAPItem::updateByProfile(WifiProfile & profile)
         return;
     }
 
-    ssid_label_.setText(profile.ssid());
+    QString text(profile.ssid());
+    if (0 != profile.level())
+    {
+        text.prepend(QString::number(profile.level()-256)+" ");
+    }
+    ssid_label_.setText(text);
     if (profile.isWep() || profile.isWpa() || profile.isWpa2())
     {
         lock_icon_label_.setPixmap(QPixmap(":/images/lock_gray.png"));
