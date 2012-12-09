@@ -278,6 +278,7 @@ void WpaConnectionManager::onConnectionTimeout()
     else
     {
         // todo, use map later
+        /*
         static int failed_count = 0;
         if (++failed_count >= 2)
         {
@@ -286,7 +287,9 @@ void WpaConnectionManager::onConnectionTimeout()
             failed_count = 0;
             return;
         }
+        */
 
+        proxy().disconnectNetwork();
         proxy().removeAllNetworks();
         setControlState(CONTROL_CONNECTING_FAILED);
         broadcastPasswordRequireSignal(connectingAP());
