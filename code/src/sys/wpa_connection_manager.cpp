@@ -277,10 +277,6 @@ void WpaConnectionManager::onConnectionTimeout()
     }
     else
     {
-        proxy().removeAllNetworks();
-        setControlState(CONTROL_CONNECTING_FAILED);
-        broadcastPasswordRequireSignal(connectingAP());
-
         // todo, use map later
         static int failed_count = 0;
         if (++failed_count >= 2)
@@ -288,7 +284,12 @@ void WpaConnectionManager::onConnectionTimeout()
             stop();
             start();
             failed_count = 0;
+            return;
         }
+
+        proxy().removeAllNetworks();
+        setControlState(CONTROL_CONNECTING_FAILED);
+        broadcastPasswordRequireSignal(connectingAP());
     }
 }
 
