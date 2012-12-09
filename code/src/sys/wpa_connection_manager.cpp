@@ -281,9 +281,7 @@ void WpaConnectionManager::onConnectionTimeout()
         static int failed_count = 0;
         if (++failed_count >= 2)
         {
-            proxy().disconnectNetwork();
-            proxy().removeAllNetworks();
-            initScan();
+            QTimer::singleShot(500, this, SLOT(onRestartWpa()));
             failed_count = 0;
             return;
         }
@@ -300,6 +298,11 @@ void WpaConnectionManager::onComplete()
 {
     setWpaState(proxy().connectingAP(), WpaConnection::STATE_SCANNED);
     setControlState(CONTROL_CONNECTED);
+}
+
+void WpaConnectionManager::onRestartWpa()
+{
+    emit restartWpa();
 }
 
 bool WpaConnectionManager::checkWifiDevice()

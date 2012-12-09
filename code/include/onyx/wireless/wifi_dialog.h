@@ -72,6 +72,8 @@ private Q_SLOTS:
     void onItemActivated(CatalogView *catalog, ContentView *item, int user_data);
     void onPositionChanged(const int, const int);
 
+    void onRestartWpa();
+
 private:
     void createLayout();
     void connectAllAPItems(CatalogView &view);
@@ -128,6 +130,7 @@ private:
     bool is_configuration_;
 
     scoped_ptr<ApConfigDialogS> ap_config_dialog_;
+    bool restart_for_auth_failed_;
 
 };
 

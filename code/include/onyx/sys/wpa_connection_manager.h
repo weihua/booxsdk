@@ -95,6 +95,8 @@ private Q_SLOTS:
 
     void onComplete();
 
+    void onRestartWpa();
+
 Q_SIGNALS:
     // signals for caller
     void wpaStateChanged(bool running);
@@ -102,6 +104,7 @@ Q_SIGNALS:
     void connectionChanged(WifiProfile profile, WpaConnection::ConnectionState state);
     void passwordRequired(WifiProfile profile);
     void noMatchedAP();
+    void restartWpa();
 
 private:
     bool checkWifiDevice();

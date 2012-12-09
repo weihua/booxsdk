@@ -90,6 +90,7 @@ WifiDialog::WifiDialog(QWidget *parent,
     , sys_(sys)
     , proxy_(sys.connectionManager())
     , is_configuration_(false)
+    , restart_for_auth_failed_(false)
 {
     setGeometry(0, DIALOG_SPACE, ui::screenGeometry().width(), ui::screenGeometry().height() - DIALOG_SPACE);
     createLayout();
@@ -366,6 +367,22 @@ void WifiDialog::setupConnections()
 
     QObject::connect(&proxy_, SIGNAL(controlStateChanged(WpaConnectionManager::ControlState)),
         this, SLOT(onControlStateChanged(WpaConnectionManager::ControlState)));
+
+    QObject::connect(&proxy_, SIGNAL(restartWpa()), this, SLOT(onRestartWpa()));
+}
+
+void WifiDialog::onRestartWpa()
+{
+    sys::SysStatus::instance().setSystemBusy(true);
+    proxy_.stop();
+    sys::SysStatus::instance().setSystemBusy(false);
+
+//    clearDatas(datas_);
+//    ap_view_.setData(datas_);
+
+    restart_for_auth_failed_ = true;
+    sys::SysStatus::instance().setSystemBusy(true);
+    QTimer::singleShot(5000, this, SLOT(scan()));
 }
 
 void WifiDialog::clear()
@@ -374,6 +391,11 @@ void WifiDialog::clear()
 
 void WifiDialog::scan()
 {
+    if (restart_for_auth_failed_)
+    {
+        restart_for_auth_failed_ = false;
+        sys::SysStatus::instance().setSystemBusy(false);
+    }
     proxy_.start();
 }
 
