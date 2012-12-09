@@ -281,7 +281,7 @@ void WpaConnectionManager::onConnectionTimeout()
         static int failed_count = 0;
         if (++failed_count >= 2)
         {
-            stop();
+            stopWpaSupplicant();
             start();
             failed_count = 0;
             return;
