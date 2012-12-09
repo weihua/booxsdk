@@ -807,13 +807,13 @@ bool WifiDialog::showConfigurationDialog(WifiProfile &profile)
     // load the stored password
     checkAndRestorePassword(profile);
 
-    /*
+
     if (!isActiveWindow())
     {
         qDebug() << "WifiDialog, not active window, ignore showing config dialog";
+        denied_reentrance = false;
         return false;
     }
-    */
 
     ap_config_dialog_.reset(0);
     int ret = apConfigDialog(profile)->popup();
