@@ -278,16 +278,15 @@ void WpaConnectionManager::onConnectionTimeout()
     else
     {
         // todo, use map later
-        /*
         static int failed_count = 0;
         if (++failed_count >= 2)
         {
-            stopWpaSupplicant();
-            start();
+            proxy().disconnectNetwork();
+            proxy().removeAllNetworks();
+            initScan();
             failed_count = 0;
             return;
         }
-        */
 
         WifiProfile ap = connectingAP();
         proxy().disconnectNetwork();
