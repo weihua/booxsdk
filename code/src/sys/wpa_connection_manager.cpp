@@ -289,10 +289,11 @@ void WpaConnectionManager::onConnectionTimeout()
         }
         */
 
+        WifiProfile ap = connectingAP();
         proxy().disconnectNetwork();
         proxy().removeAllNetworks();
         setControlState(CONTROL_CONNECTING_FAILED);
-        broadcastPasswordRequireSignal(connectingAP());
+        broadcastPasswordRequireSignal(ap);
     }
 }
 
