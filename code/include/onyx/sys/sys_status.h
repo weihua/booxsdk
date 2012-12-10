@@ -126,7 +126,6 @@ class SysStatus : public QObject
     bool stopDRMService();
     static void addDRMEnvironment();
 
-    void initDRMService();
     bool startMessenger();
     bool stopMessenger();
 
@@ -216,7 +215,6 @@ class SysStatus : public QObject
     void configKeyboard();
 
     void userBehaviorSignal(const QByteArray &data);
-    void activationFinished(bool);
 
   private slots:
     void onBatteryChanged(int, int);
@@ -248,7 +246,6 @@ class SysStatus : public QObject
 
     void onRequestDRMUserInfo(const QString &string, const QString & param);
     void onFulfillmentFinished(const QString & string);
-    void onActivationFinished(bool succeed);
     void onLoanReturnFinished(const QString & string);
     void onReportWorkflowError(const QString & workflow, const QString & error_code);
     void onReport3GNetwork(const int signal, const int total, const int network);
