@@ -35,6 +35,7 @@ protected:
 private:
     void createLayout();
     void createDashBoard();
+    void getSignalStrength(int);
 
 private:
     QHBoxLayout layout_;
@@ -78,6 +79,7 @@ private:
     void updateByProfile(WifiProfile & profile);
     bool isSelected();
     bool isAPChecked();
+    int getSignalStrength(int level_in_profile);
 
 private Q_SLOTS:
     void onConfigButtonClicked();
@@ -88,8 +90,8 @@ private:
     OnyxPushButton config_button_;
     OnyxLabel lock_icon_label_;
 
-    static const int SIGNAL_ICONS = 5;
-    OnyxLabel signal_labels_[SIGNAL_ICONS];
+    static const int SIGNAL_ICONS = 4;
+    OnyxLabel signal_labels_;
     WifiProfile profile_;
 
 

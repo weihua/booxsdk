@@ -24,6 +24,11 @@
     <file>images/signal_3g_5.png</file>
     <file>images/signal_3g_off.png</file>
 
+    <file>images/wifi_0_gray.png</file>
+    <file>images/wifi_1_gray.png</file>
+    <file>images/wifi_2_gray.png</file>
+    <file>images/wifi_3_gray.png</file>
+    <file>images/wifi_4_gray.png</file>
 
   </qresource>
 </RCC>

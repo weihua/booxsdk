@@ -372,6 +372,11 @@ void WifiDialog::connect(const QString & ssid, const QString &password)
     }
 }
 
+void WifiDialog::assignConnect(const WifiProfile & profile)
+{
+    proxy_.connectTo(profile);
+}
+
 // So far, disable the auto connecting to best ap.
 bool WifiDialog::connectToBestAP()
 {

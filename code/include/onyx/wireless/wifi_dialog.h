@@ -26,6 +26,7 @@ public Q_SLOTS:
 public:
     void wifiScanResults(WifiProfiles &wifi_profiles) { wifi_profiles = scan_results_; }
     void runBackGround();
+    void assignConnect(const WifiProfile & profile);
     int  popup(bool start_scan = true, bool auto_connect = true);
     void connect(const QString & ssid, const QString &password);
     bool connectToBestAP();
