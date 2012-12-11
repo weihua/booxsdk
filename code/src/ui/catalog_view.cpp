@@ -471,7 +471,7 @@ bool CatalogView::neighborFirst()
 
 bool CatalogView::onePageOrderOnly()
 {
-    return policy_ & OnePageOrder;
+    return policy_ & OnePageOnly;
 }
 
 bool CatalogView::horAutoRecycle()
@@ -603,6 +603,14 @@ bool CatalogView::goNext()
         setFocusTo(0, 0);
         return true;
     }
+    else
+    {
+        if(onePageOrderOnly())
+        {
+            QKeyEvent event(QEvent::KeyRelease, Qt::Key_PageDown, Qt::NoModifier);
+            emit keyRelease(this, &event);
+        }
+    }
     return false;
 }
 
@@ -623,6 +631,14 @@ bool CatalogView::goPrev()
         arrangeAll(true);
         setFocusToLast();
         return true;
+    }
+    else
+    {
+        if(onePageOrderOnly())
+        {
+            QKeyEvent event(QEvent::KeyRelease, Qt::Key_PageUp, Qt::NoModifier);
+            emit keyRelease(this, &event);
+        }
     }
     return false;
 }
