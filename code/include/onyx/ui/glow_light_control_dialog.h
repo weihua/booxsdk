@@ -8,6 +8,35 @@
 namespace ui
 {
 
+class MoonLightProgressBar:public QWidget
+{
+    Q_OBJECT
+public:
+    MoonLightProgressBar(QWidget *parent=0);
+    ~MoonLightProgressBar();
+
+    void setRange(int min, int max);
+    void setValue(int value);
+    int  maximum(){return max_value_;}
+    int  minimum(){return min_value_;}
+
+Q_SIGNALS:
+    void valueChanged(int value);
+
+protected:
+    void changePoint(QPoint &pos);
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
+    virtual void paintEvent(QPaintEvent *event);
+
+private:
+    int max_value_;
+    int min_value_;
+    int value_;
+    int step_value_;
+};
+
 /// Clock dialog.
 class GlowLightControlDialog : public QDialog
 {
@@ -42,7 +71,7 @@ private:
     QHBoxLayout h_layout_;
     QHBoxLayout ok_h_layout_;
     OnyxLabel title_;
-    QSlider slider_;
+    MoonLightProgressBar slider_;
 
     CatalogView switch_view_;
     CatalogView ok_view_;
