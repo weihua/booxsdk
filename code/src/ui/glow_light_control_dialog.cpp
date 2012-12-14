@@ -5,6 +5,7 @@
 #include "onyx/data/data_tags.h"
 #include "onyx/screen/screen_update_watcher.h"
 
+
 namespace ui
 {
 
@@ -12,61 +13,100 @@ static const int ITEM_HEIGHT = 50;
 static const int MY_WIDTH = 20;
 static const int MY_HEIGHT = 240;
 
-static const QString FANCY_STYLE = "                                \
-    QSlider::groove:horizontal                                      \
-    {                                                               \
-        border: 2px solid black;                                    \
-        background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,  \
-                                    stop: 0 #6666e, stop: 1 #b66bf);\
-        height: 40px;                                               \
-        border-radius: 4px;                                         \
-    }                                                               \
-    QSlider::sub-page:horizontal                                    \
-    {                                                               \
-        background: black;                                          \
-        border: 2px solid black;                                    \
-        height: 40px;                                               \
-        border-radius: 0px;                                         \
-    }                                                               \
-    QSlider::add-page:horizontal                                    \
-    {                                                               \
-        background: white;                                          \
-        border: 2px solid black;                                    \
-        height: 40px;                                               \
-        border-radius: 0px;                                         \
-    }                                                               \
-    QSlider::handle:horizontal                                      \
-    {                                                               \
-        background: white;                                          \
-        border: 2px solid black;                                    \
-        height: 45px;                                               \
-        width: 30px;                                                \
-        margin-top: -5px;                                           \
-        margin-bottom: -5px;                                        \
-        border-radius: 0px;                                         \
-    }                                                               \
-    QSlider::handle:horizontal:hover                                \
-    {                                                               \
-        background: white;                                          \
-        border: 2px solid black;                                    \
-        border-radius: 0px;                                         \
-    }                                                               \
-    QSlider::sub-page:horizontal:disabled                           \
-    {                                                               \
-        background: black;                                          \
-        border-color: #999;                                         \
-    }                                                               \
-    QSlider::add-page:horizontal:disabled                           \
-    {                                                               \
-        background: black;                                          \
-        border-color: white;                                        \
-    }                                                               \
-    QSlider::handle:horizontal:disabled                             \
-    {                                                               \
-        background: black;                                          \
-        border: 2px solid black;                                    \
-        border-radius: 4px;                                         \
-    }";
+
+MoonLightProgressBar::MoonLightProgressBar(QWidget *parent)
+    : QWidget(parent)
+    , max_value_(100)
+    , min_value_(1)
+    , value_(1)
+    , step_value_(10)
+{
+    setAutoFillBackground(true);
+    setBackgroundRole(QPalette::Base);
+    update();
+    onyx::screen::watcher().addWatcher(this);
+}
+
+MoonLightProgressBar::~MoonLightProgressBar()
+{
+
+}
+
+void MoonLightProgressBar::setRange(int min, int max)
+{
+    min_value_ = min;
+    max_value_ = max;
+    step_value_ = width()/max_value_;
+}
+
+void MoonLightProgressBar::setValue(int value)
+{
+    if(value <1 || value > maximum())
+    {
+        return;
+    }
+
+    if(value != value_)
+    {
+        emit valueChanged(value);
+    }
+    value_ = value;
+    update();
+    onyx::screen::instance().flush(this, onyx::screen::ScreenProxy::DW);
+}
+
+void MoonLightProgressBar::changePoint(QPoint &pos)
+{
+    step_value_ = width()/max_value_;
+    if (rect().contains(pos))
+    {
+        double x = (double)pos.x();
+        if(pos.x()%step_value_ == 0)
+        {
+            double percentage = x / width();
+            setValue(percentage*maximum());
+        }
+    }
+}
+
+void MoonLightProgressBar::mousePressEvent(QMouseEvent *event)
+{
+    event->accept();
+}
+
+void MoonLightProgressBar::mouseReleaseEvent(QMouseEvent *me)
+{
+    me->accept();
+    QPoint pt = me->pos();
+    if (rect().contains(pt))
+    {
+        double x = (double)pt.x();
+        double percentage = x / width();
+        setValue(percentage*maximum());
+    }
+}
+
+void MoonLightProgressBar::mouseMoveEvent(QMouseEvent *me)
+{
+    QPoint pt = me->pos();
+    changePoint(pt);
+}
+
+void MoonLightProgressBar::paintEvent(QPaintEvent *event)
+{
+    QWidget::paintEvent(event);
+    QPainter painter(this);
+    QPen draw_pen= painter.pen();
+    draw_pen.setWidth(draw_pen.width()+1);
+    painter.setPen(draw_pen);
+
+    painter.fillRect(this->rect(), QBrush(Qt::white));
+    painter.fillRect(QRect(rect().x(),rect().y(),
+                     rect().width()*value_/maximum(),rect().height()), QBrush(Qt::black));
+
+    painter.drawRect(rect().x(),rect().y(),
+                     rect().width(),rect().height());
+}
 
 
 
@@ -82,11 +122,6 @@ GlowLightControlDialog::GlowLightControlDialog(QWidget *parent)
 , ok_view_(0, this)
 {
     setModal(true);
-
-//    setAutoFillBackground(true);
-//    setBackgroundRole(QPalette::Base);
-//    setWindowOpacity(0.8);
-
     createLayout();
     updateText();
 
@@ -107,6 +142,8 @@ int GlowLightControlDialog::exec()
     setFixedHeight(MY_HEIGHT);
     show();
     move(margin, height - MY_HEIGHT - offset);
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
+    onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC);
     return QDialog::exec();
 }
 
@@ -121,18 +158,12 @@ void GlowLightControlDialog::createLayout()
     layout_.addLayout(&h_layout_);
     layout_.addSpacing(4);
 
-//    title_.useTitleBarStyle();
     title_.setAlignment(Qt::AlignCenter);
     layout_.addWidget(&title_);
 
     // TODO may need different range
-    slider_.setAutoFillBackground(true);
-    slider_.setBackgroundRole(QPalette::Base);
     slider_.setRange(1, 130);
-    slider_.setSingleStep(3);
-    slider_.setOrientation(Qt::Horizontal);
     slider_.setFixedHeight(55);
-    slider_.setStyleSheet(FANCY_STYLE);
     slider_.setValue(sys::SysStatus::instance().brightness());
 
     slider_h_layout_.setContentsMargins(30, 0, 30, 0);
@@ -225,14 +256,18 @@ void GlowLightControlDialog::updateText()
 void GlowLightControlDialog::onValueChanged(int v)
 {
     qDebug() << "Value changed " << v;
-    ODatas d;
-    OData * item = new OData;
-    item->insert(TAG_CHECKED, true);
-    d.push_back(item);
-    switch_view_.setData(d, true);
+    if (switch_view_.data().size() > 0 && !switch_view_.data().at(0)->value(TAG_CHECKED).toBool())
+    {
+        ODatas d;
+        OData * item = new OData;
+        item->insert(TAG_CHECKED, true);
+        item->insert(TAG_TITLE, tr("Turn on MOON Light"));
+        d.push_back(item);
+        switch_view_.data().clear();
+        switch_view_.setData(d, true);
+    }
+    onyx::screen::watcher().enqueue(&switch_view_, onyx::screen::ScreenProxy::GU);
     sys::SysStatus::instance().setBrightness(v);
-
-    onyx::screen::watcher().enqueue(&slider_, onyx::screen::ScreenProxy::DW);
 }
 
 void GlowLightControlDialog::keyPressEvent(QKeyEvent * ke)
