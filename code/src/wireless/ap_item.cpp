@@ -135,7 +135,9 @@ WifiAPItem::WifiAPItem(QWidget *parent)
     , ssid_label_(0)
     , config_button_(QPixmap(":/images/customize.png"), "", 0)
     , lock_icon_label_(0)
+    , signal_labels_(0)
 {
+    setFixedHeight(55);
     createLayout();
     updateByProfile(profile_);
 }
@@ -282,7 +284,7 @@ void WifiAPItem::focusOutEvent(QFocusEvent * e)
 
 void WifiAPItem::createLayout()
 {
-    hor_layout_.setContentsMargins(ICON_SIZE + SPACING, SPACING / 2, SPACING, SPACING / 2);
+    hor_layout_.setContentsMargins(ICON_SIZE + SPACING, SPACING / 3, SPACING, SPACING / 3);
     hor_layout_.setSpacing(0);
 
     ssid_label_.setContentsMargins(0, 0, 0, 0);
