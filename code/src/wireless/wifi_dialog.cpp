@@ -127,6 +127,8 @@ int WifiDialog::popup(bool scan, bool auto_connect)
     proxy_.enableAutoConnect(auto_connect);
     onScanReturned();
 
+    sys::SysStatus::instance().setSystemBusy(false);
+
     onyx::screen::watcher().addWatcher(this);
     update();
     onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
@@ -135,8 +137,12 @@ int WifiDialog::popup(bool scan, bool auto_connect)
     {
         triggerScan();
     }
-    sys::SysStatus::instance().setSystemBusy(false);
+
     state_widget_.dashBoard().setFocusTo(0, 1);
+
+    update();
+    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GU);
+
     bool ret = exec();
     update();
     onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
@@ -660,7 +666,7 @@ void WifiDialog::updateStateLabel(WpaConnectionManager::ControlState state)
         state_widget_.setState(tr("Authentication failed."));
         break;
     case WpaConnectionManager::CONTROL_DISCONNECTED:
-        state_widget_.setState(tr("Disconnected."));
+//        state_widget_.setState(tr("Disconnected."));
         break;
     default:
         state_widget_.setState(tr(""));
