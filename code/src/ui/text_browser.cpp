@@ -4,6 +4,7 @@
 #include "onyx/sys/sys.h"
 #include "onyx/screen/screen_proxy.h"
 #include "onyx/screen/screen_update_watcher.h"
+#include "onyx/ui/ui_utils.h"
 
 namespace ui
 {
@@ -107,6 +108,18 @@ void OnyxTextBrowser::keyReleaseEvent(QKeyEvent * ev)
     if (key_event_)
     {
         QTextBrowser::keyPressEvent(key_event_.get());
+        updateScreen();
+    }
+}
+
+void OnyxTextBrowser::updateScreen()
+{
+    if(ui::is97inch())
+    {
+        onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GC);
+    }
+    else
+    {
         onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
     }
 }
@@ -114,7 +127,7 @@ void OnyxTextBrowser::keyReleaseEvent(QKeyEvent * ev)
 void OnyxTextBrowser::paintEvent(QPaintEvent *event)
 {
     QTextBrowser::paintEvent(event);
-    onyx::screen::watcher().enqueue(this, onyx::screen::ScreenProxy::GU);
+    updateScreen();
 }
 
 }

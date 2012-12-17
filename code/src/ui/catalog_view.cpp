@@ -603,14 +603,6 @@ bool CatalogView::goNext()
         setFocusTo(0, 0);
         return true;
     }
-    else
-    {
-        if(onePageOrderOnly())
-        {
-            QKeyEvent event(QEvent::KeyRelease, Qt::Key_PageDown, Qt::NoModifier);
-            emit keyRelease(this, &event);
-        }
-    }
     return false;
 }
 
@@ -631,14 +623,6 @@ bool CatalogView::goPrev()
         arrangeAll(true);
         setFocusToLast();
         return true;
-    }
-    else
-    {
-        if(onePageOrderOnly())
-        {
-            QKeyEvent event(QEvent::KeyRelease, Qt::Key_PageUp, Qt::NoModifier);
-            emit keyRelease(this, &event);
-        }
     }
     return false;
 }
@@ -943,11 +927,25 @@ void CatalogView::onMouseMoved(QPoint last, QPoint current)
 
     if (direction > 0)
     {
-        goNext();
+        if(!goNext())
+        {
+            if(onePageOrderOnly())
+            {
+                QKeyEvent event(QEvent::KeyRelease, Qt::Key_PageDown, Qt::NoModifier);
+                emit keyRelease(this, &event);
+            }
+        }
     }
     else if (direction < 0)
     {
-        goPrev();
+        if(!goPrev())
+        {
+            if(onePageOrderOnly())
+            {
+                QKeyEvent event(QEvent::KeyRelease, Qt::Key_PageUp, Qt::NoModifier);
+                emit keyRelease(this, &event);
+            }
+        }
     }
 }
 

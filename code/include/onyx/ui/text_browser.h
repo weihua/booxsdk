@@ -24,6 +24,7 @@ protected:
     virtual void keyPressEvent(QKeyEvent * ev );
     virtual void keyReleaseEvent(QKeyEvent * ev );
     virtual void paintEvent(QPaintEvent *event);
+    void    updateScreen();
 
 private:
     scoped_ptr<QKeyEvent> key_event_;
