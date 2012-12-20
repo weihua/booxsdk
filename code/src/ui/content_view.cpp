@@ -488,7 +488,6 @@ void LineEditView::checkEditByMouse()
 {
     QKeyEvent key_event(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier, "virtual");
     QApplication::sendEvent(this, &key_event);
-    emit activated(this, 0);
 }
 
 void LineEditView::createLayout()
@@ -597,6 +596,7 @@ void LineEditView::keyPressEvent(QKeyEvent * src)
     if (Qt::Key_Return == src->key() || Qt::Key_Enter == src->key())
     {
         emit checkStateChanged(this);
+        emit activated(this, 0);
         src->accept();
         update();
         onyx::screen::watcher().enqueue(this,
