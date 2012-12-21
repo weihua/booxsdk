@@ -140,10 +140,10 @@ int GlowLightControlDialog::exec()
     int height = QApplication::desktop()->screenGeometry().height();
     setFixedWidth(width);
     setFixedHeight(MY_HEIGHT);
-    show();
     move(margin, height - MY_HEIGHT - offset);
-    onyx::screen::watcher().enqueue(0, onyx::screen::ScreenProxy::GC);
-    onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC);
+    QApplication::processEvents();
+    onyx::screen::instance().flush(0, onyx::screen::ScreenProxy::GC, true,
+                                   onyx::screen::ScreenCommand::WAIT_ALL);
     return QDialog::exec();
 }
 
