@@ -143,6 +143,14 @@ bool DictWidget::lookup(const QString &word)
     // Clean the word.
     word_ = word.trimmed();
 
+    //remove quotes (“ ” " ) If it in the words
+    if(word_.contains(QChar(0x201C)) || word_.contains(QChar(0x201D)) || word_.contains(QChar(0x0022)))
+    {
+        word_.remove(QChar(0x201C));
+        word_.remove(QChar(0x201D));
+        word_.remove(QChar(0x0022));
+    }
+
     // Title
     QString result;
     QString fuzzy_word("");
