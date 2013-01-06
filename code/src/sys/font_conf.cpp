@@ -67,11 +67,11 @@ QString FontConfig::defaultFontFamily(QSqlDatabase &database)
     query.exec();
     while (query.next())
     {
-    family = query.value(1).toString();
-    return family;
+        family = query.value(1).toString();
+        return family;
     }
     QString family_defined = qgetenv("DEFAULT_FONT_FAMILY");
-    qDebug() << "family_defined default font is >>>>>>>>>>>>>>>>>>>>" << family_defined;
+    qDebug() << "family_defined default font is " << family_defined;
     QString default_family;
     if (!family_defined.isEmpty())
     {
@@ -79,7 +79,7 @@ QString FontConfig::defaultFontFamily(QSqlDatabase &database)
     }
     else
     {
-        default_family = "WenQuanYi Micro Hei";
+        default_family = "DejaVu Sans";
     }
     setDefaultFontFamily(database, default_family);
     return default_family;
