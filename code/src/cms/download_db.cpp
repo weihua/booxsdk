@@ -20,6 +20,15 @@ DownloadItemInfo::DownloadItemInfo(const QVariantMap & vm)
     setTimeStamp(QDateTime::currentDateTime().toString(dateFormat()));
 }
 
+DownloadItemInfo::DownloadItemInfo(const QString &u)
+{
+    setUrl(u);
+    setPath("");
+    setInternalId(-1);
+    setState(STATE_INVALID);
+    setTimeStamp(QDateTime::currentDateTime().toString(dateFormat()));
+}
+
 DownloadItemInfo::~DownloadItemInfo()
 {
 }

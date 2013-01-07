@@ -25,6 +25,7 @@ class DownloadItemInfo : public OData
 {
 public:
     explicit DownloadItemInfo(const QVariantMap & vm = QVariantMap());
+    explicit DownloadItemInfo(const QString &u);
     ~DownloadItemInfo();
 
     bool operator == (const DownloadItemInfo &right);
