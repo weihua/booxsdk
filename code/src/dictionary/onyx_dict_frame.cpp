@@ -336,6 +336,17 @@ void OnyxDictFrame::formatResult(QString &result, QString &fuzzy_word)
     {
         result = tr("Not Found In Dictionary.");
     }
+    else
+    {
+        int start = result.indexOf("<tr>");
+        int end = result.indexOf("</tr>");
+        if(start >= 0 && end >= 0)
+        {
+            result.replace(end, 5, "]");
+            result.replace(start, 4, "[");
+        }
+    }
+
     if (!result.contains("<html>", Qt::CaseInsensitive))
     {
         result.replace("\n", "<br>");
