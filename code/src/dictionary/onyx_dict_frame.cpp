@@ -392,6 +392,7 @@ bool OnyxDictFrame::lookup(const QString &word)
     QString result;
     QString fuzzy_word;
     bool ret = dict_mgr_.fuzzyTranslate(word_, result, fuzzy_word);
+    fuzzy_word_ = fuzzy_word;
 
     formatResult(result, fuzzy_word);
 
@@ -430,6 +431,16 @@ void OnyxDictFrame::updateSimilarWordsModel(int count)
     }
 
     dict_mgr_.similarWords(word_, similar_words_, similar_words_offset_, count);
+
+    if(similar_words_.isEmpty())
+    {
+        if(!fuzzy_word_.isEmpty())
+        {
+            similar_words_.clear();
+            dict_mgr_.similarWords(fuzzy_word_, similar_words_, similar_words_offset_, count);
+        }
+    }
+
     similar_words_model_.clear();
     QStandardItem *parentItem = similar_words_model_.invisibleRootItem();
     QString explanation;
