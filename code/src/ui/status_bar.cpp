@@ -19,6 +19,7 @@
 #include "onyx/ui/status_bar_item_volume.h"
 #include "onyx/ui/status_bar_item_app.h"
 #include "onyx/ui/status_bar_item_music_player.h"
+#include "onyx/ui/status_bar_item_wifi_connection.h"
 #include "onyx/ui/number_dialog.h"
 #include "onyx/ui/clock_dialog.h"
 #include "onyx/ui/ui_utils.h"
@@ -103,6 +104,12 @@ void StatusBar::setupConnections()
             SIGNAL(configKeyboard()),
             this,
             SLOT(onConfigKeyboard()));
+
+    connect(&sys_status,
+            SIGNAL(reportWifiNetwork(const int, const int, const int)),
+            this,
+            SLOT(onReportWifiNetwork(const int, const int, const int)));
+
 }
 
 /// Update some status when it's created.
@@ -121,7 +128,7 @@ void StatusBar::addItems(StatusBarItemTypes items)
     const StatusBarItemType all[] =
     {
         MENU, SCREEN_REFRESH, PROGRESS, MESSAGE, STYLUS, INPUT_TEXT, VOLUME, INPUT_URL,THREEG_CONNECTION,
-        CONNECTION, VIEWPORT, MUSIC_PLAYER, APP_DEFINED, APP_CONFIG, CLOCK, BATTERY
+        CONNECTION, VIEWPORT, MUSIC_PLAYER, APP_DEFINED, APP_CONFIG, CLOCK, WIFI_CONNECTION, BATTERY
     };
     const int size = sizeof(all)/sizeof(all[0]);
     for(int i = 0; i < size; ++i)
@@ -751,6 +758,28 @@ void StatusBar::autoSelect()
     SysStatus::instance().workInUSBSlaveMode();
 }
 
+void StatusBar::onReportWifiNetwork(const int signal, const int total, const int network)
+{
+    qDebug()<<"this is shellTitleBar onreb onReportWifiNetwork "
+           << signal << total << network << endl;
+
+    StatusBarItem *ptr = item(WIFI_CONNECTION, false);
+    if (ptr)
+    {
+        StatusBarItemWifiConnection *conn_ptr = static_cast<StatusBarItemWifiConnection*>(ptr);
+        bool update = conn_ptr->setConnectionInfomation(signal, total, network);
+        onyx::screen::instance().enableUpdate(false);
+        QApplication::processEvents();
+        onyx::screen::instance().enableUpdate(true);
+        if (isVisible() && update)
+        {
+            conn_ptr->update();
+            onyx::screen::watcher().enqueue(conn_ptr, onyx::screen::ScreenProxy::GU);
+        }
+    }
+
+}
+
 /*
 void StatusBar::onUSBCableChanged(bool connected)
 {
@@ -957,6 +986,9 @@ StatusBarItem *StatusBar::item(const StatusBarItemType type, bool create)
         break;
     case VIEWPORT:
         item = new StatusBarItemViewport(this);
+        break;
+    case WIFI_CONNECTION:
+        item = new StatusBarItemWifiConnection(this);
         break;
     case APP_CONFIG:
         if (sys::SysStatus::instance().hasTouchScreen())

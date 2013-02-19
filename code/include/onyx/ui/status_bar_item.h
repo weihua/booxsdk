@@ -26,6 +26,7 @@ enum StatusBarItemType
     VIEWPORT        = 0X2000,
     APP_DEFINED     = 0x4000,
     APP_CONFIG      = 0x8000,
+    WIFI_CONNECTION       = 0X10000,
 };
 
 enum StatusBarItemState

@@ -157,6 +157,8 @@ class SysStatus : public QObject
     bool enableMultiTouch(bool enable = true);
     bool requestMultiTouch();
     bool queryLedSignal();
+    void wifiNetworkSignal(const int signal, const int total, const int network);
+    void queryWifiStatus();
 
     // The following signals must be the same with system manager.
     // Need a better way to sync them.
@@ -218,6 +220,8 @@ class SysStatus : public QObject
     void configKeyboard();
 
     void userBehaviorSignal(const QByteArray &data);
+    void updateWifiStatus();
+    void reportWifiNetwork(const int signal, const int total, const int network);
 
   private slots:
     void onBatteryChanged(int, int);
@@ -268,6 +272,8 @@ class SysStatus : public QObject
     void onConfigKeyboard();
 
     void onUserBehaviorSignal(const QByteArray &data);
+    void onUpdateWifiStatus();
+    void onReportWifiNetwork(const int signal, const int total, const int network);
 
   private:
     SysStatus();
