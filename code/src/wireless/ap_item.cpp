@@ -135,7 +135,9 @@ WifiAPItem::WifiAPItem(QWidget *parent)
     , ssid_label_(0)
     , config_button_(QPixmap(":/images/customize.png"), "", 0)
     , lock_icon_label_(0)
+    , signal_labels_(0)
 {
+    setFixedHeight(55);
     createLayout();
     updateByProfile(profile_);
 }
@@ -282,22 +284,48 @@ void WifiAPItem::focusOutEvent(QFocusEvent * e)
 
 void WifiAPItem::createLayout()
 {
-    hor_layout_.setContentsMargins(ICON_SIZE + SPACING, SPACING / 2, SPACING, SPACING / 2);
+    hor_layout_.setContentsMargins(ICON_SIZE + SPACING, SPACING / 3, SPACING, SPACING / 3);
     hor_layout_.setSpacing(0);
 
     ssid_label_.setContentsMargins(0, 0, 0, 0);
     hor_layout_.addWidget(&ssid_label_, 0, Qt::AlignVCenter);
     hor_layout_.addStretch(0);
     hor_layout_.addWidget(&lock_icon_label_, 0, Qt::AlignBottom);
-    for(int i = 0; i < SIGNAL_ICONS; ++i)
-    {
-        hor_layout_.addWidget(&signal_labels_[i], 0, Qt::AlignBottom);
-    }
+    hor_layout_.addWidget(&signal_labels_, 0, Qt::AlignBottom);
 
     hor_layout_.addSpacing(10);
     config_button_.setFocusPolicy(Qt::NoFocus);
     hor_layout_.addWidget(&config_button_, 0, Qt::AlignBottom);
     connect(&config_button_, SIGNAL(clicked(bool)), this, SLOT(onConfigButtonClicked()));
+}
+
+/// return -1, 1~4 for the signal strength
+int WifiAPItem::getSignalStrength(int level_in_profile)
+{
+    // signal level (dBM)
+    int signal = -1;
+    int signal_level = level_in_profile - 256;
+    if (signal_level > -60)
+    {
+        signal = 4;
+    }
+    else if (signal_level <= -60 && signal_level > -86)
+    {
+        signal = 3;
+    }
+    else if (signal_level <= -86 && signal_level > -95)
+    {
+        signal = 2;
+    }
+    else if (signal_level <= -95 && signal_level > -100)
+    {
+        signal = 1;
+    }
+    else
+    {
+        signal = -1;
+    }
+    return signal;
 }
 
 void WifiAPItem::updateByProfile(WifiProfile & profile)
@@ -309,10 +337,7 @@ void WifiAPItem::updateByProfile(WifiProfile & profile)
         lock_icon_label_.setVisible(false);
         config_button_.setVisible(true);
 
-        for(int i = 0; i < SIGNAL_ICONS; ++i)
-        {
-            signal_labels_[i].setVisible(false);
-        }
+        signal_labels_.setVisible(false);
         update();
         return;
     }
@@ -321,10 +346,7 @@ void WifiAPItem::updateByProfile(WifiProfile & profile)
     ssid_label_.setVisible(visible);
     lock_icon_label_.setVisible(visible);
     config_button_.setVisible(visible);
-    for(int i = 0; i < SIGNAL_ICONS; ++i)
-    {
-        signal_labels_[i].setVisible(visible);
-    }
+    signal_labels_.setVisible(visible);
 
     if (profile.bssid().isEmpty())
     {
@@ -342,26 +364,9 @@ void WifiAPItem::updateByProfile(WifiProfile & profile)
         lock_icon_label_.setVisible(false);
     }
 
-    // Boundary check is necessary in case that the quality is out of range.
-    int q = profile.quality() * SIGNAL_ICONS / 100;
-    if (q * 100 / SIGNAL_ICONS < profile.quality())
-    {
-        ++q;
-    }
-    int count = qMin(q, SIGNAL_ICONS);
-    for(int i = 0; i < count; ++i)
-    {
-        QString path(":/images/signal_fg_%1.png");
-        path = path.arg(i + 1);
-        signal_labels_[i].setPixmap(path);
-    }
-
-    for(int i = count; i < SIGNAL_ICONS; ++i)
-    {
-        QString path(":/images/signal_bk_%1.png");
-        path = path.arg(i + 1);
-        signal_labels_[i].setPixmap(path);
-    }
+    QString path(":/images/wifi_%1_gray.png");
+    int signal_count = getSignalStrength(profile.level());
+    signal_labels_.setPixmap(path.arg(signal_count));
     update();
 }
 
