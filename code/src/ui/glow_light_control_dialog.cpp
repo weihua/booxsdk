@@ -13,9 +13,8 @@ static const int ITEM_HEIGHT = 50;
 static const int MY_WIDTH = 20;
 static const int MY_HEIGHT = 360;
 static const int TOTAL_RECT = 50;
-static const QString ON_OFF_TAG = "glow_light_on";
-static const QString WAKE_UP_TAG = "wake_up_tag";
-static const QString START_UP_TAG = "start_up_tag";
+static const QString WAKE_UP_TAG = "glow_light_wake_up_tag";
+static const QString START_UP_TAG = "glow_light_start_up_tag";
 
 MoonLightProgressBar::MoonLightProgressBar(QWidget *parent)
     : QWidget(parent)
@@ -165,8 +164,8 @@ GlowLightControlDialog::GlowLightControlDialog(QWidget *parent)
 , ok_view_(0, this)
 , add_light_view_(0, this)
 , sub_light_view_(0, this)
-, wake_up_stitch_(0, this)
-, start_up_stitch_(0, this)
+, wake_up_option_view_(0, this)
+, start_up_option_view_(0, this)
 {
     setModal(true);
     createLayout();
@@ -227,8 +226,8 @@ void GlowLightControlDialog::createLayout()
     layout_.addLayout(&slider_h_layout_);
     layout_.addSpacing(10);
 
-    layout_.addWidget(&wake_up_stitch_);
-    layout_.addWidget(&start_up_stitch_);
+    layout_.addWidget(&wake_up_option_view_);
+    layout_.addWidget(&start_up_option_view_);
 
     ok_h_layout_.setContentsMargins(450, 0, 0, 0);
     ok_h_layout_.addStretch(0);
@@ -322,8 +321,8 @@ void GlowLightControlDialog::createSubLightView()
 
 void GlowLightControlDialog::creatStartUpView()
 {
-    start_up_stitch_.setSubItemType(ui::CheckBoxView::type());
-    start_up_stitch_.setPreferItemSize(QSize(360, ITEM_HEIGHT));
+    start_up_option_view_.setSubItemType(ui::CheckBoxView::type());
+    start_up_option_view_.setPreferItemSize(QSize(360, ITEM_HEIGHT));
 
     sys::SystemConfig conf;
     bool checked = conf.miscValue(START_UP_TAG).toInt() > 0;
@@ -335,19 +334,19 @@ void GlowLightControlDialog::creatStartUpView()
     item->insert(TAG_CHECKED, checked);
     d.push_back(item);
 
-    start_up_stitch_.setMinimumHeight( ITEM_HEIGHT );
-    start_up_stitch_.setMinimumWidth(360);
-    start_up_stitch_.setData(d, true);
+    start_up_option_view_.setMinimumHeight( ITEM_HEIGHT );
+    start_up_option_view_.setMinimumWidth(360);
+    start_up_option_view_.setData(d, true);
 
-    QObject::connect(&start_up_stitch_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)),
+    QObject::connect(&start_up_option_view_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)),
                      this, SLOT(onSwitchClicked(CatalogView*, ContentView*, int)));
 }
 
 
 void GlowLightControlDialog::creatWakeUpView()
 {
-    wake_up_stitch_.setSubItemType(ui::CheckBoxView::type());
-    wake_up_stitch_.setPreferItemSize(QSize(360, ITEM_HEIGHT));
+    wake_up_option_view_.setSubItemType(ui::CheckBoxView::type());
+    wake_up_option_view_.setPreferItemSize(QSize(360, ITEM_HEIGHT));
 
     sys::SystemConfig conf;
     bool checked = conf.miscValue(WAKE_UP_TAG).toInt() > 0;
@@ -359,11 +358,11 @@ void GlowLightControlDialog::creatWakeUpView()
     item->insert(TAG_CHECKED, checked);
     d.push_back(item);
 
-    wake_up_stitch_.setMinimumHeight( ITEM_HEIGHT );
-    wake_up_stitch_.setMinimumWidth(360);
-    wake_up_stitch_.setData(d, true);
+    wake_up_option_view_.setMinimumHeight( ITEM_HEIGHT );
+    wake_up_option_view_.setMinimumWidth(360);
+    wake_up_option_view_.setData(d, true);
 
-    QObject::connect(&wake_up_stitch_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)),
+    QObject::connect(&wake_up_option_view_, SIGNAL(itemActivated(CatalogView *, ContentView *, int)),
                      this, SLOT(onSwitchClicked(CatalogView*, ContentView*, int)));
 }
 
@@ -382,11 +381,11 @@ void GlowLightControlDialog::onSwitchClicked(CatalogView *catalog, ContentView *
     {
         sys::SysStatus::instance().turnGlowLightOn(!checked, true);
     }
-    else if(catalog == &start_up_stitch_)
+    else if(catalog == &start_up_option_view_)
     {
         conf.setMiscValue(START_UP_TAG, QString::number(!checked));
     }
-    else if(catalog == &wake_up_stitch_)
+    else if(catalog == &wake_up_option_view_)
     {
         conf.setMiscValue(WAKE_UP_TAG, QString::number(!checked));
     }

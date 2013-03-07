@@ -85,8 +85,8 @@ private:
     CatalogView ok_view_;
     CatalogView add_light_view_;
     CatalogView sub_light_view_;
-    CatalogView wake_up_stitch_;
-    CatalogView start_up_stitch_;
+    CatalogView wake_up_option_view_;
+    CatalogView start_up_option_view_;
 
 };
 
