@@ -24,7 +24,7 @@ USBConnectionDialog::USBConnectionDialog(QWidget *parent)
                 tr(""),
                 QMessageBox::Yes|QMessageBox::No, parent)
 {
-    MessageDialog::updateInformation(tr("USB connection detected. Do you want to connect to PC?"));
+    MessageDialog::updateInformation(tr("USB connection detected. Please input password to connect to PC:"));
 }
 
 USBConnectionDialog::~USBConnectionDialog(void)

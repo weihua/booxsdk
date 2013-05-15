@@ -48,6 +48,8 @@ class SysStatus : public QObject
 
     void dbgUpdateBattery(int left, int status);
     void dump();
+    void reportPasswdCompareResult(const bool);
+    bool notifyAboutPasswd(const QString&);
 
   public slots:
     bool batteryStatus(int& left, int& status);
@@ -157,6 +159,7 @@ class SysStatus : public QObject
     bool enableMultiTouch(bool enable = true);
     bool requestMultiTouch();
     bool queryLedSignal();
+    void onNeedConnectionPasswd(const QString &);
 
     // The following signals must be the same with system manager.
     // Need a better way to sync them.
@@ -218,6 +221,8 @@ class SysStatus : public QObject
     void configKeyboard();
 
     void userBehaviorSignal(const QByteArray &data);
+    void connectToPCwithPasswd(const bool);
+    void needConnectionPasswd(const QString &);
 
   private slots:
     void onBatteryChanged(int, int);

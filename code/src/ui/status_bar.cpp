@@ -103,6 +103,11 @@ void StatusBar::setupConnections()
             SIGNAL(configKeyboard()),
             this,
             SLOT(onConfigKeyboard()));
+
+    connect(&sys_status,
+            SIGNAL(connectToPCwithPasswd(const bool)),
+            this,
+            SLOT(onConnectToPCWithPasswd(const bool)));
 }
 
 /// Update some status when it's created.
@@ -736,13 +741,67 @@ void StatusBar::onConnectToPC(bool connected)
             onyx::screen::instance().updateWidget(0, onyx::screen::ScreenProxy::GU);
             return;
         }
-        onyx::screen::instance().flush();
-        SysStatus::instance().workInUSBSlaveMode();
+        processInput();
+
     }
     else if (!connected)
     {
         closeUSBDialog();
     }
+}
+
+void StatusBar::onConnectToPCWithPasswd(const bool result)
+{
+    if(result)
+    {
+        onyx::screen::instance().flush();
+        SysStatus::instance().workInUSBSlaveMode();
+    }
+    else
+    {
+        MessageDialog dialog(QMessageBox::Information,
+                             tr("Information"),
+                             tr("Please input the correct password!"),
+                             QMessageBox::Ok);
+        if (dialog.exec() == QMessageBox::Ok)
+        {
+            processInput();
+        }
+    }
+}
+
+void StatusBar::processInput()
+{
+//    onyx::screen::instance().updateWidget(0, onyx::screen::ScreenProxy::GU);
+    if (connetcionInputPasswdDialog(false)->popup("") == QDialog::Accepted)
+    {
+        QString input = connetcionInputPasswdDialog(false)->value();
+        if(validateLength(input))
+        {
+            SysStatus::instance().notifyAboutPasswd(input);
+        }
+        else
+        {
+            processInput();
+        }
+    }
+}
+
+bool StatusBar::validateLength(const QString &input)
+{
+    int less_lenght = 4;
+    if(input.length() >= less_lenght)
+    {
+        return true;
+    }
+
+    onyx::screen::instance().updateWidget(0, onyx::screen::ScreenProxy::GU);
+    MessageDialog dialog(QMessageBox::Information,
+                         tr("Information"),
+                         tr("Password must be at least 4 characters long!"),
+                         QMessageBox::Ok);
+    dialog.exec();
+    return false;
 }
 
 void StatusBar::autoSelect()
@@ -865,6 +924,17 @@ PowerManagementDialog *StatusBar::pmDialog(bool create)
         pm_dialog_.reset(new PowerManagementDialog(0, sys::SysStatus::instance()));
     }
     return pm_dialog_.get();
+}
+
+OnyxPasswordDialog *StatusBar::connetcionInputPasswdDialog(bool create)
+{
+    ODatas ds;
+    QString title(tr("Detect Connection Password"));
+    if(create || !connection_input_passwd_dialog_)
+    {
+        connection_input_passwd_dialog_.reset(new OnyxPasswordDialog(0, ds, title));
+    }
+    return connection_input_passwd_dialog_.get();
 }
 
 void StatusBar::createLayout()
