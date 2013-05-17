@@ -15,6 +15,7 @@
 #include "legacy_power_management_dialog.h"
 #include "power_management_dialog.h"
 #include "onyx/ui/onyx_password_dialog.h"
+#include "onyx/ui/password_dialog_with_msg_box.h"
 
 namespace ui
 {
@@ -99,7 +100,6 @@ private Q_SLOTS:
     void onHideVolumeDialog();
     void onConfigKeyboard();
     void autoSelect();
-    void onConnectToPCWithPasswd(bool result);
 
 private:
     virtual void mouseMoveEvent(QMouseEvent *me);
@@ -114,10 +114,8 @@ private:
     void changeConnectionStatus(const int conn_status);
     void changeBatteryStatus(const int value, const int status, bool update_screen);
     void changeStylus(const int stylus);
-    bool validateLength(const QString &input);
-    void processInput();
 
-    USBConnectionDialog * usbConnectionDialog(bool create);
+    PasswordDialogWithMsgBox * usbConnectionDialog(bool create);
     LowBatteryDialog  * lowBatteryDialog(bool create);
     ClockDialog * clockDialog(bool create, const QDateTime & start);
     VolumeControlDialog *volumeDialog(bool create);
@@ -134,7 +132,7 @@ private:
     StatusBarItemTypes items_;
     StatusBarItems     widgets_;
     bool               enable_jump_to_page_;
-    scoped_ptr<USBConnectionDialog> usb_connection_dialog_;
+    scoped_ptr<PasswordDialogWithMsgBox> usb_connection_dialog_;
     scoped_ptr<LowBatteryDialog> low_battery_dialog_;
     scoped_ptr<ClockDialog> clock_dialog_;
     scoped_ptr<VolumeControlDialog> volume_dialog_;
